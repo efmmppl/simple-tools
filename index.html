@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quartz Cron 解析器</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  background: #f5f0e8; color: #3d3a35; line-height: 1.6;
+}
+.header {
+  background: linear-gradient(135deg, #3d5a3d 0%, #5a7a4a 30%, #6b8f5e 60%, #3d5a3d 100%);
+  text-align: center; padding: 40px 20px 36px; position: relative;
+}
+.header::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(107, 143, 94, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 50%, rgba(157, 187, 128, 0.1) 0%, transparent 50%);
+}
+.header h1 { font-size: 2rem; color: #e8dcc8; position: relative; }
+.header p { font-size: 0.95rem; color: #d4cdbc; margin-top: 4px; position: relative; }
+
+.container { max-width: 1000px; margin: 0 auto; padding: 24px 20px; }
+.section-title { font-size: 1.15rem; margin-bottom: 16px; color: #6b8f5e; font-weight: 600; }
+
+.cron-input-area { margin-bottom: 24px; }
+.cron-row {
+  display: flex; gap: 10px; align-items: center; margin-bottom: 10px;
+  padding: 12px 14px; background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
+  border-radius: 10px;
+}
+.cron-row .num-label { font-size: 0.82rem; color: #6b6058; min-width: 48px; font-weight: 600; }
+.cron-row input[type="text"] {
+  flex: 1; padding: 8px 12px; border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px;
+  background: #fff; color: #3d3a35; font-size: 0.88rem; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  outline: none;
+}
+.cron-row input[type="text"]:focus { border-color: #6b8f5e; }
+.cron-row .remove-btn {
+  background: transparent; border: none; color: #b8ad9e; cursor: pointer; font-size: 1rem;
+  padding: 4px 6px; border-radius: 4px; transition: all 0.2s;
+}
+.cron-row .remove-btn:hover { color: #b85454; background: rgba(200,80,80,0.08); }
+
+.options-row {
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;
+  padding: 14px 16px; background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.1);
+  border-radius: 8px;
+}
+.options-row label { font-size: 0.85rem; color: #6b6058; }
+.options-row select, .options-row input[type="number"] {
+  padding: 6px 10px; border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px;
+  background: #fff; font-size: 0.85rem; outline: none; color: #3d3a35;
+}
+.options-row select:focus, .options-row input[type="number"]:focus { border-color: #6b8f5e; }
+.options-row input[type="number"] { width: 70px; }
+
+.btn {
+  padding: 8px 22px; border: none; border-radius: 8px; font-size: 0.88rem; cursor: pointer;
+  transition: all 0.2s; font-weight: 500;
+}
+.btn-primary { background: linear-gradient(135deg, #6b8f5e, #5a7a4a); color: #fff; }
+.btn-primary:hover { transform: scale(1.02); box-shadow: 0 2px 10px rgba(107, 143, 94, 0.25); }
+.btn-outline { background: transparent; border: 1px solid rgba(107, 143, 94, 0.3); color: #6b8f5e; }
+.btn-outline:hover { background: rgba(107, 143, 94, 0.06); }
+.btn-sm { padding: 5px 14px; font-size: 0.8rem; }
+.btn-add { color: #6b8f5e; border: 1px dashed rgba(107, 143, 94, 0.3); background: transparent; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+.btn-add:hover { background: rgba(107, 143, 94, 0.04); border-color: #6b8f5e; }
+
+.result-section { margin-top: 20px; }
+.result-card {
+  background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12); border-radius: 10px;
+  margin-bottom: 16px; overflow: hidden;
+}
+.result-card-header {
+  padding: 10px 16px; font-weight: 600; font-size: 0.88rem;
+  border-bottom: 1px solid rgba(107, 143, 94, 0.1);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.result-card-header .cron-expr { font-family: monospace; color: #6b8f5e; font-weight: normal; font-size: 0.82rem; }
+.result-card-header .err { color: #b85454; }
+.result-card-body { padding: 10px 16px; }
+.time-item {
+  display: flex; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(107, 143, 94, 0.05);
+  font-size: 0.88rem;
+}
+.time-item:last-child { border-bottom: none; }
+.time-item .idx { color: #b8ad9e; min-width: 30px; font-size: 0.8rem; }
+.time-item .time { color: #3d3a35; font-weight: 500; }
+.time-item .rel { color: #8c8273; font-size: 0.8rem; margin-left: 12px; }
+
+.empty-state { text-align: center; padding: 40px; color: #8c8273; font-size: 0.9rem; }
+
+.error-msg {
+  background: rgba(200,80,80,0.06); border: 1px solid rgba(200,80,80,0.15);
+  color: #b85454; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem;
+  margin-top: 8px; display: none;
+}
+
+@media (max-width: 600px) {
+  .cron-row { flex-wrap: wrap; }
+  .cron-row input[type="text"] { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <h1><i class="far fa-clock" style="color:#e8dcc8;margin-right:8px"></i> Quartz Cron 解析器</h1>
+  <p>输入 Cron 表达式，预览未来执行时间</p>
+</header>
+
+<div class="container">
+
+  <div class="cron-input-area" id="cronArea">
+    <div class="section-title"><i class="fas fa-terminal" style="margin-right:6px"></i> Cron 表达式</div>
+    <div id="cronList"></div>
+    <button class="btn-add" id="addCronBtn"><i class="fas fa-plus"></i> 添加表达式</button>
+  </div>
+
+  <div class="options-row">
+    <label><i class="fas fa-list-ol" style="margin-right:4px;color:#6b8f5e"></i> 显示时间点数量：</label>
+    <input type="number" id="countSelect" value="5" min="1" max="50">
+    <label style="margin-left:8px">
+      <input type="checkbox" id="showRelative" checked>
+      <span style="margin-left:4px">显示相对时间</span>
+    </label>
+    <button class="btn btn-primary" id="parseBtn"><i class="fas fa-play"></i> 解析</button>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="result-section" id="resultArea">
+    <div class="empty-state"><i class="far fa-hourglass" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>输入 Cron 表达式后点击"解析"</div>
+  </div>
+
+</div>
+
+<footer style="text-align:center;padding:24px 20px;color:#8c8273;font-size:0.82rem;border-top:1px solid rgba(107,143,94,.08)">
+  格式：<code style="background:#fcfaf5;padding:2px 6px;border-radius:4px;font-size:0.82rem">秒 分 时 日 月 周 [年]</code>
+  · 纯前端解析 · 数据不上传服务器
+</footer>
+
+<script>
+// ===== Quartz Cron Parser =====
+const MONTH_MAP = { JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12 };
+const DOW_MAP = { SUN:0,MON:1,TUE:2,WED:3,THU:4,FRI:5,SAT:6 };
+
+function parseField(field, min, max, nameMap) {
+  const set = new Set();
+  const parts = field.split(',');
+  for (let part of parts) {
+    part = part.trim().toUpperCase();
+    if (part === '*' || part === '?') { for (let i = min; i <= max; i++) set.add(i); continue; }
+    let step = 1;
+    if (part.includes('/')) {
+      const [rangeStr, stepStr] = part.split('/');
+      step = parseInt(stepStr);
+      if (isNaN(step) || step < 1) throw new Error(`步进值无效: ${stepStr}`);
+      if (rangeStr === '*') {
+        for (let i = min; i <= max; i += step) set.add(i);
+      } else {
+        const [rmin, rmax] = rangeStr.split('-').map(s => {
+          const n = nameMap ? (nameMap[s.trim()] ?? parseInt(s.trim())) : parseInt(s.trim());
+          if (isNaN(n)) throw new Error(`无法解析: ${s}`);
+          return n;
+        });
+        for (let i = rmin; i <= (rmax || max); i += step) set.add(i);
+      }
+      continue;
+    }
+    if (part.includes('-')) {
+      const [a, b] = part.split('-').map(s => {
+        const n = nameMap ? (nameMap[s.trim()] ?? parseInt(s.trim())) : parseInt(s.trim());
+        if (isNaN(n)) throw new Error(`无法解析: ${s}`);
+        return n;
+      });
+      for (let i = a; i <= b; i++) set.add(i);
+      continue;
+    }
+    const n = nameMap ? (nameMap[part] ?? parseInt(part)) : parseInt(part);
+    if (isNaN(n)) throw new Error(`无法解析: ${part}`);
+    if (n < min || n > max) throw new Error(`${n} 超出范围 [${min}, ${max}]`);
+    set.add(n);
+  }
+  return [...set].sort((a,b)=>a-b);
+}
+
+function parseQuartzCron(expr) {
+  const parts = expr.trim().split(/\s+/);
+  if (parts.length < 6 || parts.length > 7) throw new Error(`需要 6~7 个字段，当前 ${parts.length} 个`);
+
+  const sec = parseField(parts[0], 0, 59);
+  const min = parseField(parts[1], 0, 59);
+  const hour = parseField(parts[2], 0, 23);
+  const day = parseField(parts[3], 1, 31);
+  const month = parseField(parts[4], 1, 12, MONTH_MAP);
+  const dow = parseField(parts[5], 0, 6, DOW_MAP);
+  const year = parts[6] ? parseField(parts[6], 1970, 2099) : null;
+
+  return { sec, min, hour, day, month, dow, year };
+}
+
+function getNextTimes(fields, count, from) {
+  const results = [];
+  let current = new Date(from);
+  if (current.getTime() < Date.now()) current = new Date();
+  current.setSeconds(0, 0);
+
+  let maxLoops = 1000000;
+  while (results.length < count && maxLoops-- > 0) {
+    const y = current.getFullYear();
+    const m = current.getMonth() + 1;
+    const d = current.getDate();
+    const h = current.getHours();
+    const mi = current.getMinutes();
+    const s = current.getSeconds();
+
+    if (fields.year && !fields.year.includes(y)) { current.setFullYear(y + 1); current.setMonth(0, 1); current.setHours(0, 0, 0, 0); continue; }
+    if (!fields.month.includes(m)) { current.setMonth(m, 1); current.setHours(0, 0, 0, 0); continue; }
+    if (!fields.day.includes(d)) { current.setDate(d + 1); current.setHours(0, 0, 0, 0); continue; }
+    const wd = current.getDay();
+    if (!fields.dow.includes(wd)) { current.setDate(d + 1); current.setHours(0, 0, 0, 0); continue; }
+    if (!fields.hour.includes(h)) { current.setHours(h + 1, 0, 0, 0); continue; }
+    if (!fields.min.includes(mi)) { current.setMinutes(mi + 1, 0, 0); continue; }
+    if (!fields.sec.includes(s)) { current.setSeconds(s + 1, 0); continue; }
+
+    results.push(new Date(current));
+    current.setSeconds(current.getSeconds() + 1);
+  }
+  if (maxLoops <= 0) throw new Error('未找到匹配的时间点，请检查表达式');
+  return results;
+}
+
+function parseAndCompute(expr, count) {
+  const fields = parseQuartzCron(expr);
+  return getNextTimes(fields, count, new Date());
+}
+
+// ===== UI =====
+let cronCount = 1;
+const MAX_CRONS = 3;
+
+function renderInputs() {
+  const list = document.getElementById('cronList');
+  const prev = [];
+  for (let i = 0; i < cronCount; i++) {
+    const el = document.getElementById(`cronInput${i}`);
+    prev[i] = el ? el.value : '';
+  }
+  const examples = ['0 0 9 * * ?', '0 0/15 * * * ?', '0 0 0 1 * ?'];
+  let html = '';
+  for (let i = 0; i < cronCount; i++) {
+    const val = prev[i] || (i === 0 ? '0 0 9 * * ?' : '');
+    html += `<div class="cron-row" data-idx="${i}">
+      <span class="num-label">#${i+1}</span>
+      <input type="text" id="cronInput${i}" placeholder="例: ${examples[i] || ''}" spellcheck="false" value="${val.replace(/"/g,'&quot;')}">
+      ${cronCount > 1 ? `<button class="remove-btn" onclick="removeCron(${i})"><i class="fas fa-times"></i></button>` : ''}
+    </div>`;
+  }
+  list.innerHTML = html;
+  document.getElementById('addCronBtn').style.display = cronCount >= MAX_CRONS ? 'none' : '';
+}
+
+function addCron() {
+  if (cronCount >= MAX_CRONS) return;
+  cronCount++;
+  renderInputs();
+}
+
+function removeCron(idx) {
+  if (cronCount <= 1) return;
+  cronCount--;
+  renderInputs();
+}
+
+document.getElementById('addCronBtn').addEventListener('click', addCron);
+
+function formatTime(d) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function relativeTime(d) {
+  const diff = d.getTime() - Date.now();
+  if (diff < 0) return '已过去';
+  const s = Math.floor(diff / 1000);
+  if (s < 60) return `${s} 秒后`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m} 分 ${s % 60} 秒后`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} 时 ${m % 60} 分后`;
+  const day = Math.floor(h / 24);
+  return `${day} 天 ${h % 24} 时后`;
+}
+
+function parseAll() {
+  const errorMsg = document.getElementById('errorMsg');
+  errorMsg.style.display = 'none';
+
+  const count = parseInt(document.getElementById('countSelect').value) || 5;
+  const showRel = document.getElementById('showRelative').checked;
+
+  const entries = []; // { expr, time, label }
+  let hasError = false;
+
+  for (let i = 0; i < cronCount; i++) {
+    const input = document.getElementById(`cronInput${i}`);
+    const expr = input.value.trim();
+    if (!expr) continue;
+    try {
+      const times = parseAndCompute(expr, count);
+      times.forEach(t => entries.push({ expr, time: t, label: `#${i+1}` }));
+    } catch (e) {
+      hasError = true;
+      errorMsg.textContent += `#${i+1} ${expr}: ${e.message}\n`;
+    }
+  }
+
+  if (hasError) errorMsg.style.display = 'block';
+
+  const area = document.getElementById('resultArea');
+  if (entries.length === 0) {
+    area.innerHTML = `<div class="empty-state"><i class="far fa-hourglass" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>无有效时间点</div>`;
+    return;
+  }
+
+  entries.sort((a, b) => a.time - b.time);
+
+  const seen = new Set();
+  const merged = [];
+  for (const e of entries) {
+    const key = e.time.getTime();
+    if (seen.has(key)) {
+      const last = merged[merged.length - 1];
+      if (last && last.time.getTime() === key) last.labels.push(e.label);
+    } else {
+      seen.add(key);
+      merged.push({ time: e.time, labels: [e.label] });
+    }
+  }
+
+  let html = `<div class="result-card">
+    <div class="result-card-header" style="justify-content:space-between">
+      <span><i class="fas fa-list"></i> 未来执行时间线</span>
+      <span style="font-size:0.8rem;color:#8c8273">共 ${merged.length} 个时间点<span id="cronSourceLabels"></span></span>
+    </div>
+    <div class="result-card-body">`;
+  merged.forEach((m, i) => {
+    const badges = [...new Set(m.labels)].map(l => `<span style="display:inline-block;padding:0 6px;border-radius:4px;font-size:0.7rem;background:rgba(107,143,94,0.12);color:#6b8f5e;margin-right:3px">${l}</span>`).join('');
+    html += `<div class="time-item">
+      <span class="idx">#${i+1}</span>
+      <span class="time">${formatTime(m.time)}</span>
+      ${badges}
+      ${showRel ? `<span class="rel">${relativeTime(m.time)}</span>` : ''}
+    </div>`;
+  });
+  html += `</div></div>`;
+  area.innerHTML = html;
+}
+
+document.getElementById('parseBtn').addEventListener('click', parseAll);
+document.getElementById('cronInput0')?.addEventListener('keydown', e => { if (e.key === 'Enter') parseAll(); });
+
+renderInputs();
+</script>
+</body>
+</html>
