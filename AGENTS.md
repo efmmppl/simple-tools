@@ -54,6 +54,7 @@ GitHub Actions 工作流中自动运行并提交结果。
 start index.html
 
 # 或用本地服务器（解决 file:// 的 CORS 和 WebRTC 限制）
+python -m http.server 8000
 npx serve
 ```
 
