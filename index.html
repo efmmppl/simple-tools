@@ -206,6 +206,28 @@ body {
 }
 .gold-details b { font-weight: 600; color: #3d3a35; }
 
+/* IP Info */
+.ip-card {
+  background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
+  border-radius: 10px; padding: 24px;
+}
+.ip-main { text-align: center; padding: 20px 0 16px; }
+.ip-address {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 1.8rem; font-weight: 600; color: #3d3a35;
+  letter-spacing: 2px;
+}
+.ip-label { font-size: 0.8rem; color: #8c8273; margin-top: 4px; }
+.ip-details { max-width: 360px; margin: 0 auto; }
+.ip-row {
+  display: flex; justify-content: space-between; padding: 8px 0;
+  border-bottom: 1px solid rgba(107, 143, 94, 0.06);
+  font-size: 0.88rem;
+}
+.ip-row:last-child { border-bottom: none; }
+.ip-key { color: #8c8273; }
+.ip-val { color: #3d3a35; font-weight: 500; }
+
 @media (max-width: 600px) {
   .nav-grid { grid-template-columns: 1fr; }
   .cron-row { flex-wrap: wrap; }
@@ -214,6 +236,7 @@ body {
   .ts-clock-item .ts-val { font-size: 1.2rem; }
   .gold-grid { grid-template-columns: 1fr; }
   .gold-details { flex-direction: column; gap: 4px; }
+  .ip-address { font-size: 1.3rem; }
 }
 </style>
 </head>
@@ -233,9 +256,14 @@ body {
       <div class="nav-name">金价查询</div>
       <div class="nav-desc">国内国际实时金价<br>定时自动刷新</div>
     </div>
+    <div class="nav-card" data-tool="ip">
+      <div class="nav-icon"><i class="fas fa-globe"></i></div>
+      <div class="nav-name">IP 信息</div>
+      <div class="nav-desc">查询本机 IP 地址<br>网络位置信息</div>
+    </div>
     <div class="nav-card" data-tool="cron">
-      <div class="nav-icon"><i class="fas fa-coins"></i></div>
-      <div class="nav-name">金价查询</div>
+      <div class="nav-icon"><i class="far fa-clock"></i></div>
+      <div class="nav-name">Cron 解析器</div>
       <div class="nav-desc">解析 Quartz Cron 表达式<br>预览未来执行时间</div>
     </div>
     <div class="nav-card" data-tool="timestamp">
@@ -320,6 +348,33 @@ body {
       数据来源：<a href="https://www.huilvbiao.com/gold" target="_blank" style="color:#6b8f5e">汇率表</a>
       · 每 60 秒自动刷新
       · <span id="goldUpdateTime">-</span>
+    </div>
+  </div>
+
+  <!-- IP Info -->
+  <div id="tool-ip" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="ip"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-globe" style="margin-right:6px;color:#6b8f5e"></i> IP 信息</span>
+      <button class="btn btn-outline btn-sm" id="ipRefreshBtn" style="margin-left:auto"><i class="fas fa-sync-alt"></i> 刷新</button>
+    </div>
+    <div class="ip-card">
+      <div class="ip-main">
+        <div class="ip-address" id="ipAddress">--</div>
+        <div class="ip-label">本机 IP 地址</div>
+      </div>
+      <div class="ip-details" id="ipDetails">
+        <div class="ip-row"><span class="ip-key">国家</span><span class="ip-val" id="ipCountry">--</span></div>
+        <div class="ip-row"><span class="ip-key">地区</span><span class="ip-val" id="ipRegion">--</span></div>
+        <div class="ip-row"><span class="ip-key">城市</span><span class="ip-val" id="ipCity">--</span></div>
+        <div class="ip-row"><span class="ip-key">运营商</span><span class="ip-val" id="ipIsp">--</span></div>
+        <div class="ip-row"><span class="ip-key">经纬度</span><span class="ip-val" id="ipLoc">--</span></div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="btn btn-outline btn-sm" id="ipCopyBtn"><i class="fas fa-copy"></i> 复制 IP</button>
+        <span id="ipCopyTip" style="margin-left:8px;font-size:0.78rem;color:#8c8273"></span>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:0.75rem;color:#b8ad9e" id="ipUpdateTime"></div>
     </div>
   </div>
 
@@ -674,6 +729,49 @@ const goldObserver = new MutationObserver(() => {
   }
 });
 goldObserver.observe(document.getElementById('tool-gold'), { attributes: true, attributeFilter: ['class'] });
+
+// ===== IP Info =====
+let ipTimer = null;
+const ipObserver = new MutationObserver(() => {
+  if (document.getElementById('tool-ip').classList.contains('active')) {
+    fetchIpInfo();
+    if (ipTimer) clearInterval(ipTimer);
+  } else {
+    if (ipTimer) { clearInterval(ipTimer); ipTimer = null; }
+  }
+});
+ipObserver.observe(document.getElementById('tool-ip'), { attributes: true, attributeFilter: ['class'] });
+
+function fetchIpInfo() {
+  document.getElementById('ipUpdateTime').textContent = '查询中...';
+  fetch('https://api.ip.sb/geoip')
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('ipAddress').textContent = d.ip;
+      document.getElementById('ipCountry').textContent = d.country || '--';
+      document.getElementById('ipRegion').textContent = d.region || '--';
+      document.getElementById('ipCity').textContent = d.city || '--';
+      document.getElementById('ipIsp').textContent = d.isp || d.organization || '--';
+      document.getElementById('ipLoc').textContent = (d.latitude && d.longitude) ? d.latitude + ', ' + d.longitude : '--';
+      document.getElementById('ipUpdateTime').textContent = new Date().toLocaleString('zh-CN');
+    })
+    .catch(() => {
+      document.getElementById('ipUpdateTime').textContent = '查询失败，请重试';
+    });
+}
+
+document.getElementById('ipRefreshBtn').addEventListener('click', fetchIpInfo);
+
+document.getElementById('ipCopyBtn').addEventListener('click', () => {
+  const ip = document.getElementById('ipAddress').textContent;
+  if (ip && ip !== '--') {
+    navigator.clipboard.writeText(ip).then(() => {
+      const tip = document.getElementById('ipCopyTip');
+      tip.textContent = '已复制';
+      setTimeout(() => { tip.textContent = ''; }, 2000);
+    });
+  }
+});
 
 // ===== Footer Clock =====
 function updateFooterClock() {
