@@ -1264,55 +1264,31 @@ function fetchHotData() {
   status.textContent = '加载中...';
   container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>加载中...</div>';
 
-  const callbackName = 'hotJsonp_' + Date.now();
+  const apiUrl = 'https://api.vvhan.com/api/hotlist?type=' + type;
 
-  const timeout = setTimeout(() => {
-    delete window[callbackName];
-    if (container.querySelector('.hot-item')) return;
-    container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>加载超时<br><span style="font-size:0.8rem">尝试通过代理加载...</span></div>';
-    fetchViaProxy(type, count, container, status, updateTime);
-  }, 5000);
-
-  window[callbackName] = data => {
-    clearTimeout(timeout);
-    delete window[callbackName];
-    if (!data || !data.data || !Array.isArray(data.data)) {
-      container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>数据格式异常</div>';
-      status.textContent = '失败';
-      return;
-    }
-    renderHotList(data.data.slice(0, count), type, container, status, updateTime);
-  };
-
-  const script = document.createElement('script');
-  script.src = 'https://api.vvhan.com/api/hotlist?type=' + type + '&callback=' + callbackName;
-  script.onerror = () => {
-    clearTimeout(timeout);
-    delete window[callbackName];
-    fetchViaProxy(type, count, container, status, updateTime);
-  };
-  document.body.appendChild(script);
-  setTimeout(() => { try { document.body.removeChild(script); } catch(_) {} }, 100);
-}
-
-function fetchViaProxy(type, count, container, status, updateTime) {
-  const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.vvhan.com/api/hotlist?type=' + type);
-  fetch(url)
+  // Strategy 1: Try CORS proxy (works in most browsers)
+  fetch('https://corsproxy.io/?url=' + encodeURIComponent(apiUrl))
     .then(r => r.json())
     .then(data => {
-      if (!data || !data.data || !Array.isArray(data.data)) throw new Error('格式错误');
-      renderHotList(data.data.slice(0, count), type, container, status, updateTime);
+      if (data && data.data && Array.isArray(data.data)) {
+        renderHotList(data.data.slice(0, count), type, container, status, updateTime);
+        return;
+      }
+      throw new Error('格式错误');
     })
     .catch(() => {
-      // Try direct fetch as last resort
-      fetch('https://api.vvhan.com/api/hotlist?type=' + type)
+      // Strategy 2: Try another CORS proxy
+      fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl))
         .then(r => r.json())
         .then(data => {
-          if (!data || !data.data || !Array.isArray(data.data)) throw new Error('格式错误');
-          renderHotList(data.data.slice(0, count), type, container, status, updateTime);
+          if (data && data.data && Array.isArray(data.data)) {
+            renderHotList(data.data.slice(0, count), type, container, status, updateTime);
+            return;
+          }
+          throw new Error('格式错误');
         })
         .catch(() => {
-          container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>加载失败<br><span style="font-size:0.8rem">请尝试用本地服务器打开 (npx serve)</span></div>';
+          container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>加载失败</div>';
           status.textContent = '失败';
         });
     });
