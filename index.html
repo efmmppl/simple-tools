@@ -100,9 +100,71 @@ body {
   margin-top: 8px; display: none;
 }
 
+.tab-bar {
+  display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid rgba(107, 143, 94, 0.15);
+}
+.tab-btn {
+  padding: 10px 24px; border: none; background: transparent; cursor: pointer;
+  font-size: 0.9rem; color: #8c8273; font-weight: 500; position: relative;
+  transition: all 0.2s; border-radius: 8px 8px 0 0;
+}
+.tab-btn:hover { color: #6b8f5e; background: rgba(107, 143, 94, 0.04); }
+.tab-btn.active { color: #6b8f5e; }
+.tab-btn.active::after {
+  content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+  height: 2px; background: #6b8f5e; border-radius: 2px;
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.ts-section { margin-bottom: 24px; }
+.ts-section:last-child { margin-bottom: 0; }
+.ts-card {
+  background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
+  border-radius: 10px; padding: 16px; margin-bottom: 16px;
+}
+.ts-card:last-child { margin-bottom: 0; }
+.ts-card-title { font-size: 0.9rem; font-weight: 600; color: #6b8f5e; margin-bottom: 12px; }
+.ts-clock {
+  display: flex; gap: 24px; flex-wrap: wrap;
+}
+.ts-clock-item { text-align: center; }
+.ts-clock-item .ts-val {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 1.6rem; color: #3d3a35; font-weight: 600; line-height: 1.2;
+}
+.ts-clock-item .ts-label { font-size: 0.78rem; color: #8c8273; margin-top: 4px; }
+.ts-row {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  padding: 8px 0;
+}
+.ts-row label { font-size: 0.85rem; color: #6b6058; min-width: 80px; }
+.ts-row input[type="text"], .ts-row input[type="datetime-local"] {
+  flex: 1; min-width: 180px; padding: 8px 12px;
+  border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px;
+  background: #fff; color: #3d3a35; font-size: 0.88rem;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  outline: none;
+}
+.ts-row input[type="text"]:focus, .ts-row input[type="datetime-local"]:focus {
+  border-color: #6b8f5e;
+}
+.ts-row .ts-result {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem; color: #3d3a35; padding: 8px 12px;
+  background: #fff; border: 1px solid rgba(107, 143, 94, 0.12);
+  border-radius: 6px; min-height: 36px; flex: 1; word-break: break-all;
+}
+.ts-row .ts-result .hint {
+  color: #b8ad9e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.82rem;
+}
+
 @media (max-width: 600px) {
   .cron-row { flex-wrap: wrap; }
   .cron-row input[type="text"] { min-width: 100%; }
+  .ts-clock { gap: 16px; }
+  .ts-clock-item .ts-val { font-size: 1.2rem; }
 }
 </style>
 </head>
@@ -115,6 +177,12 @@ body {
 
 <div class="container">
 
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="cron">Cron 解析器</button>
+    <button class="tab-btn" data-tab="timestamp">时间戳工具</button>
+  </div>
+
+  <div id="tab-cron" class="tab-content active">
   <div class="cron-input-area" id="cronArea">
     <div class="section-title"><i class="fas fa-terminal" style="margin-right:6px"></i> Cron 表达式</div>
     <div id="cronList"></div>
@@ -135,6 +203,70 @@ body {
 
   <div class="result-section" id="resultArea">
     <div class="empty-state"><i class="far fa-hourglass" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>输入 Cron 表达式后点击"解析"</div>
+  </div>
+
+</div>
+
+</div>
+
+  <div id="tab-timestamp" class="tab-content">
+
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-clock" style="margin-right:6px"></i> 当前时间戳</div>
+        <div class="ts-clock">
+          <div class="ts-clock-item">
+            <div class="ts-val" id="tsNowSec">0</div>
+            <div class="ts-label">秒 (Unix)</div>
+          </div>
+          <div class="ts-clock-item">
+            <div class="ts-val" id="tsNowMs">0</div>
+            <div class="ts-label">毫秒</div>
+          </div>
+          <div class="ts-clock-item">
+            <div class="ts-val" id="tsNowDate" style="font-size:1rem">-</div>
+            <div class="ts-label">本地时间</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-exchange-alt" style="margin-right:6px"></i> 时间戳 → 日期</div>
+        <div class="ts-row">
+          <label>时间戳</label>
+          <input type="text" id="tsToDateInput" placeholder="输入秒或毫秒时间戳" value="0">
+          <button class="btn btn-primary btn-sm" id="tsToDateBtn">转换</button>
+        </div>
+        <div class="ts-row">
+          <label>结果</label>
+          <div class="ts-result" id="tsToDateResult"><span class="hint">点击"转换"查看日期</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-exchange-alt" style="margin-right:6px"></i> 日期 → 时间戳</div>
+        <div class="ts-row">
+          <label>日期时间</label>
+          <input type="datetime-local" id="tsFromDateInput">
+          <button class="btn btn-primary btn-sm" id="tsFromDateBtn">转换</button>
+        </div>
+        <div class="ts-row">
+          <label>秒</label>
+          <div class="ts-result" id="tsFromDateSec"><span class="hint">点击"转换"获取时间戳</span></div>
+          <button class="btn btn-outline btn-sm ts-copy" data-target="tsFromDateSec" title="复制"><i class="fas fa-copy"></i></button>
+        </div>
+        <div class="ts-row">
+          <label>毫秒</label>
+          <div class="ts-result" id="tsFromDateMs"><span class="hint">点击"转换"获取时间戳</span></div>
+          <button class="btn btn-outline btn-sm ts-copy" data-target="tsFromDateMs" title="复制"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </div>
@@ -366,6 +498,89 @@ document.getElementById('parseBtn').addEventListener('click', parseAll);
 document.getElementById('cronInput0')?.addEventListener('keydown', e => { if (e.key === 'Enter') parseAll(); });
 
 renderInputs();
+
+// ===== Tab Switching =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ===== Timestamp Tool =====
+function pad2(n) { return String(n).padStart(2, '0'); }
+function formatDate(d) {
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+}
+
+function updateClock() {
+  const now = Date.now();
+  document.getElementById('tsNowSec').textContent = Math.floor(now / 1000);
+  document.getElementById('tsNowMs').textContent = now;
+  document.getElementById('tsNowDate').textContent = formatDate(new Date());
+}
+updateClock();
+setInterval(updateClock, 100);
+
+document.getElementById('tsToDateInput').value = Math.floor(Date.now() / 1000);
+document.getElementById('tsToDateInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('tsToDateBtn').click(); });
+
+document.getElementById('tsToDateBtn').addEventListener('click', () => {
+  const input = document.getElementById('tsToDateInput').value.trim();
+  const result = document.getElementById('tsToDateResult');
+  const ts = Number(input);
+  if (isNaN(ts) || input === '') {
+    result.innerHTML = '<span style="color:#b85454">请输入有效数字</span>';
+    return;
+  }
+  const ms = ts > 1e11 ? ts : ts * 1000;
+  const d = new Date(ms);
+  if (isNaN(d.getTime())) {
+    result.innerHTML = '<span style="color:#b85454">无效时间戳</span>';
+    return;
+  }
+  result.textContent = formatDate(d) + ' (UTC' + (d.getTimezoneOffset() === 0 ? '+0' : (d.getTimezoneOffset() > 0 ? '-' : '+') + Math.abs(d.getTimezoneOffset() / 60)) + ')';
+});
+
+document.getElementById('tsFromDateBtn').addEventListener('click', () => {
+  const input = document.getElementById('tsFromDateInput').value;
+  const secEl = document.getElementById('tsFromDateSec');
+  const msEl = document.getElementById('tsFromDateMs');
+  if (!input) {
+    secEl.innerHTML = '<span style="color:#b85454">请选择日期时间</span>';
+    msEl.innerHTML = '<span style="color:#b85454">请选择日期时间</span>';
+    return;
+  }
+  const d = new Date(input);
+  if (isNaN(d.getTime())) {
+    secEl.innerHTML = '<span style="color:#b85454">无效日期</span>';
+    msEl.innerHTML = '<span style="color:#b85454">无效日期</span>';
+    return;
+  }
+  const ms = d.getTime();
+  secEl.textContent = Math.floor(ms / 1000);
+  msEl.textContent = ms;
+});
+
+document.getElementById('tsFromDateInput').value = formatDate(new Date()).slice(0, 16);
+
+document.getElementById('tsToDateBtn').click();
+document.getElementById('tsFromDateBtn').click();
+
+document.querySelectorAll('.ts-copy').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.target);
+    const text = target.textContent;
+    if (!text || text.startsWith('请') || text.startsWith('点击')) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const icon = btn.querySelector('i');
+      icon.className = 'fas fa-check';
+      setTimeout(() => { icon.className = 'fas fa-copy'; }, 1500);
+    });
+  });
+});
 </script>
 </body>
 </html>
