@@ -228,6 +228,27 @@ body {
 .ip-key { color: #8c8273; }
 .ip-val { color: #3d3a35; font-weight: 500; }
 
+/* Hotlist */
+.hot-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  border-bottom: 1px solid rgba(107,143,94,0.06);
+  transition: background 0.15s;
+}
+.hot-item:last-child { border-bottom: none; }
+.hot-item:hover { background: rgba(107,143,94,0.03); }
+.hot-rank {
+  min-width: 28px; text-align: center; font-weight: 700; font-size: 0.85rem;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+.hot-rank.top1 { color: #b85454; font-size: 0.95rem; }
+.hot-rank.top2 { color: #d4874a; }
+.hot-rank.top3 { color: #d4a84a; }
+.hot-rank.normal { color: #8c8273; }
+.hot-title { flex: 1; font-size: 0.88rem; color: #3d3a35; cursor: pointer; }
+.hot-title:hover { color: #6b8f5e; }
+.hot-hot { font-size: 0.78rem; color: #b8ad9e; white-space: nowrap; }
+.hot-meta { font-size: 0.75rem; color: #b8ad9e; margin-top: 2px; }
+
 @media (max-width: 600px) {
   .nav-grid { grid-template-columns: 1fr; }
   .cron-row { flex-wrap: wrap; }
@@ -275,6 +296,16 @@ body {
       <div class="nav-icon"><i class="fas fa-code"></i></div>
       <div class="nav-name">正则测试器</div>
       <div class="nav-desc">测试正则表达式<br>实时匹配与高亮</div>
+    </div>
+    <div class="nav-card" data-tool="base64">
+      <div class="nav-icon"><i class="fas fa-shield-alt"></i></div>
+      <div class="nav-name">Base64 编解码</div>
+      <div class="nav-desc">文本与 Base64 互转<br>支持文件编码</div>
+    </div>
+    <div class="nav-card" data-tool="hotlist">
+      <div class="nav-icon"><i class="fas fa-fire"></i></div>
+      <div class="nav-name">今日热榜</div>
+      <div class="nav-desc">微博/知乎/B站/抖音<br>实时热搜榜单</div>
     </div>
   </div>
 
@@ -366,7 +397,7 @@ body {
     <div class="ip-card">
       <div class="ip-main">
         <div class="ip-address" id="ipAddress">--</div>
-        <div class="ip-label">本机 IP 地址</div>
+        <div class="ip-label">公网 IP 地址</div>
       </div>
       <div class="ip-details" id="ipDetails">
         <div class="ip-row"><span class="ip-key">国家</span><span class="ip-val" id="ipCountry">--</span></div>
@@ -374,6 +405,7 @@ body {
         <div class="ip-row"><span class="ip-key">城市</span><span class="ip-val" id="ipCity">--</span></div>
         <div class="ip-row"><span class="ip-key">运营商</span><span class="ip-val" id="ipIsp">--</span></div>
         <div class="ip-row"><span class="ip-key">经纬度</span><span class="ip-val" id="ipLoc">--</span></div>
+        <div class="ip-row"><span class="ip-key">内网 IP</span><span class="ip-val" id="ipLocal">--</span></div>
       </div>
       <div style="text-align:center;margin-top:16px">
         <button class="btn btn-outline btn-sm" id="ipCopyBtn"><i class="fas fa-copy"></i> 复制 IP</button>
@@ -490,6 +522,85 @@ body {
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Base64 -->
+  <div id="tool-base64" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="base64"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-shield-alt" style="margin-right:6px;color:#6b8f5e"></i> Base64 编解码</span>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-arrow-down" style="margin-right:6px"></i> 编码 文本 → Base64</div>
+        <div class="ts-row">
+          <textarea id="b64EncodeInput" style="width:100%;min-height:100px;padding:12px;border:1px solid rgba(107,143,94,0.2);border-radius:6px;background:#fff;color:#3d3a35;font-family:monospace;font-size:0.88rem;outline:none;resize:vertical;line-height:1.6" placeholder="输入要编码的文本..."></textarea>
+        </div>
+        <div class="ts-row" style="gap:8px">
+          <button class="btn btn-primary btn-sm" id="b64EncodeBtn"><i class="fas fa-arrow-down"></i> 编码</button>
+          <label class="btn btn-outline btn-sm" style="cursor:pointer">
+            <i class="fas fa-file"></i> 选择文件
+            <input type="file" id="b64FileInput" style="display:none" accept="*/*">
+          </label>
+          <span id="b64FileInfo" style="font-size:0.8rem;color:#8c8273"></span>
+        </div>
+        <div class="ts-row">
+          <label>结果</label>
+          <div class="ts-result" id="b64EncodeResult" style="word-break:break-all;min-height:40px"><span class="hint">点击"编码"查看结果</span></div>
+          <button class="btn btn-outline btn-sm ts-copy" data-target="b64EncodeResult" title="复制"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-arrow-up" style="margin-right:6px"></i> 解码 Base64 → 文本</div>
+        <div class="ts-row">
+          <textarea id="b64DecodeInput" style="width:100%;min-height:100px;padding:12px;border:1px solid rgba(107,143,94,0.2);border-radius:6px;background:#fff;color:#3d3a35;font-family:monospace;font-size:0.88rem;outline:none;resize:vertical;line-height:1.6" placeholder="输入 Base64 字符串..."></textarea>
+        </div>
+        <div class="ts-row">
+          <button class="btn btn-primary btn-sm" id="b64DecodeBtn"><i class="fas fa-arrow-up"></i> 解码</button>
+          <label style="font-size:0.85rem;color:#6b6058;margin-left:8px">
+            <input type="checkbox" id="b64DecodeBinary"> 输出十六进制（非文本数据）
+          </label>
+        </div>
+        <div class="ts-row">
+          <label>结果</label>
+          <div class="ts-result" id="b64DecodeResult" style="word-break:break-all;min-height:40px"><span class="hint">点击"解码"查看结果</span></div>
+          <button class="btn btn-outline btn-sm ts-copy" data-target="b64DecodeResult" title="复制"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- 今日热榜 -->
+  <div id="tool-hotlist" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="hotlist"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-fire" style="margin-right:6px;color:#6b8f5e"></i> 今日热榜</span>
+      <button class="btn btn-outline btn-sm" id="hotRefreshBtn" style="margin-left:auto"><i class="fas fa-sync-alt"></i> 刷新</button>
+      <span style="font-size:0.78rem;color:#8c8273;margin-left:8px" id="hotStatus"></span>
+    </div>
+    <div class="options-row">
+      <label><i class="fas fa-list" style="margin-right:4px;color:#6b8f5e"></i> 平台：</label>
+      <select id="hotPlatform">
+        <option value="wbHot">微博热搜</option>
+        <option value="zhihuHot">知乎热榜</option>
+        <option value="biliHot">B站热门</option>
+        <option value="douyinHot">抖音热搜</option>
+        <option value="toutiao">头条热榜</option>
+        <option value="baidu">百度热搜</option>
+        <option value="tieba">贴吧热榜</option>
+        <option value="douban">豆瓣热门</option>
+      </select>
+      <label><i class="fas fa-sort-amount-down" style="margin-left:8px;margin-right:4px;color:#6b8f5e"></i> 显示：</label>
+      <input type="number" id="hotCount" value="20" min="5" max="50">
+    </div>
+    <div id="hotListContainer">
+      <div class="empty-state"><i class="fas fa-fire" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>选择平台后自动加载</div>
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:0.75rem;color:#b8ad9e" id="hotUpdateTime"></div>
   </div>
 
 </div>
@@ -788,6 +899,7 @@ let ipTimer = null;
 const ipObserver = new MutationObserver(() => {
   if (document.getElementById('tool-ip').classList.contains('active')) {
     fetchIpInfo();
+    fetchLocalIp();
     if (ipTimer) clearInterval(ipTimer);
   } else {
     if (ipTimer) { clearInterval(ipTimer); ipTimer = null; }
@@ -811,6 +923,55 @@ function fetchIpInfo() {
     .catch(() => {
       document.getElementById('ipUpdateTime').textContent = '查询失败，请重试';
     });
+}
+
+function fetchLocalIp() {
+  const el = document.getElementById('ipLocal');
+  el.textContent = '检测中...\n提示：若浏览器限制无法获取，可双击此处手动输入';
+  el.title = '双击手动编辑';
+  const ips = new Set();
+  let pc = null;
+  try {
+    pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+    const dc = pc.createDataChannel('');
+    pc.onicecandidate = e => {
+      if (e.candidate) {
+        const m = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+        if (m) ips.add(m[1]);
+      }
+      if (!e.candidate) {
+        const pubIp = document.getElementById('ipAddress').textContent;
+        const local = [...ips].filter(ip => {
+          if (ip === pubIp && pubIp !== '--') return false;
+          const p = ip.split('.').map(Number);
+          if (p[0] === 10) return true;
+          if (p[0] === 192 && p[1] === 168) return true;
+          if (p[0] === 172 && p[1] >= 16 && p[1] <= 31) return true;
+          if (p[0] === 127) return true;
+          return false;
+        });
+        el.textContent = local.length ? local.join(', ') : '浏览器限制，无法自动获取';
+        try { pc.close(); } catch(_) {}
+      }
+    };
+    pc.createOffer().then(o => pc.setLocalDescription(o)).catch(() => {});
+    setTimeout(() => {
+      if (el.textContent && el.textContent.startsWith('检测中')) {
+        el.textContent = '浏览器限制，无法自动获取';
+      }
+      try { pc.close(); } catch(_) {}
+    }, 5000);
+  } catch (e) {
+    el.textContent = '浏览器不支持';
+  }
+  // 双击可手动输入
+  if (!el._manualSetup) {
+    el._manualSetup = true;
+    el.addEventListener('dblclick', () => {
+      const val = prompt('请输入内网 IP 地址：', el.textContent === '浏览器限制，无法自动获取' ? '' : el.textContent);
+      if (val) el.textContent = val;
+    });
+  }
 }
 
 document.getElementById('ipRefreshBtn').addEventListener('click', fetchIpInfo);
@@ -1012,6 +1173,187 @@ document.getElementById('rxTestText').addEventListener('input', scheduleRxTest);
 document.querySelectorAll('#tool-regex input[type="checkbox"]').forEach(cb => {
   cb.addEventListener('change', scheduleRxTest);
 });
+
+// ===== Base64 =====
+document.getElementById('b64EncodeBtn').addEventListener('click', () => {
+  const input = document.getElementById('b64EncodeInput').value;
+  const result = document.getElementById('b64EncodeResult');
+  if (!input) { result.innerHTML = '<span style="color:#b85454">请输入要编码的文本</span>'; return; }
+  try {
+    result.textContent = btoa(unescape(encodeURIComponent(input)));
+  } catch (e) {
+    result.innerHTML = '<span style="color:#b85454">编码失败: ' + escapeHtml(e.message) + '</span>';
+  }
+});
+
+document.getElementById('b64DecodeBtn').addEventListener('click', () => {
+  const input = document.getElementById('b64DecodeInput').value.trim();
+  const result = document.getElementById('b64DecodeResult');
+  const asHex = document.getElementById('b64DecodeBinary').checked;
+  if (!input) { result.innerHTML = '<span style="color:#b85454">请输入 Base64 字符串</span>'; return; }
+  try {
+    const raw = atob(input);
+    if (asHex) {
+      const hex = [];
+      for (let i = 0; i < raw.length; i++) hex.push(raw.charCodeAt(i).toString(16).padStart(2, '0'));
+      result.textContent = hex.join(' ');
+    } else {
+      result.textContent = decodeURIComponent(escape(raw));
+    }
+  } catch (e) {
+    result.innerHTML = '<span style="color:#b85454">解码失败: Base64 格式无效</span>';
+  }
+});
+
+document.getElementById('b64FileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  const info = document.getElementById('b64FileInfo');
+  if (!file) { info.textContent = ''; return; }
+  info.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+  const reader = new FileReader();
+  reader.onload = () => {
+    const base64 = reader.result.split(',')[1];
+    document.getElementById('b64EncodeInput').value = file.name + ' (' + file.type + ')';
+    document.getElementById('b64EncodeResult').textContent = base64;
+  };
+  reader.readAsDataURL(file);
+});
+
+// 回车键触发
+document.getElementById('b64EncodeInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('b64EncodeBtn').click(); } });
+document.getElementById('b64DecodeInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('b64DecodeBtn').click(); } });
+
+// ===== 今日热榜 =====
+const HOT_PLATFORMS = {
+  wbHot: '微博热搜', zhihuHot: '知乎热榜', biliHot: 'B站热门',
+  douyinHot: '抖音热搜', toutiao: '头条热榜', baidu: '百度热搜',
+  tieba: '贴吧热榜', douban: '豆瓣热门'
+};
+const HOT_BG_COLORS = {
+  wbHot: 'rgba(255,102,0,0.08)', zhihuHot: 'rgba(0,118,255,0.08)',
+  biliHot: 'rgba(0,169,232,0.08)', douyinHot: 'rgba(0,0,0,0.06)',
+  toutiao: 'rgba(255,70,0,0.06)', baidu: 'rgba(71,128,255,0.06)',
+  tieba: 'rgba(68,145,247,0.06)', douban: 'rgba(0,119,0,0.06)'
+};
+const HOT_BORDER_COLORS = {
+  wbHot: 'rgba(255,102,0,0.12)', zhihuHot: 'rgba(0,118,255,0.12)',
+  biliHot: 'rgba(0,169,232,0.12)', douyinHot: 'rgba(0,0,0,0.1)',
+  toutiao: 'rgba(255,70,0,0.1)', baidu: 'rgba(71,128,255,0.1)',
+  tieba: 'rgba(68,145,247,0.1)', douban: 'rgba(0,119,0,0.1)'
+};
+
+let hotTimer = null;
+const hotObserver = new MutationObserver(() => {
+  if (document.getElementById('tool-hotlist').classList.contains('active')) {
+    fetchHotData();
+  }
+});
+hotObserver.observe(document.getElementById('tool-hotlist'), { attributes: true, attributeFilter: ['class'] });
+
+document.getElementById('hotPlatform').addEventListener('change', fetchHotData);
+document.getElementById('hotCount').addEventListener('change', fetchHotData);
+document.getElementById('hotRefreshBtn').addEventListener('click', fetchHotData);
+
+function fetchHotData() {
+  const type = document.getElementById('hotPlatform').value;
+  const count = parseInt(document.getElementById('hotCount').value) || 20;
+  const container = document.getElementById('hotListContainer');
+  const status = document.getElementById('hotStatus');
+  const updateTime = document.getElementById('hotUpdateTime');
+
+  status.textContent = '加载中...';
+  container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>加载中...</div>';
+
+  const callbackName = 'hotJsonp_' + Date.now();
+
+  const timeout = setTimeout(() => {
+    delete window[callbackName];
+    if (container.querySelector('.hot-item')) return;
+    container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>加载超时<br><span style="font-size:0.8rem">尝试通过代理加载...</span></div>';
+    fetchViaProxy(type, count, container, status, updateTime);
+  }, 5000);
+
+  window[callbackName] = data => {
+    clearTimeout(timeout);
+    delete window[callbackName];
+    if (!data || !data.data || !Array.isArray(data.data)) {
+      container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>数据格式异常</div>';
+      status.textContent = '失败';
+      return;
+    }
+    renderHotList(data.data.slice(0, count), type, container, status, updateTime);
+  };
+
+  const script = document.createElement('script');
+  script.src = 'https://api.vvhan.com/api/hotlist?type=' + type + '&callback=' + callbackName;
+  script.onerror = () => {
+    clearTimeout(timeout);
+    delete window[callbackName];
+    fetchViaProxy(type, count, container, status, updateTime);
+  };
+  document.body.appendChild(script);
+  setTimeout(() => { try { document.body.removeChild(script); } catch(_) {} }, 100);
+}
+
+function fetchViaProxy(type, count, container, status, updateTime) {
+  const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.vvhan.com/api/hotlist?type=' + type);
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.data || !Array.isArray(data.data)) throw new Error('格式错误');
+      renderHotList(data.data.slice(0, count), type, container, status, updateTime);
+    })
+    .catch(() => {
+      // Try direct fetch as last resort
+      fetch('https://api.vvhan.com/api/hotlist?type=' + type)
+        .then(r => r.json())
+        .then(data => {
+          if (!data || !data.data || !Array.isArray(data.data)) throw new Error('格式错误');
+          renderHotList(data.data.slice(0, count), type, container, status, updateTime);
+        })
+        .catch(() => {
+          container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>加载失败<br><span style="font-size:0.8rem">请尝试用本地服务器打开 (npx serve)</span></div>';
+          status.textContent = '失败';
+        });
+    });
+}
+
+function renderHotList(items, type, container, status, updateTime) {
+  if (items.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="far fa-frown" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>暂无数据</div>';
+    status.textContent = '就绪';
+    return;
+  }
+
+  const bgColor = HOT_BG_COLORS[type] || 'rgba(107,143,94,0.06)';
+  const borderColor = HOT_BORDER_COLORS[type] || 'rgba(107,143,94,0.1)';
+  const platformName = HOT_PLATFORMS[type] || type;
+
+  let html = '<div style="background:#fcfaf5;border:1px solid ' + borderColor + ';border-radius:10px;overflow:hidden">';
+  html += '<div style="padding:10px 14px;font-size:0.82rem;font-weight:600;color:#6b8f5e;background:' + bgColor + ';border-bottom:1px solid ' + borderColor + '"><i class="fas fa-fire" style="margin-right:6px"></i>' + platformName + '</div>';
+
+  items.forEach((item, i) => {
+    const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : 'normal';
+    const title = escapeHtml(item.title || '无标题');
+    const hot = item.hot ? escapeHtml(String(item.hot)) : '';
+    const url = item.url || '';
+    html += '<div class="hot-item">';
+    html += '<div class="hot-rank ' + rankClass + '">' + (i + 1) + '</div>';
+    html += '<div style="flex:1;min-width:0">';
+    if (url) {
+      html += '<div class="hot-title" onclick="window.open(\'' + url.replace(/'/g, "\\'") + '\',\'_blank\')" title="' + title + '">' + title + '</div>';
+    } else {
+      html += '<div class="hot-title" title="' + title + '">' + title + '</div>';
+    }
+    if (hot) html += '<div class="hot-hot">' + hot + '</div>';
+    html += '</div></div>';
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+  status.textContent = '已更新';
+  updateTime.textContent = new Date().toLocaleString('zh-CN');
+}
 
 document.querySelectorAll('.ts-copy').forEach(btn => {
   btn.addEventListener('click', () => {
