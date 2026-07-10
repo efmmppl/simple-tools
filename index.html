@@ -180,12 +180,40 @@ body {
   font-size: 0.82rem;
 }
 
+/* Gold */
+.gold-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px; margin-bottom: 12px;
+}
+.gold-card {
+  background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
+  border-radius: 10px; padding: 20px; text-align: center;
+}
+.gold-card-header { font-weight: 600; font-size: 0.92rem; color: #6b8f5e; }
+.gold-card-sub { font-size: 0.75rem; color: #8c8273; margin-top: 2px; }
+.gold-price {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 2rem; color: #3d3a35; font-weight: 600; margin: 10px 0 4px;
+}
+.gold-price.up { color: #b85454; }
+.gold-price.down { color: #4a8b6f; }
+.gold-change { font-size: 0.85rem; margin-bottom: 10px; }
+.gold-change.up { color: #b85454; }
+.gold-change.down { color: #4a8b6f; }
+.gold-details {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+  font-size: 0.78rem; color: #6b6058;
+}
+.gold-details b { font-weight: 600; color: #3d3a35; }
+
 @media (max-width: 600px) {
   .nav-grid { grid-template-columns: 1fr; }
   .cron-row { flex-wrap: wrap; }
   .cron-row input[type="text"] { min-width: 100%; }
   .ts-clock { gap: 16px; }
   .ts-clock-item .ts-val { font-size: 1.2rem; }
+  .gold-grid { grid-template-columns: 1fr; }
+  .gold-details { flex-direction: column; gap: 4px; }
 }
 </style>
 </head>
@@ -200,9 +228,14 @@ body {
 
   <!-- Navigation -->
   <div id="navView" class="nav-grid">
+    <div class="nav-card" data-tool="gold">
+      <div class="nav-icon"><i class="fas fa-coins"></i></div>
+      <div class="nav-name">金价查询</div>
+      <div class="nav-desc">国内国际实时金价<br>定时自动刷新</div>
+    </div>
     <div class="nav-card" data-tool="cron">
-      <div class="nav-icon"><i class="far fa-clock"></i></div>
-      <div class="nav-name">Cron 解析器</div>
+      <div class="nav-icon"><i class="fas fa-coins"></i></div>
+      <div class="nav-name">金价查询</div>
       <div class="nav-desc">解析 Quartz Cron 表达式<br>预览未来执行时间</div>
     </div>
     <div class="nav-card" data-tool="timestamp">
@@ -235,6 +268,58 @@ body {
     <div class="error-msg" id="errorMsg"></div>
     <div class="result-section" id="resultArea">
       <div class="empty-state"><i class="far fa-hourglass" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>输入 Cron 表达式后点击"解析"</div>
+    </div>
+  </div>
+
+  <!-- Gold -->
+  <div id="tool-gold" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="gold"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-coins" style="margin-right:6px;color:#6b8f5e"></i> 金价查询</span>
+      <span style="margin-left:auto;font-size:0.78rem;color:#8c8273" id="goldRefreshStatus">就绪</span>
+    </div>
+    <div class="gold-grid">
+      <div class="gold-card" id="gold-cn">
+        <div class="gold-card-header">国内黄金价格</div>
+        <div class="gold-card-sub">上海黄金交易所 · 元/克</div>
+        <div class="gold-price" id="gold-cn-price">--</div>
+        <div class="gold-change" id="gold-cn-change"></div>
+        <div class="gold-details">
+          <span>最高 <b id="gold-cn-high">--</b></span>
+          <span>最低 <b id="gold-cn-low">--</b></span>
+          <span>开盘 <b id="gold-cn-open">--</b></span>
+          <span>昨收 <b id="gold-cn-close">--</b></span>
+        </div>
+      </div>
+      <div class="gold-card" id="gold-ny">
+        <div class="gold-card-header">纽约期货国际金价</div>
+        <div class="gold-card-sub">纽约商品交易所 · 美元/盎司</div>
+        <div class="gold-price" id="gold-ny-price">--</div>
+        <div class="gold-change" id="gold-ny-change"></div>
+        <div class="gold-details">
+          <span>最高 <b id="gold-ny-high">--</b></span>
+          <span>最低 <b id="gold-ny-low">--</b></span>
+          <span>开盘 <b id="gold-ny-open">--</b></span>
+          <span>昨收 <b id="gold-ny-close">--</b></span>
+        </div>
+      </div>
+      <div class="gold-card" id="gold-ld">
+        <div class="gold-card-header">伦敦现货黄金价格</div>
+        <div class="gold-card-sub">伦敦黄金交易市场 · 美元/盎司</div>
+        <div class="gold-price" id="gold-ld-price">--</div>
+        <div class="gold-change" id="gold-ld-change"></div>
+        <div class="gold-details">
+          <span>最高 <b id="gold-ld-high">--</b></span>
+          <span>最低 <b id="gold-ld-low">--</b></span>
+          <span>开盘 <b id="gold-ld-open">--</b></span>
+          <span>昨收 <b id="gold-ld-close">--</b></span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:#8c8273">
+      数据来源：<a href="https://www.huilvbiao.com/gold" target="_blank" style="color:#6b8f5e">汇率表</a>
+      · 每 60 秒自动刷新
+      · <span id="goldUpdateTime">-</span>
     </div>
   </div>
 
@@ -532,6 +617,63 @@ document.getElementById('parseBtn').addEventListener('click', parseAll);
 document.getElementById('cronInput0')?.addEventListener('keydown', e => { if (e.key === 'Enter') parseAll(); });
 
 renderInputs();
+
+// ===== Gold Price =====
+let goldTimer = null;
+
+function fetchGoldPrice() {
+  document.getElementById('goldRefreshStatus').textContent = '加载中...';
+  const s = document.createElement('script');
+  s.src = 'https://www.huilvbiao.com/api/gold_indexApi?t=' + Date.now();
+  s.onload = () => {
+    try {
+      const cn = window.hq_str_gds_AUTD.split(',');
+      const ny = window.hq_str_hf_GC.split(',');
+      const ld = window.hq_str_hf_XAU.split(',');
+      updateGoldCard('cn', cn);
+      updateGoldCard('ny', ny);
+      updateGoldCard('ld', ld);
+      document.getElementById('goldUpdateTime').textContent = cn[12] + ' ' + cn[6];
+      document.getElementById('goldRefreshStatus').textContent = '已更新';
+    } catch (e) {
+      document.getElementById('goldRefreshStatus').textContent = '加载失败';
+    }
+  };
+  s.onerror = () => {
+    document.getElementById('goldRefreshStatus').textContent = '加载失败';
+  };
+  document.body.appendChild(s);
+}
+
+function updateGoldCard(type, d) {
+  const price = parseFloat(d[0]);
+  const close = parseFloat(d[7]);
+  const diff = price - close;
+  const pct = (diff / close * 100);
+  const sign = diff >= 0 ? '+' : '';
+
+  document.getElementById('gold-' + type + '-price').textContent = price.toFixed(2);
+  document.getElementById('gold-' + type + '-price').className = 'gold-price' + (diff >= 0 ? ' up' : ' down');
+  document.getElementById('gold-' + type + '-change').textContent = sign + diff.toFixed(2) + ' (' + sign + pct.toFixed(2) + '%)';
+  document.getElementById('gold-' + type + '-change').className = 'gold-change' + (diff >= 0 ? ' up' : ' down');
+  document.getElementById('gold-' + type + '-high').textContent = d[4];
+  document.getElementById('gold-' + type + '-low').textContent = d[5];
+  document.getElementById('gold-' + type + '-open').textContent = d[8];
+  document.getElementById('gold-' + type + '-close').textContent = d[7];
+}
+
+// Start/stop gold refresh when entering/leaving the tool
+const goldObserver = new MutationObserver(() => {
+  const goldView = document.getElementById('tool-gold');
+  if (goldView.classList.contains('active')) {
+    fetchGoldPrice();
+    if (goldTimer) clearInterval(goldTimer);
+    goldTimer = setInterval(fetchGoldPrice, 60000);
+  } else {
+    if (goldTimer) { clearInterval(goldTimer); goldTimer = null; }
+  }
+});
+goldObserver.observe(document.getElementById('tool-gold'), { attributes: true, attributeFilter: ['class'] });
 
 // ===== Footer Clock =====
 function updateFooterClock() {
