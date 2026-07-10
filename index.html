@@ -305,7 +305,7 @@ body {
     <div class="nav-card" data-tool="hotlist">
       <div class="nav-icon"><i class="fas fa-fire"></i></div>
       <div class="nav-name">今日热榜</div>
-      <div class="nav-desc">微博/知乎/B站/抖音<br>实时热搜榜单</div>
+      <div class="nav-desc">B站/贴吧<br>实时热搜榜单</div>
     </div>
   </div>
 
@@ -585,14 +585,8 @@ body {
     <div class="options-row">
       <label><i class="fas fa-list" style="margin-right:4px;color:#6b8f5e"></i> 平台：</label>
       <select id="hotPlatform">
-        <option value="wbHot">微博热搜</option>
-        <option value="zhihuHot">知乎热榜</option>
         <option value="biliHot">B站热门</option>
-        <option value="douyinHot">抖音热搜</option>
-        <option value="toutiao">头条热榜</option>
-        <option value="baidu">百度热搜</option>
         <option value="tieba">贴吧热榜</option>
-        <option value="douban">豆瓣热门</option>
       </select>
       <label><i class="fas fa-sort-amount-down" style="margin-left:8px;margin-right:4px;color:#6b8f5e"></i> 显示：</label>
       <input type="number" id="hotCount" value="20" min="5" max="50">
@@ -1225,21 +1219,13 @@ document.getElementById('b64DecodeInput').addEventListener('keydown', e => { if 
 
 // ===== 今日热榜 =====
 const HOT_PLATFORMS = {
-  wbHot: '微博热搜', zhihuHot: '知乎热榜', biliHot: 'B站热门',
-  douyinHot: '抖音热搜', toutiao: '头条热榜', baidu: '百度热搜',
-  tieba: '贴吧热榜', douban: '豆瓣热门'
+  biliHot: 'B站热门', tieba: '贴吧热榜'
 };
 const HOT_BG_COLORS = {
-  wbHot: 'rgba(255,102,0,0.08)', zhihuHot: 'rgba(0,118,255,0.08)',
-  biliHot: 'rgba(0,169,232,0.08)', douyinHot: 'rgba(0,0,0,0.06)',
-  toutiao: 'rgba(255,70,0,0.06)', baidu: 'rgba(71,128,255,0.06)',
-  tieba: 'rgba(68,145,247,0.06)', douban: 'rgba(0,119,0,0.06)'
+  biliHot: 'rgba(0,169,232,0.08)', tieba: 'rgba(68,145,247,0.06)'
 };
 const HOT_BORDER_COLORS = {
-  wbHot: 'rgba(255,102,0,0.12)', zhihuHot: 'rgba(0,118,255,0.12)',
-  biliHot: 'rgba(0,169,232,0.12)', douyinHot: 'rgba(0,0,0,0.1)',
-  toutiao: 'rgba(255,70,0,0.1)', baidu: 'rgba(71,128,255,0.1)',
-  tieba: 'rgba(68,145,247,0.1)', douban: 'rgba(0,119,0,0.1)'
+  biliHot: 'rgba(0,169,232,0.12)', tieba: 'rgba(68,145,247,0.1)'
 };
 
 let hotTimer = null;
@@ -1276,21 +1262,8 @@ function fetchHotData() {
       throw new Error('no data');
     })
     .catch(() => {
-      // Fallback: try CORS proxy to API
-      const apiUrl = 'https://api.vvhan.com/api/hotlist?type=' + type;
-      fetch('https://corsproxy.io/?url=' + encodeURIComponent(apiUrl))
-        .then(r => r.json())
-        .then(data => {
-          if (data && data.data && Array.isArray(data.data)) {
-            renderHotList(data.data.slice(0, count), type, container, status, updateTime);
-            return;
-          }
-          throw new Error('格式错误');
-        })
-        .catch(() => {
-          container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>加载失败<br><span style="font-size:0.8rem">等待 GitHub Actions 首次生成数据...</span></div>';
-          status.textContent = '失败';
-        });
+      container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>等待 GitHub Actions 生成数据<br><span style="font-size:0.8rem">或手动去 Actions 页面触发更新</span></div>';
+      status.textContent = '未就绪';
     });
 }
 
