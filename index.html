@@ -271,6 +271,11 @@ body {
       <div class="nav-name">时间戳工具</div>
       <div class="nav-desc">获取当前时间戳<br>时间戳与日期互转</div>
     </div>
+    <div class="nav-card" data-tool="regex">
+      <div class="nav-icon"><i class="fas fa-code"></i></div>
+      <div class="nav-name">正则测试器</div>
+      <div class="nav-desc">测试正则表达式<br>实时匹配与高亮</div>
+    </div>
   </div>
 
   <!-- Cron -->
@@ -434,6 +439,54 @@ body {
           <label>毫秒</label>
           <div class="ts-result" id="tsFromDateMs"><span class="hint">点击"转换"获取时间戳</span></div>
           <button class="btn btn-outline btn-sm ts-copy" data-target="tsFromDateMs" title="复制"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regex Tester -->
+  <div id="tool-regex" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="regex"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-code" style="margin-right:6px;color:#6b8f5e"></i> 正则测试器</span>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-terminal" style="margin-right:6px"></i> 正则表达式</div>
+        <div class="ts-row">
+          <label>表达式</label>
+          <input type="text" id="rxPattern" placeholder="输入正则表达式" value="">
+        </div>
+        <div class="ts-row">
+          <label>标志</label>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <label style="font-size:0.85rem;font-weight:400"><input type="checkbox" id="rxFlagG" checked> <code>g</code> 全局</label>
+            <label style="font-size:0.85rem;font-weight:400"><input type="checkbox" id="rxFlagI"> <code>i</code> 忽略大小写</label>
+            <label style="font-size:0.85rem;font-weight:400"><input type="checkbox" id="rxFlagM"> <code>m</code> 多行</label>
+            <label style="font-size:0.85rem;font-weight:400"><input type="checkbox" id="rxFlagS"> <code>s</code> 点号匹配换行</label>
+            <label style="font-size:0.85rem;font-weight:400"><input type="checkbox" id="rxFlagU"> <code>u</code> Unicode</label>
+            <label style="font-size:0.85rem;font-weight:400"><input type="checkbox" id="rxFlagY"> <code>y</code> 粘性</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-align-left" style="margin-right:6px"></i> 测试文本</div>
+        <div class="ts-row">
+          <textarea id="rxTestText" style="width:100%;min-height:160px;padding:12px;border:1px solid rgba(107,143,94,0.2);border-radius:6px;background:#fff;color:#3d3a35;font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:0.88rem;outline:none;resize:vertical;line-height:1.6" placeholder="在此输入测试文本..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title" id="rxStats"><i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果</div>
+        <div class="ts-row">
+          <div id="rxOutput" style="width:100%;min-height:80px;padding:12px;border:1px solid rgba(107,143,94,0.12);border-radius:6px;background:#fcfaf5;color:#3d3a35;font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:0.88rem;line-height:1.8;white-space:pre-wrap;word-break:break-all;overflow-x:auto">等待输入...</div>
+        </div>
+        <div class="ts-row" id="rxMatchList" style="display:none;flex-direction:column;gap:6px;margin-top:8px">
+          <div style="font-size:0.82rem;font-weight:600;color:#6b8f5e">捕获组：</div>
+          <div id="rxGroups" style="font-size:0.85rem;font-family:monospace;color:#3d3a35;white-space:pre-wrap;word-break:break-all"></div>
         </div>
       </div>
     </div>
@@ -842,6 +895,123 @@ document.getElementById('tsFromDateBtn').addEventListener('click', () => {
 document.getElementById('tsFromDateInput').value = formatDate(new Date()).slice(0, 16);
 document.getElementById('tsToDateBtn').click();
 document.getElementById('tsFromDateBtn').click();
+
+// ===== Regex Tester =====
+let rxHighlightTimer = null;
+
+function getRegexFlags() {
+  let f = '';
+  if (document.getElementById('rxFlagG').checked) f += 'g';
+  if (document.getElementById('rxFlagI').checked) f += 'i';
+  if (document.getElementById('rxFlagM').checked) f += 'm';
+  if (document.getElementById('rxFlagS').checked) f += 's';
+  if (document.getElementById('rxFlagU').checked) f += 'u';
+  if (document.getElementById('rxFlagY').checked) f += 'y';
+  return f;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function testRegex() {
+  const patternStr = document.getElementById('rxPattern').value.trim();
+  const text = document.getElementById('rxTestText').value;
+  const output = document.getElementById('rxOutput');
+  const stats = document.getElementById('rxStats');
+  const matchList = document.getElementById('rxMatchList');
+  const groups = document.getElementById('rxGroups');
+
+  if (!patternStr) {
+    output.innerHTML = '<span style="color:#b8ad9e">请输入正则表达式</span>';
+    stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果';
+    matchList.style.display = 'none';
+    return;
+  }
+
+  let re;
+  try {
+    re = new RegExp(patternStr, getRegexFlags());
+  } catch (e) {
+    output.innerHTML = '<span style="color:#b85454">' + escapeHtml(e.message) + '</span>';
+    stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果';
+    matchList.style.display = 'none';
+    return;
+  }
+
+  if (!text) {
+    output.innerHTML = '<span style="color:#b8ad9e">请输入测试文本</span>';
+    stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果';
+    matchList.style.display = 'none';
+    return;
+  }
+
+  const matches = [];
+  const global = re.global || re.sticky;
+  if (global) {
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      matches.push({ full: m[0], index: m.index, groups: m.slice(1) });
+      if (m.index === re.lastIndex) re.lastIndex++;
+    }
+  } else {
+    const m = re.exec(text);
+    if (m) matches.push({ full: m[0], index: m.index, groups: m.slice(1) });
+  }
+
+  stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果' +
+    ' <span style="font-weight:normal;font-size:0.82rem;color:#8c8273">— 共 ' + matches.length + ' 处匹配</span>';
+
+  if (matches.length === 0) {
+    output.innerHTML = '<span style="color:#8c8273">无匹配结果</span>';
+    matchList.style.display = 'none';
+    return;
+  }
+
+  // Highlight text
+  let lastIdx = 0;
+  let html = '';
+  for (const m of matches) {
+    html += escapeHtml(text.slice(lastIdx, m.index));
+    html += '<span style="background:rgba(107,143,94,0.2);border-radius:3px;padding:1px 2px">' + escapeHtml(m.full) + '</span>';
+    lastIdx = m.index + m.full.length;
+  }
+  html += escapeHtml(text.slice(lastIdx));
+  output.innerHTML = html;
+
+  // Show capture groups for each match
+  const hasGroups = matches.some(m => m.groups.length > 0);
+  if (hasGroups) {
+    matchList.style.display = 'flex';
+    let gHtml = '';
+    matches.forEach((m, i) => {
+      if (m.groups.length > 0) {
+        gHtml += '<div style="margin:4px 0"><span style="color:#8c8273">#' + (i + 1) + '</span> <span style="color:#6b6058">"' + escapeHtml(m.full) + '"</span> → ';
+        gHtml += m.groups.map((g, j) => {
+          if (g !== undefined) {
+            return '<span style="background:rgba(107,143,94,0.08);border-radius:3px;padding:0 4px;margin:0 2px"><b style="color:#6b8f5e">$' + (j + 1) + '</b> ' + escapeHtml(g) + '</span>';
+          }
+          return '';
+        }).filter(Boolean).join(' ');
+        gHtml += '</div>';
+      }
+    });
+    groups.innerHTML = gHtml || '（无捕获组）';
+  } else {
+    matchList.style.display = 'none';
+  }
+}
+
+function scheduleRxTest() {
+  if (rxHighlightTimer) clearTimeout(rxHighlightTimer);
+  rxHighlightTimer = setTimeout(testRegex, 200);
+}
+
+document.getElementById('rxPattern').addEventListener('input', scheduleRxTest);
+document.getElementById('rxTestText').addEventListener('input', scheduleRxTest);
+document.querySelectorAll('#tool-regex input[type="checkbox"]').forEach(cb => {
+  cb.addEventListener('change', scheduleRxTest);
+});
 
 document.querySelectorAll('.ts-copy').forEach(btn => {
   btn.addEventListener('click', () => {
