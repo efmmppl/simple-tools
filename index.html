@@ -1264,21 +1264,21 @@ function fetchHotData() {
   status.textContent = '加载中...';
   container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>加载中...</div>';
 
-  const apiUrl = 'https://api.vvhan.com/api/hotlist?type=' + type;
-
-  // Strategy 1: Try CORS proxy (works in most browsers)
-  fetch('https://corsproxy.io/?url=' + encodeURIComponent(apiUrl))
+  // Try loading from local JSON (GitHub Actions generated)
+  fetch('hotlist.json?_=' + Date.now())
     .then(r => r.json())
-    .then(data => {
-      if (data && data.data && Array.isArray(data.data)) {
-        renderHotList(data.data.slice(0, count), type, container, status, updateTime);
+    .then(all => {
+      if (all && all.data && all.data[type] && Array.isArray(all.data[type]) && all.data[type].length) {
+        renderHotList(all.data[type].slice(0, count), type, container, status, updateTime);
+        updateTime.textContent = '数据时间: ' + (all.updated || '').replace('T', ' ').slice(0, 19);
         return;
       }
-      throw new Error('格式错误');
+      throw new Error('no data');
     })
     .catch(() => {
-      // Strategy 2: Try another CORS proxy
-      fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl))
+      // Fallback: try CORS proxy to API
+      const apiUrl = 'https://api.vvhan.com/api/hotlist?type=' + type;
+      fetch('https://corsproxy.io/?url=' + encodeURIComponent(apiUrl))
         .then(r => r.json())
         .then(data => {
           if (data && data.data && Array.isArray(data.data)) {
@@ -1288,7 +1288,7 @@ function fetchHotData() {
           throw new Error('格式错误');
         })
         .catch(() => {
-          container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>加载失败</div>';
+          container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>加载失败<br><span style="font-size:0.8rem">等待 GitHub Actions 首次生成数据...</span></div>';
           status.textContent = '失败';
         });
     });
