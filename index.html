@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quartz Cron 解析器</title>
+<title>工具箱</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,6 +26,42 @@ body {
 .container { max-width: 1000px; margin: 0 auto; padding: 24px 20px; }
 .section-title { font-size: 1.15rem; margin-bottom: 16px; color: #6b8f5e; font-weight: 600; }
 
+/* Navigation Grid */
+.nav-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px; margin-bottom: 20px;
+}
+.nav-card {
+  background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
+  border-radius: 12px; padding: 28px 24px; cursor: pointer;
+  transition: all 0.25s; text-align: center;
+}
+.nav-card:hover {
+  transform: translateY(-4px); box-shadow: 0 8px 24px rgba(107, 143, 94, 0.12);
+  border-color: rgba(107, 143, 94, 0.25);
+}
+.nav-card .nav-icon {
+  font-size: 2.4rem; color: #6b8f5e; margin-bottom: 12px;
+}
+.nav-card .nav-name { font-size: 1.1rem; font-weight: 600; color: #3d3a35; margin-bottom: 6px; }
+.nav-card .nav-desc { font-size: 0.85rem; color: #8c8273; line-height: 1.5; }
+
+/* Tool View */
+.tool-view { display: none; }
+.tool-view.active { display: block; }
+.back-bar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  padding: 10px 14px; background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.1);
+  border-radius: 10px;
+}
+.back-btn {
+  background: transparent; border: none; color: #6b8f5e; cursor: pointer;
+  font-size: 0.88rem; padding: 4px 10px; border-radius: 6px; transition: all 0.2s;
+}
+.back-btn:hover { background: rgba(107, 143, 94, 0.08); }
+.back-bar .tool-title { font-weight: 600; font-size: 0.95rem; color: #3d3a35; }
+
+/* Cron */
 .cron-input-area { margin-bottom: 24px; }
 .cron-row {
   display: flex; gap: 10px; align-items: center; margin-bottom: 10px;
@@ -100,23 +136,7 @@ body {
   margin-top: 8px; display: none;
 }
 
-.tab-bar {
-  display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid rgba(107, 143, 94, 0.15);
-}
-.tab-btn {
-  padding: 10px 24px; border: none; background: transparent; cursor: pointer;
-  font-size: 0.9rem; color: #8c8273; font-weight: 500; position: relative;
-  transition: all 0.2s; border-radius: 8px 8px 0 0;
-}
-.tab-btn:hover { color: #6b8f5e; background: rgba(107, 143, 94, 0.04); }
-.tab-btn.active { color: #6b8f5e; }
-.tab-btn.active::after {
-  content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
-  height: 2px; background: #6b8f5e; border-radius: 2px;
-}
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-
+/* Timestamp */
 .ts-section { margin-bottom: 24px; }
 .ts-section:last-child { margin-bottom: 0; }
 .ts-card {
@@ -161,6 +181,7 @@ body {
 }
 
 @media (max-width: 600px) {
+  .nav-grid { grid-template-columns: 1fr; }
   .cron-row { flex-wrap: wrap; }
   .cron-row input[type="text"] { min-width: 100%; }
   .ts-clock { gap: 16px; }
@@ -171,46 +192,58 @@ body {
 <body>
 
 <header class="header">
-  <h1><i class="far fa-clock" style="color:#e8dcc8;margin-right:8px"></i> Quartz Cron 解析器</h1>
-  <p>输入 Cron 表达式，预览未来执行时间</p>
+  <h1><i class="fas fa-tools" style="color:#e8dcc8;margin-right:8px"></i> 工具箱</h1>
+  <p>实用在线工具 · 纯前端 · 数据不上传服务器</p>
 </header>
 
 <div class="container">
 
-  <div class="tab-bar">
-    <button class="tab-btn active" data-tab="cron">Cron 解析器</button>
-    <button class="tab-btn" data-tab="timestamp">时间戳工具</button>
+  <!-- Navigation -->
+  <div id="navView" class="nav-grid">
+    <div class="nav-card" data-tool="cron">
+      <div class="nav-icon"><i class="far fa-clock"></i></div>
+      <div class="nav-name">Cron 解析器</div>
+      <div class="nav-desc">解析 Quartz Cron 表达式<br>预览未来执行时间</div>
+    </div>
+    <div class="nav-card" data-tool="timestamp">
+      <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
+      <div class="nav-name">时间戳工具</div>
+      <div class="nav-desc">获取当前时间戳<br>时间戳与日期互转</div>
+    </div>
   </div>
 
-  <div id="tab-cron" class="tab-content active">
-  <div class="cron-input-area" id="cronArea">
-    <div class="section-title"><i class="fas fa-terminal" style="margin-right:6px"></i> Cron 表达式</div>
-    <div id="cronList"></div>
-    <button class="btn-add" id="addCronBtn"><i class="fas fa-plus"></i> 添加表达式</button>
+  <!-- Cron -->
+  <div id="tool-cron" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="cron"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="far fa-clock" style="margin-right:6px;color:#6b8f5e"></i> Cron 解析器</span>
+    </div>
+    <div class="cron-input-area" id="cronArea">
+      <div class="section-title"><i class="fas fa-terminal" style="margin-right:6px"></i> Cron 表达式</div>
+      <div id="cronList"></div>
+      <button class="btn-add" id="addCronBtn"><i class="fas fa-plus"></i> 添加表达式</button>
+    </div>
+    <div class="options-row">
+      <label><i class="fas fa-list-ol" style="margin-right:4px;color:#6b8f5e"></i> 显示时间点数量：</label>
+      <input type="number" id="countSelect" value="5" min="1" max="50">
+      <label style="margin-left:8px">
+        <input type="checkbox" id="showRelative" checked>
+        <span style="margin-left:4px">显示相对时间</span>
+      </label>
+      <button class="btn btn-primary" id="parseBtn"><i class="fas fa-play"></i> 解析</button>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="result-section" id="resultArea">
+      <div class="empty-state"><i class="far fa-hourglass" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>输入 Cron 表达式后点击"解析"</div>
+    </div>
   </div>
 
-  <div class="options-row">
-    <label><i class="fas fa-list-ol" style="margin-right:4px;color:#6b8f5e"></i> 显示时间点数量：</label>
-    <input type="number" id="countSelect" value="5" min="1" max="50">
-    <label style="margin-left:8px">
-      <input type="checkbox" id="showRelative" checked>
-      <span style="margin-left:4px">显示相对时间</span>
-    </label>
-    <button class="btn btn-primary" id="parseBtn"><i class="fas fa-play"></i> 解析</button>
-  </div>
-
-  <div class="error-msg" id="errorMsg"></div>
-
-  <div class="result-section" id="resultArea">
-    <div class="empty-state"><i class="far fa-hourglass" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>输入 Cron 表达式后点击"解析"</div>
-  </div>
-
-</div>
-
-</div>
-
-  <div id="tab-timestamp" class="tab-content">
-
+  <!-- Timestamp -->
+  <div id="tool-timestamp" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="timestamp"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-exchange-alt" style="margin-right:6px;color:#6b8f5e"></i> 时间戳工具</span>
+    </div>
     <div class="ts-section">
       <div class="ts-card">
         <div class="ts-card-title"><i class="fas fa-clock" style="margin-right:6px"></i> 当前时间戳</div>
@@ -230,7 +263,6 @@ body {
         </div>
       </div>
     </div>
-
     <div class="ts-section">
       <div class="ts-card">
         <div class="ts-card-title"><i class="fas fa-exchange-alt" style="margin-right:6px"></i> 时间戳 → 日期</div>
@@ -245,7 +277,6 @@ body {
         </div>
       </div>
     </div>
-
     <div class="ts-section">
       <div class="ts-card">
         <div class="ts-card-title"><i class="fas fa-exchange-alt" style="margin-right:6px"></i> 日期 → 时间戳</div>
@@ -266,17 +297,34 @@ body {
         </div>
       </div>
     </div>
-
   </div>
 
 </div>
 
 <footer style="text-align:center;padding:24px 20px;color:#8c8273;font-size:0.82rem;border-top:1px solid rgba(107,143,94,.08)">
-  格式：<code style="background:#fcfaf5;padding:2px 6px;border-radius:4px;font-size:0.82rem">秒 分 时 日 月 周 [年]</code>
-  · 纯前端解析 · 数据不上传服务器
+  纯前端工具 · 数据不上传服务器
 </footer>
 
 <script>
+// ===== Navigation =====
+function showNav() {
+  document.getElementById('navView').style.display = 'grid';
+  document.querySelectorAll('.tool-view.active').forEach(v => v.classList.remove('active'));
+}
+
+function showTool(name) {
+  document.getElementById('navView').style.display = 'none';
+  document.querySelectorAll('.tool-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('tool-' + name).classList.add('active');
+}
+
+document.querySelectorAll('.nav-card').forEach(card => {
+  card.addEventListener('click', () => showTool(card.dataset.tool));
+});
+document.querySelectorAll('.back-btn').forEach(btn => {
+  btn.addEventListener('click', showNav);
+});
+
 // ===== Quartz Cron Parser =====
 const MONTH_MAP = { JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12 };
 const DOW_MAP = { SUN:0,MON:1,TUE:2,WED:3,THU:4,FRI:5,SAT:6 };
@@ -324,7 +372,6 @@ function parseField(field, min, max, nameMap) {
 function parseQuartzCron(expr) {
   const parts = expr.trim().split(/\s+/);
   if (parts.length < 6 || parts.length > 7) throw new Error(`需要 6~7 个字段，当前 ${parts.length} 个`);
-
   const sec = parseField(parts[0], 0, 59);
   const min = parseField(parts[1], 0, 59);
   const hour = parseField(parts[2], 0, 23);
@@ -332,7 +379,6 @@ function parseQuartzCron(expr) {
   const month = parseField(parts[4], 1, 12, MONTH_MAP);
   const dow = parseField(parts[5], 0, 6, DOW_MAP);
   const year = parts[6] ? parseField(parts[6], 1970, 2099) : null;
-
   return { sec, min, hour, day, month, dow, year };
 }
 
@@ -341,7 +387,6 @@ function getNextTimes(fields, count, from) {
   let current = new Date(from);
   if (current.getTime() < Date.now()) current = new Date();
   current.setSeconds(0, 0);
-
   let maxLoops = 1000000;
   while (results.length < count && maxLoops-- > 0) {
     const y = current.getFullYear();
@@ -350,7 +395,6 @@ function getNextTimes(fields, count, from) {
     const h = current.getHours();
     const mi = current.getMinutes();
     const s = current.getSeconds();
-
     if (fields.year && !fields.year.includes(y)) { current.setFullYear(y + 1); current.setMonth(0, 1); current.setHours(0, 0, 0, 0); continue; }
     if (!fields.month.includes(m)) { current.setMonth(m, 1); current.setHours(0, 0, 0, 0); continue; }
     if (!fields.day.includes(d)) { current.setDate(d + 1); current.setHours(0, 0, 0, 0); continue; }
@@ -359,7 +403,6 @@ function getNextTimes(fields, count, from) {
     if (!fields.hour.includes(h)) { current.setHours(h + 1, 0, 0, 0); continue; }
     if (!fields.min.includes(mi)) { current.setMinutes(mi + 1, 0, 0); continue; }
     if (!fields.sec.includes(s)) { current.setSeconds(s + 1, 0); continue; }
-
     results.push(new Date(current));
     current.setSeconds(current.getSeconds() + 1);
   }
@@ -372,7 +415,6 @@ function parseAndCompute(expr, count) {
   return getNextTimes(fields, count, new Date());
 }
 
-// ===== UI =====
 let cronCount = 1;
 const MAX_CRONS = 3;
 
@@ -432,13 +474,10 @@ function relativeTime(d) {
 function parseAll() {
   const errorMsg = document.getElementById('errorMsg');
   errorMsg.style.display = 'none';
-
   const count = parseInt(document.getElementById('countSelect').value) || 5;
   const showRel = document.getElementById('showRelative').checked;
-
-  const entries = []; // { expr, time, label }
+  const entries = [];
   let hasError = false;
-
   for (let i = 0; i < cronCount; i++) {
     const input = document.getElementById(`cronInput${i}`);
     const expr = input.value.trim();
@@ -451,17 +490,13 @@ function parseAll() {
       errorMsg.textContent += `#${i+1} ${expr}: ${e.message}\n`;
     }
   }
-
   if (hasError) errorMsg.style.display = 'block';
-
   const area = document.getElementById('resultArea');
   if (entries.length === 0) {
     area.innerHTML = `<div class="empty-state"><i class="far fa-hourglass" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>无有效时间点</div>`;
     return;
   }
-
   entries.sort((a, b) => a.time - b.time);
-
   const seen = new Set();
   const merged = [];
   for (const e of entries) {
@@ -474,11 +509,10 @@ function parseAll() {
       merged.push({ time: e.time, labels: [e.label] });
     }
   }
-
   let html = `<div class="result-card">
     <div class="result-card-header" style="justify-content:space-between">
       <span><i class="fas fa-list"></i> 未来执行时间线</span>
-      <span style="font-size:0.8rem;color:#8c8273">共 ${merged.length} 个时间点<span id="cronSourceLabels"></span></span>
+      <span style="font-size:0.8rem;color:#8c8273">共 ${merged.length} 个时间点</span>
     </div>
     <div class="result-card-body">`;
   merged.forEach((m, i) => {
@@ -498,16 +532,6 @@ document.getElementById('parseBtn').addEventListener('click', parseAll);
 document.getElementById('cronInput0')?.addEventListener('keydown', e => { if (e.key === 'Enter') parseAll(); });
 
 renderInputs();
-
-// ===== Tab Switching =====
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-  });
-});
 
 // ===== Timestamp Tool =====
 function pad2(n) { return String(n).padStart(2, '0'); }
@@ -565,7 +589,6 @@ document.getElementById('tsFromDateBtn').addEventListener('click', () => {
 });
 
 document.getElementById('tsFromDateInput').value = formatDate(new Date()).slice(0, 16);
-
 document.getElementById('tsToDateBtn').click();
 document.getElementById('tsFromDateBtn').click();
 
