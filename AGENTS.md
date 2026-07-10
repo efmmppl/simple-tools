@@ -2,12 +2,21 @@
 
 ## 项目本质
 
-纯前端单页应用，所有代码在 `index.html` 一个文件里（HTML + CSS + JS）。
-无构建步骤、无包管理、无后端服务。直接用浏览器打开即可运行。
+纯前端单页应用，零构建步骤、零包管理、零后端服务。
+浏览器打开即可运行。代码按职责拆分为独立文件。
 
 ## 文件结构
 
-- `index.html` — 唯一源文件，含全部界面和逻辑
+- `index.html` — 页面骨架（导航 + 各工具视图的 HTML 结构）
+- `css/style.css` — 全部样式（无构建，直接 `<link>` 引入）
+- `js/nav.js` — 导航路由、footer 时钟、复制按钮等通用逻辑
+- `js/cron.js` — Cron 解析器
+- `js/gold.js` — 金价查询
+- `js/ip.js` — IP 信息
+- `js/timestamp.js` — 时间戳工具
+- `js/regex.js` — 正则测试器
+- `js/base64.js` — Base64 编解码
+- `js/hotlist.js` — 今日热榜
 - `scripts/fetch-hotlist.js` — GitHub Actions 热榜抓取脚本，Node.js 18+，无外部依赖
 - `hotlist.json` — 热榜缓存数据，由 GitHub Actions 定时生成
 - `.github/workflows/hotlist.yml` — 每天早上 9:00 触发抓取热榜，生成 hotlist.json 并提交
@@ -17,8 +26,8 @@
 
 1. 在 `.nav-card` 区域加一个卡片，`data-tool="xxx"` 唯一标识
 2. 在 `.tool-view` 区域加对应的 `<div id="tool-xxx" class="tool-view">`，含界面 HTML
-3. 在底部 `<script>` 里添加对应的 JS 逻辑
-4. CSS 采用 `#fcfaf5` 卡片背景、`#6b8f5e` 主色、`.ts-card/.ts-section/.ts-row` 布局模式
+3. 在底部 `<script>` 标签列表追加 `<script src="js/xxx.js">`，对应新增一个 `js/xxx.js` 文件
+4. CSS 采用 `#fcfaf5` 卡片背景、`#6b8f5e` 主色、`.ts-card/.ts-section/.ts-row` 布局模式，写在 `css/style.css`
 5. 在 `README.md` 工具列表追加一行
 
 ## 关键约定
