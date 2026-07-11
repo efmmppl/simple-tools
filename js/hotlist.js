@@ -30,6 +30,12 @@ function fetchHotData() {
   status.textContent = '加载中...';
   container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>加载中...</div>';
 
+  if (window.location.protocol === 'file:') {
+    container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>file:// 协议无法读取数据<br><span style="font-size:0.8rem">请使用本地服务器访问（如 python -m http.server 8000）</span></div>';
+    status.textContent = '未就绪';
+    return;
+  }
+
   let fileTime = '';
   fetch('hotlist.json?_=' + Date.now())
     .then(r => {
