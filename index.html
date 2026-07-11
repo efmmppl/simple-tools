@@ -53,6 +53,11 @@
       <div class="nav-name">今日热榜</div>
       <div class="nav-desc">B站/贴吧<br>实时热搜榜单</div>
     </div>
+    <div class="nav-card" data-tool="adventure">
+      <div class="nav-icon"><i class="fas fa-dragon"></i></div>
+      <div class="nav-name">文字冒险</div>
+      <div class="nav-desc">神秘古堡<br>交互式剧情体验</div>
+    </div>
   </div>
 
   <!-- Cron -->
@@ -151,7 +156,7 @@
         <div class="ip-row"><span class="ip-key">城市</span><span class="ip-val" id="ipCity">--</span></div>
         <div class="ip-row"><span class="ip-key">运营商</span><span class="ip-val" id="ipIsp">--</span></div>
         <div class="ip-row"><span class="ip-key">经纬度</span><span class="ip-val" id="ipLoc">--</span></div>
-        <div class="ip-row"><span class="ip-key">内网 IP</span><span class="ip-val" id="ipLocal">--</span></div>
+
       </div>
       <div style="text-align:center;margin-top:16px">
         <button class="btn btn-outline btn-sm" id="ipCopyBtn"><i class="fas fa-copy"></i> 复制 IP</button>
@@ -320,6 +325,22 @@
 
   </div>
 
+  <!-- 文字冒险 -->
+  <div id="tool-adventure" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="adventure"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-dragon" style="margin-right:6px;color:#6b8f5e"></i> 文字冒险 · 神秘古堡</span>
+      <button class="btn btn-outline btn-sm" id="advResetBtn" style="margin-left:auto"><i class="fas fa-redo"></i> 重新开始</button>
+    </div>
+    <div class="adv-hud" id="advHud"></div>
+    <div class="adv-container" id="advContainer">
+      <div class="adv-scene" id="advScene">
+        <div class="adv-text" id="advText"></div>
+        <div class="adv-choices" id="advChoices"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- 今日热榜 -->
   <div id="tool-hotlist" class="tool-view">
     <div class="back-bar">
@@ -357,5 +378,6 @@
 <script src="js/regex.js"></script>
 <script src="js/base64.js"></script>
 <script src="js/hotlist.js"></script>
+<script src="js/adventure.js"></script>
 </body>
 </html>
