@@ -1,4 +1,5 @@
-let ipTimer = null;
+let ipTimer = null; // IP 自动刷新定时器
+// MutationObserver - 监听 IP 视图切换，进入时加载、离开时停止
 const ipObserver = new MutationObserver(() => {
   if (document.getElementById('tool-ip').classList.contains('active')) {
     fetchIpInfo();
@@ -10,6 +11,7 @@ const ipObserver = new MutationObserver(() => {
 });
 ipObserver.observe(document.getElementById('tool-ip'), { attributes: true, attributeFilter: ['class'] });
 
+// fetchIpInfo - 通过 api.ip.sb 获取公网 IP 及地理位置信息
 function fetchIpInfo() {
   document.getElementById('ipUpdateTime').textContent = '查询中...';
   fetch('https://api.ip.sb/geoip')
@@ -28,6 +30,7 @@ function fetchIpInfo() {
     });
 }
 
+// fetchLocalIp - 通过 WebRTC ICE 候选者检测内网 IP 地址
 function fetchLocalIp() {
   const el = document.getElementById('ipLocal');
   el.textContent = '检测中...\n提示：若浏览器限制无法获取，可双击此处手动输入';
@@ -76,8 +79,10 @@ function fetchLocalIp() {
   }
 }
 
+// 刷新按钮 - 重新查询公网 IP
 document.getElementById('ipRefreshBtn').addEventListener('click', fetchIpInfo);
 
+// 复制按钮 - 将公网 IP 复制到剪贴板
 document.getElementById('ipCopyBtn').addEventListener('click', () => {
   const ip = document.getElementById('ipAddress').textContent;
   if (ip && ip !== '--') {

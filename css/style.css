@@ -1,152 +1,208 @@
+/* 全局重置 */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* 页面基础样式 */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', 'SF Mono', 'Fira Code', 'Consolas', monospace;
   background: #f5f0e8; color: #3d3a35; line-height: 1.6;
 }
+/* 页面头部 */
 .header {
   background: linear-gradient(135deg, #3d5a3d 0%, #5a7a4a 30%, #6b8f5e 60%, #3d5a3d 100%);
   text-align: center; padding: 12px 20px 10px; position: relative;
 }
+/* 头部装饰背景 */
 .header::before {
   content: ''; position: absolute; inset: 0;
   background: radial-gradient(circle at 20% 50%, rgba(107, 143, 94, 0.15) 0%, transparent 50%),
               radial-gradient(circle at 80% 50%, rgba(157, 187, 128, 0.1) 0%, transparent 50%);
 }
+/* 头部标题 */
 .header h1 { font-size: 1.1rem; color: #e8dcc8; position: relative; }
+/* 头部副标题 */
 .header p { font-size: 0.72rem; color: #d4cdbc; margin-top: 0; position: relative; }
 
+/* 页面容器 */
 .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+/* 区块标题 */
 .section-title { font-size: 1.15rem; margin-bottom: 16px; color: #6b8f5e; font-weight: 600; }
 
+/* 导航网格 */
 .nav-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px; margin-bottom: 20px;
 }
+/* 导航卡片 */
 .nav-card {
   background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
   border-radius: 12px; padding: 28px 24px; cursor: pointer;
   transition: all 0.25s; text-align: center;
 }
+/* 导航卡片悬停 */
 .nav-card:hover {
   transform: translateY(-4px); box-shadow: 0 8px 24px rgba(107, 143, 94, 0.12);
   border-color: rgba(107, 143, 94, 0.25);
 }
+/* 导航卡片图标 */
 .nav-card .nav-icon {
   font-size: 2.4rem; color: #6b8f5e; margin-bottom: 12px;
 }
+/* 导航卡片名称 */
 .nav-card .nav-name { font-size: 1.1rem; font-weight: 600; color: #3d3a35; margin-bottom: 6px; }
+/* 导航卡片描述 */
 .nav-card .nav-desc { font-size: 0.85rem; color: #8c8273; line-height: 1.5; }
 
+/* 工具视图切换 */
 .tool-view { display: none; }
 .tool-view.active { display: block; }
+/* 返回栏 */
 .back-bar {
   display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
   padding: 10px 14px; background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.1);
   border-radius: 10px;
 }
+/* 返回按钮 */
 .back-btn {
   background: transparent; border: none; color: #6b8f5e; cursor: pointer;
   font-size: 0.88rem; padding: 4px 10px; border-radius: 6px; transition: all 0.2s;
 }
+/* 返回按钮悬停 */
 .back-btn:hover { background: rgba(107, 143, 94, 0.08); }
+/* 返回栏工具标题 */
 .back-bar .tool-title { font-weight: 600; font-size: 0.95rem; color: #3d3a35; }
 
+/* Cron 输入区 */
 .cron-input-area { margin-bottom: 24px; }
+/* Cron 输入行 */
 .cron-row {
   display: flex; gap: 10px; align-items: center; margin-bottom: 10px;
   padding: 12px 14px; background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
   border-radius: 10px;
 }
+/* Cron 序号标签 */
 .cron-row .num-label { font-size: 0.82rem; color: #6b6058; min-width: 48px; font-weight: 600; }
+/* Cron 文本框 */
 .cron-row input[type="text"] {
   flex: 1; padding: 8px 12px; border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px;
   background: #fff; color: #3d3a35; font-size: 0.88rem; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   outline: none;
 }
 .cron-row input[type="text"]:focus { border-color: #6b8f5e; }
+/* Cron 删除按钮 */
 .cron-row .remove-btn {
   background: transparent; border: none; color: #b8ad9e; cursor: pointer; font-size: 1rem;
   padding: 4px 6px; border-radius: 4px; transition: all 0.2s;
 }
+/* Cron 删除按钮悬停 */
 .cron-row .remove-btn:hover { color: #b85454; background: rgba(200,80,80,0.08); }
 
+/* 选项行 */
 .options-row {
   display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;
   padding: 14px 16px; background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.1);
   border-radius: 8px;
 }
+/* 选项标签 */
 .options-row label { font-size: 0.85rem; color: #6b6058; }
+/* 选项下拉框 / 数字输入 */
 .options-row select, .options-row input[type="number"] {
   padding: 6px 10px; border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px;
   background: #fff; font-size: 0.85rem; outline: none; color: #3d3a35;
 }
 .options-row select:focus, .options-row input[type="number"]:focus { border-color: #6b8f5e; }
+/* 选项数字输入宽度 */
 .options-row input[type="number"] { width: 70px; }
 
+/* 按钮样式 */
 .btn {
   padding: 8px 22px; border: none; border-radius: 8px; font-size: 0.88rem; cursor: pointer;
   transition: all 0.2s; font-weight: 500;
 }
+/* 主按钮 */
 .btn-primary { background: linear-gradient(135deg, #6b8f5e, #5a7a4a); color: #fff; }
 .btn-primary:hover { transform: scale(1.02); box-shadow: 0 2px 10px rgba(107, 143, 94, 0.25); }
+/* 轮廓按钮 */
 .btn-outline { background: transparent; border: 1px solid rgba(107, 143, 94, 0.3); color: #6b8f5e; }
 .btn-outline:hover { background: rgba(107, 143, 94, 0.06); }
+/* 小号按钮 */
 .btn-sm { padding: 5px 14px; font-size: 0.8rem; }
+/* 添加按钮 */
 .btn-add { color: #6b8f5e; border: 1px dashed rgba(107, 143, 94, 0.3); background: transparent; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
 .btn-add:hover { background: rgba(107, 143, 94, 0.04); border-color: #6b8f5e; }
 
+/* 结果区 */
 .result-section { margin-top: 20px; }
+/* 结果卡片 */
 .result-card {
   background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12); border-radius: 10px;
   margin-bottom: 16px; overflow: hidden;
 }
+/* 结果卡片头部 */
 .result-card-header {
   padding: 10px 16px; font-weight: 600; font-size: 0.88rem;
   border-bottom: 1px solid rgba(107, 143, 94, 0.1);
   display: flex; justify-content: space-between; align-items: center;
 }
+/* 结果卡片表达式 */
 .result-card-header .cron-expr { font-family: monospace; color: #6b8f5e; font-weight: normal; font-size: 0.82rem; }
+/* 结果卡片错误 */
 .result-card-header .err { color: #b85454; }
+/* 结果卡片正文 */
 .result-card-body { padding: 10px 16px; }
+/* 时间项 */
 .time-item {
   display: flex; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(107, 143, 94, 0.05);
   font-size: 0.88rem;
 }
 .time-item:last-child { border-bottom: none; }
+/* 时间序号 */
 .time-item .idx { color: #b8ad9e; min-width: 30px; font-size: 0.8rem; }
+/* 时间值 */
 .time-item .time { color: #3d3a35; font-weight: 500; }
+/* 相对时间 */
 .time-item .rel { color: #8c8273; font-size: 0.8rem; margin-left: 12px; }
 
+/* 空状态提示 */
 .empty-state { text-align: center; padding: 40px; color: #8c8273; font-size: 0.9rem; }
 
+/* 错误消息 */
 .error-msg {
   background: rgba(200,80,80,0.06); border: 1px solid rgba(200,80,80,0.15);
   color: #b85454; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem;
   margin-top: 8px; display: none;
 }
 
+/* 时间戳工具 */
 .ts-section { margin-bottom: 24px; }
 .ts-section:last-child { margin-bottom: 0; }
+/* 时间戳卡片 */
 .ts-card {
   background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
   border-radius: 10px; padding: 16px; margin-bottom: 16px;
 }
 .ts-card:last-child { margin-bottom: 0; }
+/* 时间戳卡片标题 */
 .ts-card-title { font-size: 0.9rem; font-weight: 600; color: #6b8f5e; margin-bottom: 12px; }
+/* 实时时钟区域 */
 .ts-clock {
   display: flex; gap: 24px; flex-wrap: wrap;
 }
+/* 时钟项 */
 .ts-clock-item { text-align: center; }
+/* 时钟数值 */
 .ts-clock-item .ts-val {
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 1.6rem; color: #3d3a35; font-weight: 600; line-height: 1.2;
 }
+/* 时钟标签 */
 .ts-clock-item .ts-label { font-size: 0.78rem; color: #8c8273; margin-top: 4px; }
+/* 时间戳输入行 */
 .ts-row {
   display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
   padding: 8px 0;
 }
+/* 时间戳标签 */
 .ts-row label { font-size: 0.85rem; color: #6b6058; min-width: 80px; }
+/* 时间戳输入框 */
 .ts-row input[type="text"], .ts-row input[type="datetime-local"] {
   flex: 1; min-width: 180px; padding: 8px 12px;
   border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px;
@@ -157,6 +213,7 @@ body {
 .ts-row input[type="text"]:focus, .ts-row input[type="datetime-local"]:focus {
   border-color: #6b8f5e;
 }
+/* 时间戳转换结果 */
 .ts-row .ts-result {
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 0.9rem; color: #3d3a35; padding: 8px 12px;
@@ -168,52 +225,69 @@ body {
   font-size: 0.82rem;
 }
 
+/* 金价卡片 */
 .gold-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px; margin-bottom: 12px;
 }
+/* 金价明细卡片 */
 .gold-card {
   background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
   border-radius: 10px; padding: 20px; text-align: center;
 }
+/* 金价卡片标题 */
 .gold-card-header { font-weight: 600; font-size: 0.92rem; color: #6b8f5e; }
+/* 金价卡片副标题 */
 .gold-card-sub { font-size: 0.75rem; color: #8c8273; margin-top: 2px; }
+/* 金价数字 */
 .gold-price {
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 2rem; color: #3d3a35; font-weight: 600; margin: 10px 0 4px;
 }
+/* 金价上涨/下跌颜色 */
 .gold-price.up { color: #b85454; }
 .gold-price.down { color: #4a8b6f; }
+/* 金价变动 */
 .gold-change { font-size: 0.85rem; margin-bottom: 10px; }
 .gold-change.up { color: #b85454; }
 .gold-change.down { color: #4a8b6f; }
+/* 金价详情 */
 .gold-details {
   display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
   font-size: 0.78rem; color: #6b6058;
 }
 .gold-details b { font-weight: 600; color: #3d3a35; }
 
+/* IP 信息 */
 .ip-card {
   background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
   border-radius: 10px; padding: 24px;
 }
+/* IP 主区域 */
 .ip-main { text-align: center; padding: 20px 0 16px; }
+/* IP 地址 */
 .ip-address {
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 1.8rem; font-weight: 600; color: #3d3a35;
   letter-spacing: 2px;
 }
+/* IP 标签 */
 .ip-label { font-size: 0.8rem; color: #8c8273; margin-top: 4px; }
+/* IP 详情列表 */
 .ip-details { max-width: 360px; margin: 0 auto; }
+/* IP 详情行 */
 .ip-row {
   display: flex; justify-content: space-between; padding: 8px 0;
   border-bottom: 1px solid rgba(107, 143, 94, 0.06);
   font-size: 0.88rem;
 }
 .ip-row:last-child { border-bottom: none; }
+/* IP 键名 */
 .ip-key { color: #8c8273; }
+/* IP 键值 */
 .ip-val { color: #3d3a35; font-weight: 500; }
 
+/* 热榜列表 */
 .hot-item {
   display: flex; align-items: center; gap: 12px; padding: 10px 14px;
   border-bottom: 1px solid rgba(107,143,94,0.06);
@@ -221,6 +295,7 @@ body {
 }
 .hot-item:last-child { border-bottom: none; }
 .hot-item:hover { background: rgba(107,143,94,0.03); }
+/* 热榜排名 */
 .hot-rank {
   min-width: 28px; text-align: center; font-weight: 700; font-size: 0.85rem;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
@@ -229,11 +304,15 @@ body {
 .hot-rank.top2 { color: #d4874a; }
 .hot-rank.top3 { color: #d4a84a; }
 .hot-rank.normal { color: #8c8273; }
+/* 热榜标题 */
 .hot-title { flex: 1; font-size: 0.88rem; color: #3d3a35; cursor: pointer; }
 .hot-title:hover { color: #6b8f5e; }
+/* 热榜热度 */
 .hot-hot { font-size: 0.78rem; color: #b8ad9e; white-space: nowrap; }
+/* 热榜元信息 */
 .hot-meta { font-size: 0.75rem; color: #b8ad9e; margin-top: 2px; }
 
+/* 冒险游戏 HUD */
 .adv-hud {
   background: #16162a;
   border: 1px solid rgba(107, 143, 94, 0.15);
@@ -243,6 +322,7 @@ body {
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 0.82rem;
 }
+/* HUD 行 */
 .adv-hud-row {
   display: flex;
   align-items: center;
@@ -250,16 +330,19 @@ body {
   gap: 12px;
   margin-bottom: 8px;
 }
+/* HUD 生命值区域 */
 .adv-hud-health {
   display: flex;
   align-items: center;
   gap: 8px;
   flex: 1;
 }
+/* HUD 标签 */
 .adv-hud-label {
   color: #b8ad9e;
   white-space: nowrap;
 }
+/* HUD 血条背景 */
 .adv-hud-bar-bg {
   flex: 1;
   height: 8px;
@@ -268,22 +351,26 @@ body {
   overflow: hidden;
   max-width: 200px;
 }
+/* HUD 血条 */
 .adv-hud-bar {
   height: 100%;
   border-radius: 4px;
   transition: width 0.5s ease, background 0.5s ease;
 }
+/* HUD 数值 */
 .adv-hud-value {
   color: #d4cdbc;
   min-width: 50px;
   text-align: right;
   font-size: 0.78rem;
 }
+/* HUD 步数 */
 .adv-hud-steps {
   color: #8c8273;
   white-space: nowrap;
   font-size: 0.78rem;
 }
+/* HUD 背包 */
 .adv-hud-inv {
   display: flex;
   flex-wrap: wrap;
@@ -292,10 +379,12 @@ body {
   padding-top: 6px;
   border-top: 1px solid rgba(107, 143, 94, 0.08);
 }
+/* HUD 背包空状态 */
 .adv-hud-empty {
   color: #5a5a6e;
   font-size: 0.78rem;
 }
+/* HUD 物品 */
 .adv-hud-item {
   background: rgba(107, 143, 94, 0.1);
   border: 1px solid rgba(107, 143, 94, 0.15);
@@ -306,6 +395,7 @@ body {
   white-space: nowrap;
 }
 
+/* 冒险游戏容器 */
 .adv-container {
   background: #1a1a2e;
   border: 1px solid rgba(107, 143, 94, 0.2);
@@ -318,6 +408,7 @@ body {
   position: relative;
   overflow: hidden;
 }
+/* 容器顶部装饰线 */
 .adv-container::before {
   content: '';
   position: absolute;
@@ -326,14 +417,17 @@ body {
   background: linear-gradient(90deg, transparent, #6b8f5e, transparent);
   opacity: 0.4;
 }
+/* 结局变体 */
 .adv-container.adv-end {
   background: linear-gradient(135deg, #1a1a2e 0%, #2a1520 100%);
   border-color: rgba(212, 168, 74, 0.3);
 }
+/* 结局装饰线 */
 .adv-container.adv-end::before {
   background: linear-gradient(90deg, transparent, #d4a84a, transparent);
   opacity: 0.6;
 }
+/* 冒险标题 */
 .adv-title {
   font-size: 1.05rem;
   font-weight: 600;
@@ -343,6 +437,7 @@ body {
   letter-spacing: 2px;
   text-shadow: 0 0 12px rgba(212, 168, 74, 0.15);
 }
+/* 冒险故事正文 */
 .adv-body {
   font-size: 0.92rem;
   color: #d4cdbc;
@@ -352,27 +447,32 @@ body {
   min-height: 80px;
   cursor: pointer;
 }
+/* 正文换行间距 */
 .adv-body br {
   content: '';
   display: block;
   margin: 4px 0;
 }
+/* 等待动画 */
 .adv-waiting {
   color: #6b8f5e;
   font-size: 1.2rem;
   text-align: center;
   animation: advBlink 0.8s infinite;
 }
+/* 闪烁动画 */
 @keyframes advBlink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.2; }
 }
+/* 选项列表 */
 .adv-choices {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 12px;
 }
+/* 选项按钮 */
 .adv-choice-btn {
   background: rgba(107, 143, 94, 0.08);
   border: 1px solid rgba(107, 143, 94, 0.2);
@@ -387,66 +487,85 @@ body {
   opacity: 0;
   transform: translateX(-8px);
 }
+/* 选项按钮入场 */
 .adv-choice-btn.adv-choice-show {
   opacity: 1;
   transform: translateX(0);
   transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s, border-color 0.2s;
 }
+/* 选项按钮悬停 */
 .adv-choice-btn:hover {
   background: rgba(107, 143, 94, 0.2);
   border-color: #6b8f5e;
   color: #e8dcc8;
   transform: translateX(4px);
 }
+/* 选项按钮点击 */
 .adv-choice-btn:active {
   transform: translateX(2px) scale(0.99);
 }
+/* 结局选项按钮 */
 .adv-container.adv-end .adv-choice-btn {
   border-color: rgba(212, 168, 74, 0.25);
   background: rgba(212, 168, 74, 0.06);
 }
+/* 结局选项按钮悬停 */
 .adv-container.adv-end .adv-choice-btn:hover {
   border-color: #d4a84a;
   background: rgba(212, 168, 74, 0.15);
   color: #f0e4c8;
 }
 
+/* 数独状态 */
 .sudoku-status {
   text-align: center; min-height: 24px; margin-bottom: 10px;
   font-size: 0.9rem; color: #6b8f5e; font-weight: 500;
 }
+/* 数独网格 */
 .sudoku-grid {
   display: grid; grid-template-columns: repeat(9, 1fr);
   max-width: 360px; margin: 0 auto 16px;
   border: 2px solid #6b6058; border-radius: 6px; overflow: hidden; background: #fff;
 }
+/* 数独单元格 */
 .sudoku-cell {
   display: flex; align-items: center; justify-content: center;
   aspect-ratio: 1; font-size: 1.2rem; font-weight: 500; color: #3d3a35;
   border: 1px solid rgba(107, 143, 94, 0.15); cursor: pointer; user-select: none;
   transition: background 0.15s;
 }
+/* 数独宫格边框 */
 .sudoku-cell.sudoku-border-bottom { border-bottom: 2px solid #6b6058; }
 .sudoku-cell.sudoku-border-right { border-right: 2px solid #6b6058; }
+/* 数独单元格选中 */
 .sudoku-cell.sudoku-selected { background: rgba(107, 143, 94, 0.15); }
+/* 数独固定数字 */
 .sudoku-cell.sudoku-fixed { color: #3d3a35; font-weight: 600; background: #f5f0e8; }
+/* 数独用户输入 */
 .sudoku-cell.sudoku-user { color: #6b8f5e; }
+/* 数独数字面板 */
 .sudoku-pad { max-width: 360px; margin: 0 auto; }
+/* 数独数字输入框 */
 .sudoku-number-input {
   width: 100%; padding: 10px; text-align: center; margin-bottom: 10px;
   border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px; background: #fff;
   color: #3d3a35; font-size: 1rem; outline: none;
 }
+/* 数独数字按钮网格 */
 .sudoku-num-btns {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
 }
+/* 数独数字按钮 */
 .sudoku-num-btn {
   padding: 10px; border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px;
   background: #fcfaf5; color: #3d3a35; font-size: 1rem; cursor: pointer; transition: all 0.2s;
 }
+/* 数独数字按钮悬停 */
 .sudoku-num-btn:hover { background: rgba(107, 143, 94, 0.08); border-color: #6b8f5e; }
+/* 数独数字按钮点击 */
 .sudoku-num-btn:active { transform: scale(0.97); }
 
+/* 响应式断点 */
 @media (max-width: 600px) {
   .nav-grid { grid-template-columns: 1fr; }
   .cron-row { flex-wrap: wrap; }

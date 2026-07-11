@@ -1,5 +1,7 @@
+// 防抖定时器 ID
 let rxHighlightTimer = null;
 
+// getRegexFlags - 从复选框获取正则表达式标志位
 function getRegexFlags() {
   let f = '';
   if (document.getElementById('rxFlagG').checked) f += 'g';
@@ -12,6 +14,7 @@ function getRegexFlags() {
 }
 
 
+// testRegex - 执行正则匹配测试并渲染结果
 function testRegex() {
   const patternStr = document.getElementById('rxPattern').value.trim();
   const text = document.getElementById('rxTestText').value;
@@ -98,11 +101,13 @@ function testRegex() {
   }
 }
 
+// scheduleRxTest - 防抖触发正则测试（200ms 延迟）
 function scheduleRxTest() {
   if (rxHighlightTimer) clearTimeout(rxHighlightTimer);
   rxHighlightTimer = setTimeout(testRegex, 200);
 }
 
+// 正则面板事件绑定：输入框变化和标志位切换均触发测试
 document.getElementById('rxPattern').addEventListener('input', scheduleRxTest);
 document.getElementById('rxTestText').addEventListener('input', scheduleRxTest);
 document.querySelectorAll('#tool-regex input[type="checkbox"]').forEach(cb => {

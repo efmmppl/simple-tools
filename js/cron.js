@@ -1,6 +1,9 @@
+// 月份英文缩写 → 数字映射
 const MONTH_MAP = { JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12 };
+// 星期英文缩写 → 数字映射
 const DOW_MAP = { SUN:0,MON:1,TUE:2,WED:3,THU:4,FRI:5,SAT:6 };
 
+// parseField - 解析 Cron 单个字段（秒/分/时/日/月/周/年）
 function parseField(field, min, max, nameMap) {
   const set = new Set();
   const parts = field.split(',');
@@ -41,6 +44,7 @@ function parseField(field, min, max, nameMap) {
   return [...set].sort((a,b)=>a-b);
 }
 
+// parseQuartzCron - 解析 Quartz Cron 完整表达式，返回各字段数值集合
 function parseQuartzCron(expr) {
   const parts = expr.trim().split(/\s+/);
   if (parts.length < 6 || parts.length > 7) throw new Error(`需要 6~7 个字段，当前 ${parts.length} 个`);
@@ -54,6 +58,7 @@ function parseQuartzCron(expr) {
   return { sec, min, hour, day, month, dow, year };
 }
 
+// getNextTimes - 从指定时间开始计算未来 N 次执行时间
 function getNextTimes(fields, count, from) {
   const results = [];
   let current = new Date(from);
@@ -82,14 +87,16 @@ function getNextTimes(fields, count, from) {
   return results;
 }
 
+// parseAndCompute - 解析表达式并计算未来执行时间点
 function parseAndCompute(expr, count) {
   const fields = parseQuartzCron(expr);
   return getNextTimes(fields, count, new Date());
 }
 
-let cronCount = 1;
-const MAX_CRONS = 3;
+let cronCount = 1; // 当前 Cron 输入框数量
+const MAX_CRONS = 3; // 最大允许的输入框数量
 
+// renderInputs - 渲染 Cron 表达式输入框列表
 function renderInputs() {
   const list = document.getElementById('cronList');
   const prev = [];
@@ -111,25 +118,30 @@ function renderInputs() {
   document.getElementById('addCronBtn').style.display = cronCount >= MAX_CRONS ? 'none' : '';
 }
 
+// addCron - 添加一个 Cron 输入框
 function addCron() {
   if (cronCount >= MAX_CRONS) return;
   cronCount++;
   renderInputs();
 }
 
+// removeCron - 移除指定索引的 Cron 输入框
 function removeCron(idx) {
   if (cronCount <= 1) return;
   cronCount--;
   renderInputs();
 }
 
+// 添加按钮点击事件
 document.getElementById('addCronBtn').addEventListener('click', addCron);
 
+// formatTime - 将日期对象格式化为 "YYYY-MM-DD HH:mm:ss"
 function formatTime(d) {
   const pad = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+// relativeTime - 计算距当前时间的相对描述（如 "5 分后"）
 function relativeTime(d) {
   const diff = d.getTime() - Date.now();
   if (diff < 0) return '已过去';
@@ -143,6 +155,7 @@ function relativeTime(d) {
   return `${day} 天 ${h % 24} 时后`;
 }
 
+// parseAll - 解析所有 Cron 表达式并展示未来执行时间线
 function parseAll() {
   const errorMsg = document.getElementById('errorMsg');
   errorMsg.style.display = 'none';
@@ -200,7 +213,9 @@ function parseAll() {
   area.innerHTML = html;
 }
 
+// 解析按钮点击事件
 document.getElementById('parseBtn').addEventListener('click', parseAll);
+// 第一个输入框回车触发解析
 document.getElementById('cronInput0')?.addEventListener('keydown', e => { if (e.key === 'Enter') parseAll(); });
 
-renderInputs();
+renderInputs(); // 初始渲染输入框

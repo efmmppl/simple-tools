@@ -1,9 +1,15 @@
+// 标准数独答案盘
 var sudokuSolution = [];
+// 标准数独初始谜盘（含空格）
 var sudokuPuzzle = [];
+// 玩家当前填数盘
 var sudokuUser = [];
+// 当前难度
 var sudokuDifficulty = 'medium';
+// 当前选中的格子坐标
 var sudokuSelected = { r: -1, c: -1 };
 
+// sudokuShuffle - Fisher-Yates 洗牌算法
 function sudokuShuffle(arr) {
   for (var i = arr.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
@@ -11,6 +17,7 @@ function sudokuShuffle(arr) {
   }
 }
 
+// sudokuIsValid - 检查在 (r,c) 放置 num 是否合法（行/列/宫）
 function sudokuIsValid(board, r, c, num) {
   for (var i = 0; i < 9; i++) {
     if (board[r][i] === num || board[i][c] === num) return false;
@@ -25,6 +32,7 @@ function sudokuIsValid(board, r, c, num) {
   return true;
 }
 
+// sudokuSolve - 回溯法求解数独，random 为 true 时随机尝试数字
 function sudokuSolve(board, random) {
   for (var r = 0; r < 9; r++) {
     for (var c = 0; c < 9; c++) {
@@ -43,6 +51,7 @@ function sudokuSolve(board, random) {
   return true;
 }
 
+// sudokuGenerate - 生成数独谜题（先随机生成完整盘，再挖空）
 function sudokuGenerate(diff) {
   var board = [];
   for (var r = 0; r < 9; r++) {
@@ -62,6 +71,7 @@ function sudokuGenerate(diff) {
   return { puzzle: puzzle, solution: solution };
 }
 
+// sudokuNewGame - 开始新游戏
 function sudokuNewGame(diff) {
   sudokuDifficulty = diff || 'medium';
   var result = sudokuGenerate(sudokuDifficulty);
@@ -73,6 +83,7 @@ function sudokuNewGame(diff) {
   document.getElementById('sudokuStatus').textContent = '';
 }
 
+// sudokuRender - 渲染 9×9 数独网格
 function sudokuRender() {
   var grid = document.getElementById('sudokuGrid');
   grid.innerHTML = '';
@@ -96,6 +107,7 @@ function sudokuRender() {
   }
 }
 
+// sudokuSelectCell - 选中一个格子
 function sudokuSelectCell(r, c) {
   if (sudokuPuzzle[r][c] !== 0) return;
   sudokuSelected = { r: r, c: c };
@@ -103,6 +115,7 @@ function sudokuSelectCell(r, c) {
   document.getElementById('sudokuNumberInput').focus();
 }
 
+// sudokuInputNumber - 在当前选中格填入数字
 function sudokuInputNumber(num) {
   if (sudokuSelected.r < 0 || sudokuSelected.c < 0) return;
   if (sudokuPuzzle[sudokuSelected.r][sudokuSelected.c] !== 0) return;
@@ -111,6 +124,7 @@ function sudokuInputNumber(num) {
   sudokuCheckComplete();
 }
 
+// sudokuClearCell - 清除当前选中格
 function sudokuClearCell() {
   if (sudokuSelected.r < 0 || sudokuSelected.c < 0) return;
   if (sudokuPuzzle[sudokuSelected.r][sudokuSelected.c] !== 0) return;
@@ -118,6 +132,7 @@ function sudokuClearCell() {
   sudokuRender();
 }
 
+// sudokuCheckComplete - 检查是否全部填对
 function sudokuCheckComplete() {
   for (var r = 0; r < 9; r++) {
     for (var c = 0; c < 9; c++) {
@@ -127,6 +142,7 @@ function sudokuCheckComplete() {
   document.getElementById('sudokuStatus').textContent = '恭喜！数独完成！';
 }
 
+// sudokuHint - 提示：在当前格填入正确答案
 function sudokuHint() {
   if (sudokuSelected.r < 0 || sudokuSelected.c < 0) return;
   if (sudokuPuzzle[sudokuSelected.r][sudokuSelected.c] !== 0) return;
@@ -135,6 +151,7 @@ function sudokuHint() {
   sudokuCheckComplete();
 }
 
+// sudokuShowAnswer - 显示全部答案
 function sudokuShowAnswer() {
   sudokuUser = sudokuSolution.map(function (row) { return row.slice(); });
   sudokuRender();
@@ -143,14 +160,17 @@ function sudokuShowAnswer() {
 
 sudokuNewGame('medium');
 
+// 新建游戏按钮事件
 document.getElementById('sudokuNewBtn').addEventListener('click', function () {
   sudokuNewGame(document.getElementById('sudokuDifficulty').value);
 });
 
+// 难度切换事件
 document.getElementById('sudokuDifficulty').addEventListener('change', function () {
   sudokuNewGame(this.value);
 });
 
+// 数字按钮组事件（1-9 及清除按钮）
 var sudokuNumBtns = document.querySelectorAll('.sudoku-num-btn');
 for (var i = 0; i < sudokuNumBtns.length; i++) {
   sudokuNumBtns[i].addEventListener('click', function () {
@@ -160,9 +180,11 @@ for (var i = 0; i < sudokuNumBtns.length; i++) {
   });
 }
 
+// 提示和显示答案按钮事件
 document.getElementById('sudokuHintBtn').addEventListener('click', sudokuHint);
 document.getElementById('sudokuAnswerBtn').addEventListener('click', sudokuShowAnswer);
 
+// 键盘输入数字事件（仅允许 1-9）
 document.getElementById('sudokuNumberInput').addEventListener('input', function () {
   var val = this.value.replace(/[^1-9]/g, '').slice(0, 1);
   this.value = val;
@@ -172,6 +194,7 @@ document.getElementById('sudokuNumberInput').addEventListener('input', function 
   }
 });
 
+// 退格/删除键清除当前格
 document.getElementById('sudokuNumberInput').addEventListener('keydown', function (e) {
   if (e.key === 'Backspace' || e.key === 'Delete') {
     e.preventDefault();

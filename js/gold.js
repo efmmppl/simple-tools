@@ -1,5 +1,6 @@
-let goldTimer = null;
+let goldTimer = null; // 金价自动刷新定时器
 
+// fetchGoldPrice - 通过 JSONP 方式获取金价数据
 function fetchGoldPrice() {
   document.getElementById('goldRefreshStatus').textContent = '加载中...';
   const s = document.createElement('script');
@@ -24,6 +25,7 @@ function fetchGoldPrice() {
   document.body.appendChild(s);
 }
 
+// updateGoldCard - 更新指定类型（国内/纽约/伦敦）的金价卡片 DOM
 function updateGoldCard(type, d) {
   const price = parseFloat(d[0]);
   const close = parseFloat(d[7]);
@@ -41,6 +43,7 @@ function updateGoldCard(type, d) {
   document.getElementById('gold-' + type + '-close').textContent = d[7];
 }
 
+// MutationObserver - 监听金价视图切换，进入时加载、离开时停止刷新
 const goldObserver = new MutationObserver(() => {
   const goldView = document.getElementById('tool-gold');
   if (goldView.classList.contains('active')) {

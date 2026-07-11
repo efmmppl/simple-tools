@@ -1,14 +1,19 @@
+// 平台中文名映射
 const HOT_PLATFORMS = {
   biliHot: 'B站热门', tieba: '贴吧热榜'
 };
+// 平台对应卡片背景色
 const HOT_BG_COLORS = {
   biliHot: 'rgba(0,169,232,0.08)', tieba: 'rgba(68,145,247,0.06)'
 };
+// 平台对应卡片边框色
 const HOT_BORDER_COLORS = {
   biliHot: 'rgba(0,169,232,0.12)', tieba: 'rgba(68,145,247,0.1)'
 };
 
+// 定时器引用
 let hotTimer = null;
+// 监听热榜面板切换，切换到此面板时自动加载数据
 const hotObserver = new MutationObserver(() => {
   if (document.getElementById('tool-hotlist').classList.contains('active')) {
     fetchHotData();
@@ -16,10 +21,12 @@ const hotObserver = new MutationObserver(() => {
 });
 hotObserver.observe(document.getElementById('tool-hotlist'), { attributes: true, attributeFilter: ['class'] });
 
+// 热榜面板事件绑定：切换平台、切换数量、点击刷新均重新加载
 document.getElementById('hotPlatform').addEventListener('change', fetchHotData);
 document.getElementById('hotCount').addEventListener('change', fetchHotData);
 document.getElementById('hotRefreshBtn').addEventListener('click', fetchHotData);
 
+// fetchHotData - 从 hotlist.json 获取热榜数据并渲染
 function fetchHotData() {
   const type = document.getElementById('hotPlatform').value;
   const count = parseInt(document.getElementById('hotCount').value) || 20;
@@ -57,6 +64,7 @@ function fetchHotData() {
     });
 }
 
+// renderHotList - 渲染热榜列表 HTML
 function renderHotList(items, type, container, status, updateTime) {
   if (items.length === 0) {
     container.innerHTML = '<div class="empty-state"><i class="far fa-frown" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>暂无数据</div>';

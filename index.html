@@ -1,14 +1,19 @@
 <!DOCTYPE html>
+<!-- 页面类型：HTML5 文档，语言设为简体中文 -->
 <html lang="zh-CN">
 <head>
+<!-- 字符编码与视口设置，确保移动端正确缩放 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>工具箱</title>
+<!-- Font Awesome 图标库 CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- 全局样式表 -->
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
+<!-- 页面顶部栏：标题 + 副标题 -->
 <header class="header">
   <h1><i class="fas fa-tools" style="color:#e8dcc8;margin-right:8px"></i> 工具箱</h1>
   <p>实用离线工具</p>
@@ -16,7 +21,8 @@
 
 <div class="container">
 
-  <!-- Navigation -->
+  <!-- ======== 导航视图：工具卡片网格 ======== -->
+  <!-- 每个 .nav-card 的 data-tool 属性对应一个工具视图的 ID，点击后切换显示 -->
   <div id="navView" class="nav-grid">
     <div class="nav-card" data-tool="gold">
       <div class="nav-icon"><i class="fas fa-coins"></i></div>
@@ -65,7 +71,7 @@
     </div>
   </div>
 
-  <!-- Cron -->
+  <!-- ======== 工具：Cron 解析器 ======== -->
   <div id="tool-cron" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="cron"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -91,7 +97,8 @@
     </div>
   </div>
 
-  <!-- Gold -->
+  <!-- ======== 工具：金价查询 ======== -->
+  <!-- 显示国内、纽约期货、伦敦现货三种金价，每 60 秒自动刷新 -->
   <div id="tool-gold" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="gold"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -143,7 +150,8 @@
     </div>
   </div>
 
-  <!-- IP Info -->
+  <!-- ======== 工具：IP 信息 ======== -->
+  <!-- 显示公网 IP、地理位置、运营商等信息，支持复制和刷新 -->
   <div id="tool-ip" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="ip"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -171,7 +179,8 @@
     </div>
   </div>
 
-  <!-- Timestamp -->
+  <!-- ======== 工具：时间戳工具 ======== -->
+  <!-- 实时显示当前 Unix 时间戳（秒/毫秒），支持时间戳与日期双向转换 -->
   <div id="tool-timestamp" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="timestamp"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -232,7 +241,8 @@
     </div>
   </div>
 
-  <!-- Regex Tester -->
+  <!-- ======== 工具：正则测试器 ======== -->
+  <!-- 输入正则表达式和测试文本，实时高亮匹配结果，显示捕获组信息 -->
   <div id="tool-regex" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="regex"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -280,7 +290,8 @@
     </div>
   </div>
 
-  <!-- Base64 -->
+  <!-- ======== 工具：Base64 编解码 ======== -->
+  <!-- 支持文本与 Base64 互转，以及文件上传编码 -->
   <div id="tool-base64" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="base64"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -330,7 +341,8 @@
 
   </div>
 
-  <!-- 文字冒险 -->
+  <!-- ======== 工具：文字冒险 ======== -->
+  <!-- 交互式剧情游戏"神秘古堡"，包含场景叙述和分支选项 -->
   <div id="tool-adventure" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="adventure"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -346,7 +358,8 @@
     </div>
   </div>
 
-  <!-- 数独 -->
+  <!-- ======== 工具：数独 ======== -->
+  <!-- 九宫格数独游戏，支持简单/中等/困难三档难度，含提示和答案功能 -->
   <div id="tool-sudoku" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="sudoku"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -386,7 +399,8 @@
     </div>
   </div>
 
-  <!-- 今日热榜 -->
+  <!-- ======== 工具：今日热榜 ======== -->
+  <!-- 展示 B 站热门和贴吧热榜，数据来自本地 hotlist.json 缓存 -->
   <div id="tool-hotlist" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="hotlist"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -411,10 +425,12 @@
 
 </div>
 
+<!-- 页面底部：显示实时时钟 -->
 <footer style="text-align:center;padding:24px 20px;color:#8c8273;font-size:0.82rem;border-top:1px solid rgba(107,143,94,.08)">
   <span id="footerClock"></span>
 </footer>
 
+<!-- JavaScript 脚本加载（按依赖顺序，路由控制 nav.js 放首位） -->
 <script src="js/nav.js"></script>
 <script src="js/cron.js"></script>
 <script src="js/gold.js"></script>
