@@ -411,6 +411,42 @@ body {
   color: #f0e4c8;
 }
 
+.sudoku-status {
+  text-align: center; min-height: 24px; margin-bottom: 10px;
+  font-size: 0.9rem; color: #6b8f5e; font-weight: 500;
+}
+.sudoku-grid {
+  display: grid; grid-template-columns: repeat(9, 1fr);
+  max-width: 360px; margin: 0 auto 16px;
+  border: 2px solid #6b6058; border-radius: 6px; overflow: hidden; background: #fff;
+}
+.sudoku-cell {
+  display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; font-size: 1.2rem; font-weight: 500; color: #3d3a35;
+  border: 1px solid rgba(107, 143, 94, 0.15); cursor: pointer; user-select: none;
+  transition: background 0.15s;
+}
+.sudoku-cell.sudoku-border-bottom { border-bottom: 2px solid #6b6058; }
+.sudoku-cell.sudoku-border-right { border-right: 2px solid #6b6058; }
+.sudoku-cell.sudoku-selected { background: rgba(107, 143, 94, 0.15); }
+.sudoku-cell.sudoku-fixed { color: #3d3a35; font-weight: 600; background: #f5f0e8; }
+.sudoku-cell.sudoku-user { color: #6b8f5e; }
+.sudoku-pad { max-width: 360px; margin: 0 auto; }
+.sudoku-number-input {
+  width: 100%; padding: 10px; text-align: center; margin-bottom: 10px;
+  border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px; background: #fff;
+  color: #3d3a35; font-size: 1rem; outline: none;
+}
+.sudoku-num-btns {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+}
+.sudoku-num-btn {
+  padding: 10px; border: 1px solid rgba(107, 143, 94, 0.2); border-radius: 6px;
+  background: #fcfaf5; color: #3d3a35; font-size: 1rem; cursor: pointer; transition: all 0.2s;
+}
+.sudoku-num-btn:hover { background: rgba(107, 143, 94, 0.08); border-color: #6b8f5e; }
+.sudoku-num-btn:active { transform: scale(0.97); }
+
 @media (max-width: 600px) {
   .nav-grid { grid-template-columns: 1fr; }
   .cron-row { flex-wrap: wrap; }
@@ -424,4 +460,6 @@ body {
   .adv-hud-row { flex-direction: column; align-items: stretch; gap: 6px; }
   .adv-hud-steps { text-align: right; }
   .adv-hud-bar-bg { max-width: none; }
+  .sudoku-cell { font-size: 1rem; }
+  .sudoku-num-btn { padding: 8px 4px; }
 }

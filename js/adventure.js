@@ -503,6 +503,25 @@ function enterScene(sceneId) {
 
   advRenderHUD();
 
+  var isVisible = document.getElementById('tool-adventure').classList.contains('active');
+
+  function showFullText() {
+    bodyEl.innerHTML = escapeHtml(rawText).replace(/\n/g, '<br>');
+    choicesEl.innerHTML = '';
+    choices.forEach(function (ch) {
+      var btn = document.createElement('button');
+      btn.className = 'adv-choice-btn adv-choice-show';
+      btn.textContent = ch.text;
+      btn.addEventListener('click', function () { advPlayClick(); enterScene(ch.next); });
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  if (!isVisible) {
+    showFullText();
+    return;
+  }
+
   var chars = escapeHtml(rawText).split('');
   var idx = 0;
   var speed = 18;

@@ -58,6 +58,11 @@
       <div class="nav-name">文字冒险</div>
       <div class="nav-desc">神秘古堡<br>交互式剧情体验</div>
     </div>
+    <div class="nav-card" data-tool="sudoku">
+      <div class="nav-icon"><i class="fas fa-border-all"></i></div>
+      <div class="nav-name">数独</div>
+      <div class="nav-desc">九宫格逻辑推理<br>多难度自动出题</div>
+    </div>
   </div>
 
   <!-- Cron -->
@@ -341,6 +346,46 @@
     </div>
   </div>
 
+  <!-- 数独 -->
+  <div id="tool-sudoku" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="sudoku"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-border-all" style="margin-right:6px;color:#6b8f5e"></i> 数独</span>
+      <button class="btn btn-outline btn-sm" id="sudokuNewBtn" style="margin-left:auto"><i class="fas fa-redo"></i> 新游戏</button>
+    </div>
+    <div class="options-row" style="justify-content:space-between">
+      <div>
+        <label>难度：</label>
+        <select id="sudokuDifficulty">
+          <option value="easy">简单</option>
+          <option value="medium" selected>中等</option>
+          <option value="hard">困难</option>
+        </select>
+      </div>
+      <div>
+        <button class="btn btn-outline btn-sm" id="sudokuHintBtn">提示</button>
+        <button class="btn btn-outline btn-sm" id="sudokuAnswerBtn">答案</button>
+      </div>
+    </div>
+    <div id="sudokuStatus" class="sudoku-status"></div>
+    <div class="sudoku-grid" id="sudokuGrid"></div>
+    <div class="sudoku-pad">
+      <input type="text" id="sudokuNumberInput" class="sudoku-number-input" placeholder="点击格子后输入数字" autocomplete="off">
+      <div class="sudoku-num-btns">
+        <button class="sudoku-num-btn" data-num="1">1</button>
+        <button class="sudoku-num-btn" data-num="2">2</button>
+        <button class="sudoku-num-btn" data-num="3">3</button>
+        <button class="sudoku-num-btn" data-num="4">4</button>
+        <button class="sudoku-num-btn" data-num="5">5</button>
+        <button class="sudoku-num-btn" data-num="6">6</button>
+        <button class="sudoku-num-btn" data-num="7">7</button>
+        <button class="sudoku-num-btn" data-num="8">8</button>
+        <button class="sudoku-num-btn" data-num="9">9</button>
+        <button class="sudoku-num-btn" data-num="0">清除</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 今日热榜 -->
   <div id="tool-hotlist" class="tool-view">
     <div class="back-bar">
@@ -379,5 +424,6 @@
 <script src="js/base64.js"></script>
 <script src="js/hotlist.js"></script>
 <script src="js/adventure.js"></script>
+<script src="js/sudoku.js"></script>
 </body>
 </html>

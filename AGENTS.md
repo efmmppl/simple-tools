@@ -17,6 +17,7 @@
 - `js/regex.js` — 正则测试器
 - `js/base64.js` — Base64 编解码
 - `js/hotlist.js` — 今日热榜
+- `js/sudoku.js` — 数独游戏
 - `scripts/fetch-hotlist.js` — GitHub Actions 热榜抓取脚本，Node.js 18+，无外部依赖
 - `hotlist.json` — 热榜缓存数据，由 GitHub Actions 定时生成
 - `.github/workflows/hotlist.yml` — 每天早上 9:00 触发抓取热榜，生成 hotlist.json 并提交
