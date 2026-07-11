@@ -1,12 +1,8 @@
-let ipTimer = null; // IP 自动刷新定时器
-// MutationObserver - 监听 IP 视图切换，进入时加载、离开时停止
+// MutationObserver - 监听 IP 视图切换，进入时加载
 const ipObserver = new MutationObserver(() => {
   if (document.getElementById('tool-ip').classList.contains('active')) {
     fetchIpInfo();
     fetchLocalIp();
-    if (ipTimer) clearInterval(ipTimer);
-  } else {
-    if (ipTimer) { clearInterval(ipTimer); ipTimer = null; }
   }
 });
 ipObserver.observe(document.getElementById('tool-ip'), { attributes: true, attributeFilter: ['class'] });

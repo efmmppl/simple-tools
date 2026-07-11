@@ -215,7 +215,7 @@ function parseAll() {
 
 // 解析按钮点击事件
 document.getElementById('parseBtn').addEventListener('click', parseAll);
-// 第一个输入框回车触发解析
-document.getElementById('cronInput0')?.addEventListener('keydown', e => { if (e.key === 'Enter') parseAll(); });
+// 输入框回车触发解析（事件委托，renderInputs 重建 DOM 后依然有效）
+document.getElementById('cronList').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') parseAll(); });
 
 renderInputs(); // 初始渲染输入框

@@ -13,7 +13,8 @@ function fetchGoldPrice() {
       updateGoldCard('cn', cn);
       updateGoldCard('ny', ny);
       updateGoldCard('ld', ld);
-      document.getElementById('goldUpdateTime').textContent = cn[12] + ' ' + cn[6];
+      document.getElementById('goldDataTime').textContent = cn[12] + ' ' + cn[6];
+      document.getElementById('goldRefreshTime').textContent = new Date().toLocaleString('zh-CN', { hour12: false });
       document.getElementById('goldRefreshStatus').textContent = '已更新';
     } catch (e) {
       document.getElementById('goldRefreshStatus').textContent = '加载失败';

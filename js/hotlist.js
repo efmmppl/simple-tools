@@ -98,5 +98,5 @@ function renderHotList(items, type, container, status, updateTime) {
 
   html += '</div>';
   container.innerHTML = html;
-  status.textContent = '已更新';
+  status.textContent = '已更新 ' + new Date().toLocaleTimeString('zh-CN', { hour12: false });
 }
