@@ -17,6 +17,7 @@
 - `js/regex.js` — 正则测试器
 - `js/base64.js` — Base64 编解码
 - `js/hotlist.js` — 今日热榜
+- `js/adventure.js` — 文字冒险游戏
 - `js/sudoku.js` — 数独游戏
 - `scripts/fetch-hotlist.js` — GitHub Actions 热榜抓取脚本，Node.js 18+，无外部依赖
 - `hotlist.json` — 热榜缓存数据，由 GitHub Actions 定时生成
@@ -27,7 +28,7 @@
 
 1. 在 `.nav-card` 区域加一个卡片，`data-tool="xxx"` 唯一标识
 2. 在 `.tool-view` 区域加对应的 `<div id="tool-xxx" class="tool-view">`，含界面 HTML
-3. 在底部 `<script>` 标签列表追加 `<script src="js/xxx.js">`，对应新增一个 `js/xxx.js` 文件
+3. 在底部 `<script>` 标签列表追加 `<script src="js/xxx.js" charset="UTF-8"></script>`，对应新增一个 `js/xxx.js` 文件
 4. CSS 采用 `#fcfaf5` 卡片背景、`#6b8f5e` 主色、`.ts-card/.ts-section/.ts-row` 布局模式，写在 `css/style.css`
 5. 在 `README.md` 工具列表追加一行
 
