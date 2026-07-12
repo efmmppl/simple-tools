@@ -2,76 +2,56 @@
 
 ## 项目本质
 
-纯前端单页应用，零构建步骤、零包管理、零后端服务。
-浏览器打开即可运行。代码按职责拆分为独立文件。
+纯前端单页应用，无构建、无包管理、无后端。浏览器打开 `index.html` 即可运行。
 
-## 文件结构
+## 开发与测试
 
-- `index.html` — 页面骨架（导航 + 各工具视图的 HTML 结构）
-- `css/style.css` — 全部样式（无构建，直接 `<link>` 引入）
-- `js/nav.js` — 导航路由、footer 时钟、复制按钮等通用逻辑
-- `js/cron.js` — Cron 解析器
-- `js/gold.js` — 金价查询
-- `js/ip.js` — IP 信息
-- `js/timestamp.js` — 时间戳工具
-- `js/regex.js` — 正则测试器
-- `js/base64.js` — Base64 编解码
-- `js/hotlist.js` — 今日热榜
-- `js/adventure.js` — 文字冒险游戏
-- `js/sudoku.js` — 数独游戏
-- `scripts/fetch-hotlist.js` — GitHub Actions 热榜抓取脚本，Node.js 18+，无外部依赖
-- `hotlist.json` — 热榜缓存数据，由 GitHub Actions 定时生成
-- `.github/workflows/hotlist.yml` — 每天早上 9:00 触发抓取热榜，生成 hotlist.json 并提交
-- `CNAME` — 自定义域名 `tools.kuak.top`，GitHub Pages 使用
+- 直接打开：`start index.html`
+- 本地服务器（推荐，避免 `file://` 下的 CORS 与 WebRTC 限制）：
+  ```bash
+  python -m http.server 8000
+  # 或
+  npx serve
+  ```
+- 无 lint / test / typecheck 命令。验证方式：用浏览器实际打开对应功能页面。
 
-## 添加新工具的步骤
+## 文件约定
 
-1. 在 `.nav-card` 区域加一个卡片，`data-tool="xxx"` 唯一标识
-2. 在 `.tool-view` 区域加对应的 `<div id="tool-xxx" class="tool-view">`，含界面 HTML
-3. 在底部 `<script>` 标签列表追加 `<script src="js/xxx.js" charset="UTF-8"></script>`，对应新增一个 `js/xxx.js` 文件
-4. CSS 采用 `#fcfaf5` 卡片背景、`#6b8f5e` 主色、`.ts-card/.ts-section/.ts-row` 布局模式，写在 `css/style.css`
-5. 在 `README.md` 工具列表追加一行
+- `index.html` — 页面骨架，导航卡片与工具视图均在此。
+- `css/style.css` — 全部样式，直接 `<link>` 引入。
+- `js/nav.js` — 导航路由、footer 时钟、复制按钮等通用逻辑，**必须第一个加载**。
+- `js/*.js` — 每个工具一个文件，按职责拆分。
+- `scripts/fetch-hotlist.js` — 热榜抓取脚本，Node.js 18+，无外部依赖。
+- `hotlist.json` — 热榜缓存，由 GitHub Actions 生成。
+- `.github/workflows/hotlist.yml` — 每日 UTC 01:00 抓取热榜并提交。
+- `CNAME` — 自定义域名 `tools.kuak.top`，用于 GitHub Pages。
+
+## 添加新工具
+
+1. 在 `index.html` 的 `.nav-grid` 加 `.nav-card` 卡片，`data-tool="xxx"` 唯一。
+2. 在 `.tool-view` 区域加 `<div id="tool-xxx" class="tool-view">` 的 HTML。
+3. 在底部 `<script>` 列表追加 `<script src="js/xxx.js" charset="UTF-8"></script>`，并新建 `js/xxx.js`。
+4. 样式写在 `css/style.css`，遵循 `#fcfaf5` 卡片背景、`#6b8f5e` 主色、`.ts-card/.ts-section/.ts-row` 布局。
+5. 在 `README.md` 工具列表追加一行。
 
 ## 关键约定
 
-- 语言：**简体中文**（界面和提交信息）
-- 图标：Font Awesome 6.5.1（CDN: `cdnjs.cloudflare.com`）
-- 字体：`-apple-system, BlinkMacSystemFont, ...monospace`
-- 颜色：暖色米白主题，主色 `#6b8f5e`（绿色），正文字体 `#3d3a35`
-- 不需要询问是否推送——**修改后必须先展示给用户，等用户确认再提交推送**
-- 编辑代码**不要添加注释**，除非代码本身需要说明
+- **语言**：简体中文（界面和提交信息）。
+- **图标**：Font Awesome 6.5.1（CDN: `cdnjs.cloudflare.com`）。
+- **字体/颜色**：`-apple-system, BlinkMacSystemFont, ...monospace`；暖色米白主题，主色 `#6b8f5e`，正文 `#3d3a35`。
+- **不主动提交/推送**：完成修改后只展示结果，除非用户明确说“提交”“推送”或类似指令，否则不执行 `git commit` / `git push`。
+- **不要添加注释**，除非代码本身需要说明。
+- **外部 JS 必须带 `charset="UTF-8"`**：无 BOM 的 UTF-8 脚本在 `python -m http.server` 下可能被浏览器误判为 GBK，导致中文乱码或脚本异常。
+- **无虚拟 DOM**：HTML 用字符串拼接，所有函数在全局作用域，命名驼峰且动词在前（如 `fetchIpInfo`、`parseQuartzCron`）。
+- **事件绑定**：每个工具在 `<script>` 末尾用 `addEventListener` 集中绑定。
 
-## 数据获取方式
+## 数据获取注意
 
-- **外部 API**：使用 `fetch()`，在外网环境正常工作
-- **JSONP**：金价查询用 `<script>` 标签注入方式获取（绕过 CORS），其他工具用 `fetch`
-- **热榜**：通过 GitHub Actions 运行 `node scripts/fetch-hotlist.js` 生成 `hotlist.json`，前端直接读取（同源无 CORS）
-- **内网 IP**：通过 WebRTC ICE 候选者检测，仅支持 `host` 类型和私有网段
-- 所有平台 API 在 China Mobile 和 GitHub Actions（Azure US）上访问受限，只有 B 站和贴吧可稳定获取
+- 外部 API 用 `fetch()`；金价查询用 `<script>` JSONP 注入绕过 CORS。
+- 热榜通过 GitHub Actions 运行 `node scripts/fetch-hotlist.js` 生成 `hotlist.json`，前端直接读取（同源无 CORS）。
+- 内网 IP 通过 WebRTC ICE 候选者检测，仅支持 `host` 类型和私有网段。
+- GitHub Actions（Azure US）对部分国内平台 API 访问受限，目前 B 站和贴吧可稳定获取。
 
-## 热榜抓取脚本
+## 代码图谱
 
-```bash
-node scripts/fetch-hotlist.js
-```
-
-输出 `hotlist.json`，格式 `{ updated: ISO时间戳, data: { biliHot: [...], tieba: [...] } }`。
-GitHub Actions 工作流中自动运行并提交结果。
-
-## 本地测试
-
-```bash
-# 直接用浏览器打开 index.html
-start index.html
-
-# 或用本地服务器（解决 file:// 的 CORS 和 WebRTC 限制）
-python -m http.server 8000
-npx serve
-```
-
-## 代码风格
-
-- 单文件 SPA，所有函数在全局作用域
-- 函数命名：驼峰，功能动词在前（`fetchIpInfo`, `parseQuartzCron`, `testRegex`）
-- HTML 模板用字符串拼接，非虚拟 DOM
-- 事件绑定用 `addEventListener`，每个工具在 `<script>` 末尾集中绑定
+仓库已启用 CodeGraph（`.codegraph/` 目录）。需要理解代码关系时，优先用 `codegraph explore "<问题>"` 或 `codegraph node <symbol-or-file>`，而非 grep。
