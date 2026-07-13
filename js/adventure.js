@@ -523,7 +523,17 @@ function enterScene(sceneId) {
   container.className = 'adv-container';
   if (scene.isEnd) container.classList.add('adv-end');
 
-  textEl.innerHTML = (title ? '<div class="adv-title">' + advEscape(title) + '</div>' : '') + '<div class="adv-body">' + advEscape(rawText).replace(/\n/g, '<br>') + '</div>';
+  textEl.innerHTML = '';
+  if (title) {
+    var titleDiv = document.createElement('div');
+    titleDiv.className = 'adv-title';
+    titleDiv.textContent = title;
+    textEl.appendChild(titleDiv);
+  }
+  var bodyDiv = document.createElement('div');
+  bodyDiv.className = 'adv-body';
+  bodyDiv.textContent = rawText;
+  textEl.appendChild(bodyDiv);
 
   var choicesEl = document.getElementById('advChoices');
   choicesEl.innerHTML = '';
