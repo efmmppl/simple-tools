@@ -69,6 +69,11 @@
       <div class="nav-name">数独</div>
       <div class="nav-desc">九宫格逻辑推理<br>多难度自动出题</div>
     </div>
+    <div class="nav-card" data-tool="farm">
+      <div class="nav-icon"><i class="fas fa-tractor"></i></div>
+      <div class="nav-name">模拟农场</div>
+      <div class="nav-desc">Canvas 粒子农场<br>种植收获模拟经营</div>
+    </div>
   </div>
 
   <!-- ======== 工具：Cron 解析器 ======== -->
@@ -423,6 +428,43 @@
     <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:#6b6058" id="hotUpdateTime"></div>
   </div>
 
+  <!-- ======== 工具：模拟农场 ======== -->
+  <!-- Canvas 耕作经营游戏，粒子系统与格子地图 -->
+  <div id="tool-farm" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="farm"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-tractor" style="margin-right:6px;color:#6b8f5e"></i> 模拟农场</span>
+      <button class="btn btn-outline btn-sm" id="farmResetBtn" style="margin-left:auto"><i class="fas fa-redo"></i> 重新开始</button>
+    </div>
+    <div class="farm-container">
+      <div class="farm-hud">
+        <div class="farm-hud-item"><span class="farm-hud-icon">💰</span> <span id="farmMoney">100</span></div>
+        <div class="farm-hud-item"><span class="farm-hud-icon">⚡</span> <span id="farmEnergy">100</span></div>
+        <div class="farm-hud-item"><span class="farm-hud-icon">🌾</span> 第 <span id="farmDay">1</span> 天</div>
+        <div class="farm-hud-item farm-hud-seeds"><span class="farm-hud-icon">🌱</span> 小麦:<span id="farmSeedsWheat">5</span> 胡萝卜:<span id="farmSeedsCarrot">5</span> 番茄:<span id="farmSeedsTomato">5</span></div>
+      </div>
+      <canvas id="farmCanvas"></canvas>
+      <div class="farm-toolbar" id="farmToolbar">
+        <button class="farm-tool" data-tool="hoe"><i class="fas fa-trowel"></i> 耕地</button>
+        <button class="farm-tool" data-tool="wheat"><i class="fas fa-wheat-awn"></i> 小麦</button>
+        <button class="farm-tool" data-tool="carrot"><i class="fas fa-carrot"></i> 胡萝卜</button>
+        <button class="farm-tool" data-tool="tomato"><i class="fas fa-apple-whole"></i> 番茄</button>
+        <button class="farm-tool" data-tool="water"><i class="fas fa-droplet"></i> 浇水</button>
+        <button class="farm-tool" data-tool="harvest"><i class="fas fa-basket-shopping"></i> 收获</button>
+        <button class="farm-tool" id="farmShopBtn"><i class="fas fa-store"></i> 商店</button>
+      </div>
+      <div class="farm-info" id="farmInfo">🔨 选择工具，点击土地开始耕作</div>
+      <div class="farm-shop" id="farmShop" style="display:none">
+        <div class="farm-shop-title"><i class="fas fa-store"></i> 商店</div>
+        <div class="farm-shop-row"><span>🌾 小麦种子</span><span class="farm-shop-price">💰 3</span><button class="farm-shop-btn" data-crop="wheat">买</button></div>
+        <div class="farm-shop-row"><span>🥕 胡萝卜种子</span><span class="farm-shop-price">💰 5</span><button class="farm-shop-btn" data-crop="carrot">买</button></div>
+        <div class="farm-shop-row"><span>🍅 番茄种子</span><span class="farm-shop-price">💰 8</span><button class="farm-shop-btn" data-crop="tomato">买</button></div>
+        <div class="farm-shop-row farm-shop-sell"><span>出售所有成熟作物</span><span class="farm-shop-price" id="farmSellPrice">💰 0</span><button class="farm-shop-btn" id="farmSellBtn">卖</button></div>
+        <button class="farm-shop-close" id="farmShopClose"><i class="fas fa-times"></i> 关闭</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- 页面底部：显示实时时钟 -->
@@ -441,5 +483,6 @@
 <script src="js/hotlist.js" charset="UTF-8"></script>
 <script src="js/adventure.js" charset="UTF-8"></script>
 <script src="js/sudoku.js" charset="UTF-8"></script>
+<script src="js/farm.js?v=2" charset="UTF-8"></script>
 </body>
 </html>

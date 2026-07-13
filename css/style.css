@@ -582,3 +582,62 @@ body {
   .sudoku-cell { font-size: 1rem; }
   .sudoku-num-btn { padding: 8px 4px; }
 }
+
+/* 模拟农场 */
+.farm-container {
+  background: #fcfaf5; border: 1px solid rgba(107,143,94,0.12);
+  border-radius: 10px; padding: 16px; position: relative;
+}
+.farm-hud {
+  display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 10px;
+  padding: 8px 12px; background: #fff; border: 1px solid rgba(107,143,94,0.1);
+  border-radius: 8px; font-size: 0.85rem; color: #3d3a35;
+}
+.farm-hud-item { white-space: nowrap; }
+.farm-hud-icon { font-size: 0.9rem; }
+.farm-hud-seeds { color: #6b6058; font-size: 0.8rem; }
+#farmCanvas {
+  display: block; width: 100%; min-height: 200px;
+  border-radius: 8px; cursor: pointer;
+  background: #87CEEB;
+}
+.farm-toolbar {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+}
+.farm-tool {
+  flex: 1; min-width: 72px; padding: 6px 4px; border: 1px solid rgba(107,143,94,0.2);
+  border-radius: 6px; background: #fff; color: #3d3a35; font-size: 0.78rem;
+  cursor: pointer; transition: all 0.2s; text-align: center; font-family: inherit;
+}
+.farm-tool i { margin-right: 2px; color: #6b8f5e; }
+.farm-tool:hover { background: rgba(107,143,94,0.06); border-color: #6b8f5e; }
+.farm-tool.active { background: rgba(107,143,94,0.12); border-color: #6b8f5e; color: #2d4a2d; font-weight: 600; }
+.farm-tool.active i { color: #2d4a2d; }
+.farm-info {
+  margin-top: 8px; padding: 8px 12px; background: #fff;
+  border: 1px solid rgba(107,143,94,0.1); border-radius: 6px;
+  font-size: 0.82rem; color: #6b6058; min-height: 36px;
+}
+.farm-shop {
+  margin-top: 10px; padding: 14px 16px; background: #fff;
+  border: 2px solid rgba(212,168,74,0.3); border-radius: 8px;
+}
+.farm-shop-title { font-size: 0.95rem; font-weight: 600; color: #6b8f5e; margin-bottom: 10px; }
+.farm-shop-row {
+  display: flex; align-items: center; gap: 10px; padding: 6px 0;
+  border-bottom: 1px solid rgba(107,143,94,0.06); font-size: 0.85rem;
+}
+.farm-shop-row:last-of-type { border-bottom: none; }
+.farm-shop-price { color: #8c8273; font-size: 0.82rem; margin-left: auto; }
+.farm-shop-btn {
+  padding: 2px 14px; border: 1px solid rgba(107,143,94,0.3); border-radius: 4px;
+  background: transparent; color: #6b8f5e; cursor: pointer; font-size: 0.8rem; transition: all 0.15s;
+}
+.farm-shop-btn:hover { background: rgba(107,143,94,0.08); }
+.farm-shop-sell { border-top: 1px dashed rgba(107,143,94,0.15); margin-top: 4px; padding-top: 10px; }
+.farm-shop-close {
+  display: block; width: 100%; margin-top: 10px; padding: 6px;
+  border: none; border-radius: 6px; background: rgba(107,143,94,0.06);
+  color: #6b6058; cursor: pointer; font-size: 0.82rem; text-align: center;
+}
+.farm-shop-close:hover { background: rgba(107,143,94,0.1); }

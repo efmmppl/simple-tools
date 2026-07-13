@@ -19,6 +19,7 @@
 | **今日热榜** | 展示 B 站/贴吧实时热搜榜单，数据来自 GitHub Actions 定时抓取。 |
 | **文字冒险** | 神秘古堡交互式剧情游戏，包含场景叙述、分支选项与背包系统。 |
 | **数独** | 九宫格逻辑推理，支持简单/中等/困难三档难度。 |
+| **模拟农场** | Canvas 2D 耕作经营游戏，含粒子系统、日夜循环与格子地图。 |
 
 ## 技术特点
 
@@ -44,7 +45,8 @@
 │   ├── base64.js           # Base64 编解码
 │   ├── hotlist.js          # 今日热榜
 │   ├── adventure.js        # 文字冒险游戏
-│   └── sudoku.js           # 数独游戏
+│   ├── sudoku.js           # 数独游戏
+│   └── farm.js             # 模拟农场游戏
 ├── scripts/fetch-hotlist.js # 热榜抓取脚本（Node.js 18+，无外部依赖）
 ├── hotlist.json             # 热榜缓存数据
 ├── .github/workflows/hotlist.yml # 定时抓取热榜的 GitHub Actions 工作流
