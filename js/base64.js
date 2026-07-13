@@ -4,8 +4,10 @@ document.getElementById('b64EncodeBtn').addEventListener('click', () => {
   const result = document.getElementById('b64EncodeResult');
   if (!input) { result.innerHTML = '<span style="color:#b85454">请输入要编码的文本</span>'; return; }
   try {
-    // 先 UTF-8 编码再转 Base64
-    result.textContent = btoa(unescape(encodeURIComponent(input)));
+    var bytes = new TextEncoder().encode(input);
+    var bin = '';
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    result.textContent = btoa(bin);
   } catch (e) {
     result.innerHTML = '<span style="color:#b85454">编码失败: ' + escapeHtml(e.message) + '</span>';
   }
@@ -25,7 +27,9 @@ document.getElementById('b64DecodeBtn').addEventListener('click', () => {
       for (let i = 0; i < raw.length; i++) hex.push(raw.charCodeAt(i).toString(16).padStart(2, '0'));
       result.textContent = hex.join(' ');
     } else {
-      result.textContent = decodeURIComponent(escape(raw));
+      var rawBytes = new Uint8Array(raw.length);
+      for (var j = 0; j < raw.length; j++) rawBytes[j] = raw.charCodeAt(j);
+      result.textContent = new TextDecoder('utf-8', { fatal: false }).decode(rawBytes);
     }
   } catch (e) {
     result.innerHTML = '<span style="color:#b85454">解码失败: Base64 格式无效</span>';

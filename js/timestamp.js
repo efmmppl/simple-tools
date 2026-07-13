@@ -13,7 +13,7 @@ function updateClock() {
   document.getElementById('tsNowDate').textContent = formatDate(new Date());
 }
 updateClock(); // 初始立即显示
-setInterval(updateClock, 100); // 每 100ms 更新
+setInterval(updateClock, 500);
 
 // 时间戳转日期输入框 - 默认填入当前时间戳，回车触发转换
 document.getElementById('tsToDateInput').value = Math.floor(Date.now() / 1000);
@@ -28,7 +28,7 @@ document.getElementById('tsToDateBtn').addEventListener('click', () => {
     result.innerHTML = '<span style="color:#b85454">请输入有效数字</span>';
     return;
   }
-  const ms = ts > 1e11 ? ts : ts * 1000;
+  const ms = ts > 1e10 ? ts : ts * 1000;
   const d = new Date(ms);
   if (isNaN(d.getTime())) {
     result.innerHTML = '<span style="color:#b85454">无效时间戳</span>';

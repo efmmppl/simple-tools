@@ -83,7 +83,7 @@ function getNextTimes(fields, count, from) {
     results.push(new Date(current));
     current.setSeconds(current.getSeconds() + 1);
   }
-  if (maxLoops <= 0) throw new Error('未找到匹配的时间点，请检查表达式');
+  if (maxLoops <= 0) throw new Error('循环超限（100万次），表达式可能无匹配时间点');
   return results;
 }
 
@@ -159,6 +159,7 @@ function relativeTime(d) {
 function parseAll() {
   const errorMsg = document.getElementById('errorMsg');
   errorMsg.style.display = 'none';
+  errorMsg.textContent = '';
   const count = parseInt(document.getElementById('countSelect').value) || 5;
   const showRel = document.getElementById('showRelative').checked;
   const entries = [];

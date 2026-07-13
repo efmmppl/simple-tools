@@ -43,9 +43,21 @@ document.querySelectorAll('.ts-copy').forEach(btn => {
     const text = target.textContent;
     if (!text || text.startsWith('请') || text.startsWith('点击')) return;
     navigator.clipboard.writeText(text).then(() => {
-      const icon = btn.querySelector('i');
+      var icon = btn.querySelector('i');
       icon.className = 'fas fa-check';
-      setTimeout(() => { icon.className = 'fas fa-copy'; }, 1500);
+      setTimeout(function () { icon.className = 'fas fa-copy'; }, 1500);
+    }).catch(function () {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      var icon = btn.querySelector('i');
+      icon.className = 'fas fa-check';
+      setTimeout(function () { icon.className = 'fas fa-copy'; }, 1500);
     });
   });
 });

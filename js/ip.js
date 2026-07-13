@@ -29,7 +29,8 @@ function fetchIpInfo() {
 // fetchLocalIp - 通过 WebRTC ICE 候选者检测内网 IP 地址
 function fetchLocalIp() {
   const el = document.getElementById('ipLocal');
-  el.textContent = '检测中...\n提示：若浏览器限制无法获取，可双击此处手动输入';
+  if (!el) return;
+  el.textContent = '检测中...';
   el.title = '双击手动编辑';
   const ips = new Set();
   let pc = null;

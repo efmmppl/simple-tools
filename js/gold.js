@@ -6,6 +6,7 @@ function fetchGoldPrice() {
   const s = document.createElement('script');
   s.src = 'https://www.huilvbiao.com/api/gold_indexApi?t=' + Date.now();
   s.onload = () => {
+    s.remove();
     try {
       const cn = window.hq_str_gds_AUTD.split(',');
       const ny = window.hq_str_hf_GC.split(',');
@@ -21,6 +22,7 @@ function fetchGoldPrice() {
     }
   };
   s.onerror = () => {
+    s.remove();
     document.getElementById('goldRefreshStatus').textContent = '加载失败';
   };
   document.body.appendChild(s);

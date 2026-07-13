@@ -87,16 +87,15 @@ function renderHotList(items, type, container, status, updateTime) {
     html += '<div class="hot-item">';
     html += '<div class="hot-rank ' + rankClass + '">' + (i + 1) + '</div>';
     html += '<div style="flex:1;min-width:0">';
-    if (url) {
-      html += '<div class="hot-title" onclick="window.open(\'' + url.replace(/'/g, "\\'") + '\',\'_blank\')" title="' + title + '">' + title + '</div>';
-    } else {
-      html += '<div class="hot-title" title="' + title + '">' + title + '</div>';
-    }
+    html += '<div class="hot-title' + (url ? ' hot-link' : '') + '" title="' + title + '"' + (url ? ' data-url="' + url.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"' : '') + '>' + title + '</div>';
     if (hot) html += '<div class="hot-hot">' + hot + '</div>';
     html += '</div></div>';
   });
 
   html += '</div>';
   container.innerHTML = html;
+  container.querySelectorAll('.hot-link').forEach(el => {
+    el.addEventListener('click', function () { window.open(this.dataset.url, '_blank'); });
+  });
   status.textContent = '已更新 ' + new Date().toLocaleTimeString('zh-CN', { hour12: false });
 }

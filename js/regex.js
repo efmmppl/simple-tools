@@ -47,13 +47,21 @@ function testRegex() {
     return;
   }
 
-  const matches = [];
-  const global = re.global || re.sticky;
+  var matches = [];
+  var global = re.global || re.sticky;
+  var regexStart = Date.now();
+  var REGEX_TIMEOUT = 5000;
   if (global) {
-    let m;
+    var m;
     while ((m = re.exec(text)) !== null) {
       matches.push({ full: m[0], index: m.index, groups: m.slice(1) });
       if (m.index === re.lastIndex) re.lastIndex++;
+      if (Date.now() - regexStart > REGEX_TIMEOUT) {
+        output.innerHTML = '<span style="color:#b85454">正则匹配超时，表达式可能过于复杂</span>';
+        stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果';
+        matchList.style.display = 'none';
+        return;
+      }
     }
   } else {
     const m = re.exec(text);

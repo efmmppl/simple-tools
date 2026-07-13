@@ -77,6 +77,7 @@ function startFarmLoop() {
   farm.lastTime = performance.now();
   function loop(now) {
     farmAnimId = requestAnimationFrame(loop);
+    if (document.hidden) return;
     const dt = Math.min((now - farm.lastTime) / 1000, 0.1);
     farm.lastTime = now;
     if (isFarmVisible() && farm) {
