@@ -502,50 +502,55 @@ advStory = {
 };
 
 function enterScene(sceneId) {
-  if (sceneId === '__restart') { resetAdventure(); return; }
+  try {
+    if (sceneId === '__restart') { resetAdventure(); return; }
 
-  var textEl = document.getElementById('advText');
-  if (!textEl) return;
+    var textEl = document.getElementById('advText');
+    if (!textEl) return;
 
-  var scene = advStory[sceneId];
-  if (!scene) return;
-  if (advState.health <= 0 && sceneId !== 'death') { enterScene('death'); return; }
+    var scene = advStory[sceneId];
+    if (!scene) return;
+    if (advState.health <= 0 && sceneId !== 'death') { enterScene('death'); return; }
 
-  advState.scene = sceneId;
-  if (scene.onEnter) scene.onEnter();
-  if (advState.health <= 0 && sceneId !== 'death') { enterScene('death'); return; }
+    advState.scene = sceneId;
+    if (scene.onEnter) scene.onEnter();
+    if (advState.health <= 0 && sceneId !== 'death') { enterScene('death'); return; }
 
-  var title = scene.title || '';
-  var rawText = typeof scene.text === 'function' ? scene.text() : scene.text;
-  var choices = typeof scene.choices === 'function' ? scene.choices() : scene.choices;
+    var title = scene.title || '';
+    var rawText = typeof scene.text === 'function' ? scene.text() : scene.text;
+    var choices = typeof scene.choices === 'function' ? scene.choices() : scene.choices;
 
-  var container = document.getElementById('advContainer');
-  container.className = 'adv-container';
-  if (scene.isEnd) container.classList.add('adv-end');
+    var container = document.getElementById('advContainer');
+    container.className = 'adv-container';
+    if (scene.isEnd) container.classList.add('adv-end');
 
-  textEl.innerHTML = '';
-  if (title) {
-    var titleDiv = document.createElement('div');
-    titleDiv.className = 'adv-title';
-    titleDiv.textContent = title;
-    textEl.appendChild(titleDiv);
+    textEl.innerHTML = '';
+    if (title) {
+      var titleDiv = document.createElement('div');
+      titleDiv.className = 'adv-title';
+      titleDiv.textContent = title;
+      textEl.appendChild(titleDiv);
+    }
+    var bodyDiv = document.createElement('div');
+    bodyDiv.className = 'adv-body';
+    bodyDiv.textContent = rawText;
+    textEl.appendChild(bodyDiv);
+
+    var choicesEl = document.getElementById('advChoices');
+    choicesEl.innerHTML = '';
+    choices.forEach(function (ch) {
+      var btn = document.createElement('button');
+      btn.className = 'adv-choice-btn adv-choice-show';
+      btn.textContent = ch.text;
+      btn.addEventListener('click', function () { advPlayClick(); enterScene(ch.next); });
+      choicesEl.appendChild(btn);
+    });
+
+    advRenderHUD();
+  } catch (e) {
+    var c = document.getElementById('advContainer');
+    if (c) c.innerHTML = '<div style="color:#b85454;padding:16px;text-align:center"><b>渲染错误</b><br><pre style="font-size:0.8rem;margin-top:8px;white-space:pre-wrap">' + e + '<br>' + e.stack + '</pre></div>';
   }
-  var bodyDiv = document.createElement('div');
-  bodyDiv.className = 'adv-body';
-  bodyDiv.textContent = rawText;
-  textEl.appendChild(bodyDiv);
-
-  var choicesEl = document.getElementById('advChoices');
-  choicesEl.innerHTML = '';
-  choices.forEach(function (ch) {
-    var btn = document.createElement('button');
-    btn.className = 'adv-choice-btn adv-choice-show';
-    btn.textContent = ch.text;
-    btn.addEventListener('click', function () { advPlayClick(); enterScene(ch.next); });
-    choicesEl.appendChild(btn);
-  });
-
-  advRenderHUD();
 }
 
 // 渲染 HUD：生命值进度条、步数、背包物品
@@ -601,19 +606,26 @@ function resetAdventure() {
 // 重置按钮事件绑定
 document.getElementById('advResetBtn').addEventListener('click', function () { advPlayClick(); resetAdventure(); });
 
-// 初始游戏状态
-advState = {
-  scene: 'intro',
-  health: 100,
-  maxHealth: 100,
-  inventory: [],
-  steps: 0,
-  canEscape: false,
-  dungeonCleared: false,
-  cryptSearched: false,
-  hasDungeonKey: false,
-  ending: null,
-  audioCtx: null
-};
-advInitAudio();
-enterScene('intro');
+function advInit() {
+  try {
+    advState = {
+      scene: 'intro',
+      health: 100,
+      maxHealth: 100,
+      inventory: [],
+      steps: 0,
+      canEscape: false,
+      dungeonCleared: false,
+      cryptSearched: false,
+      hasDungeonKey: false,
+      ending: null,
+      audioCtx: null
+    };
+    advInitAudio();
+    enterScene('intro');
+  } catch (e) {
+    var c = document.getElementById('advContainer');
+    if (c) c.innerHTML = '<div style="color:#b85454;padding:16px;text-align:center"><b>初始化错误</b><br><pre style="font-size:0.8rem;margin-top:8px;white-space:pre-wrap">' + e + '</pre></div>';
+  }
+}
+advInit();
