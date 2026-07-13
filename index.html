@@ -76,6 +76,11 @@
       <div class="nav-name">模拟农场</div>
       <div class="nav-desc">Canvas 粒子农场<br>种植收获模拟经营</div>
     </div>
+    <div class="nav-card" data-tool="diff">
+      <div class="nav-icon"><i class="fas fa-code-branch"></i></div>
+      <div class="nav-name">文本差异对比</div>
+      <div class="nav-desc">左右对照文本差异<br>字符级高亮显示</div>
+    </div>
   </div>
 
   <!-- ======== 工具：Cron 解析器 ======== -->
@@ -466,6 +471,34 @@
       </div>
     </div>
   </div>
+  <!-- ======== 工具：文本差异对比 ======== -->
+  <div id="tool-diff" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="diff"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-code-branch" style="margin-right:6px;color:#6b8f5e"></i> 文本差异对比</span>
+    </div>
+    <div class="diff-inputs">
+      <div class="diff-input-group">
+        <div class="diff-input-label"><i class="fas fa-file-alt" style="margin-right:4px"></i>旧文本</div>
+        <textarea id="diffOldInput" class="diff-textarea" placeholder="在此粘贴旧文本..."></textarea>
+      </div>
+      <div class="diff-input-group">
+        <div class="diff-input-label"><i class="fas fa-file-alt" style="margin-right:4px"></i>新文本</div>
+        <textarea id="diffNewInput" class="diff-textarea" placeholder="在此粘贴新文本..."></textarea>
+      </div>
+    </div>
+    <div class="options-row">
+      <button class="btn btn-primary" id="diffBtn"><i class="fas fa-not-equal"></i> 对比</button>
+      <span class="diff-nav" id="diffNav" style="display:none">
+        <button class="diff-nav-btn" id="diffPrev"><i class="fas fa-chevron-up"></i> 上一个</button>
+        <span class="diff-nav-label" id="diffNavLabel">1 / 0</span>
+        <button class="diff-nav-btn" id="diffNext"><i class="fas fa-chevron-down"></i> 下一个</button>
+      </span>
+    </div>
+    <div id="diffResult">
+      <div class="empty-state"><i class="fas fa-code-branch" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>输入文本后点击"对比"查看差异</div>
+    </div>
+  </div>
 
 </div>
 
@@ -486,5 +519,6 @@
 <script src="js/adventure.js?v=3" charset="UTF-8"></script>
 <script src="js/sudoku.js" charset="UTF-8"></script>
 <script src="js/farm.js?v=2" charset="UTF-8"></script>
+<script src="js/diff.js" charset="UTF-8"></script>
 </body>
 </html>
