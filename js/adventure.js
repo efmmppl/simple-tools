@@ -690,3 +690,21 @@ advState = {
 };
 advInitAudio();
 enterScene('intro');
+
+// 监听工具视图显隐，确保打开时内容已渲染
+var advView = document.getElementById('tool-adventure');
+if (advView) {
+  var advObserver = new MutationObserver(function (mutations) {
+    mutations.forEach(function (m) {
+      if (m.type === 'attributes' && m.attributeName === 'class') {
+        if (advView.classList.contains('active')) {
+          var textEl = document.getElementById('advText');
+          if (textEl && !textEl.textContent.trim()) {
+            enterScene(advState.scene || 'intro');
+          }
+        }
+      }
+    });
+  });
+  advObserver.observe(advView, { attributes: true, attributeFilter: ['class'] });
+}
