@@ -1,11 +1,7 @@
-// 文字冒险游戏 - 全局状态（场景、生命、背包等）
+function advEscape(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
 var advState = {};
-// 剧情场景数据（场景名 → 场景对象）
 var advStory = {};
-// 打字机效果定时器
-var advTypingTimer = null;
-// 打字机效果完成回调
-var advTypingCallback = null;
 
 // 初始化 Web Audio 上下文
 function advInitAudio() {
@@ -44,13 +40,6 @@ function advPlayDeath() { advPlayTone(300, 0.2, 'sawtooth'); setTimeout(function
 // 点击音效
 function advPlayClick() { advPlayTone(600, 0.05, 'sine'); }
 
-// 停止打字机效果并触发回调
-function advStopTyping() {
-  if (advTypingTimer) { clearInterval(advTypingTimer); advTypingTimer = null; }
-  if (advTypingCallback) { advTypingCallback(); advTypingCallback = null; }
-}
-
-// 检查背包中是否有指定物品
 function advHasItem(item) { return advState.inventory.indexOf(item) !== -1; }
 
 // 向背包添加物品，拾取时播放音效
@@ -512,13 +501,11 @@ advStory = {
   }
 };
 
-// 进入指定场景：渲染文本、绑定选项、触发打字机效果
 function enterScene(sceneId) {
-  advStopTyping();
   if (sceneId === '__restart') { resetAdventure(); return; }
 
   var textEl = document.getElementById('advText');
-  if (textEl.advSkipFn) { textEl.removeEventListener('click', textEl.advSkipFn); textEl.advSkipFn = null; }
+  if (!textEl) return;
 
   var scene = advStory[sceneId];
   if (!scene) return;
@@ -526,7 +513,7 @@ function enterScene(sceneId) {
 
   advState.scene = sceneId;
   if (scene.onEnter) scene.onEnter();
-  if (advState.health <= 0 && sceneId !== 'death' && sceneId !== '__restart') { enterScene('death'); return; }
+  if (advState.health <= 0 && sceneId !== 'death') { enterScene('death'); return; }
 
   var title = scene.title || '';
   var rawText = typeof scene.text === 'function' ? scene.text() : scene.text;
@@ -535,89 +522,20 @@ function enterScene(sceneId) {
   var container = document.getElementById('advContainer');
   container.className = 'adv-container';
   if (scene.isEnd) container.classList.add('adv-end');
+
+  textEl.innerHTML = (title ? '<div class="adv-title">' + advEscape(title) + '</div>' : '') + '<div class="adv-body">' + advEscape(rawText).replace(/\n/g, '<br>') + '</div>';
+
   var choicesEl = document.getElementById('advChoices');
   choicesEl.innerHTML = '';
-
-  var titleHtml = title ? '<div class="adv-title">' + escapeHtml(title) + '</div>' : '';
-  textEl.innerHTML = titleHtml + '<div class="adv-body"></div>';
-  var bodyEl = textEl.querySelector('.adv-body');
-
-  var choicesDisabled = scene.isEnd ? false : true;
-  if (choicesDisabled) {
-    var waitingEl = document.createElement('div');
-    waitingEl.className = 'adv-waiting';
-    waitingEl.textContent = '▎';
-    choicesEl.appendChild(waitingEl);
-  }
+  choices.forEach(function (ch) {
+    var btn = document.createElement('button');
+    btn.className = 'adv-choice-btn adv-choice-show';
+    btn.textContent = ch.text;
+    btn.addEventListener('click', function () { advPlayClick(); enterScene(ch.next); });
+    choicesEl.appendChild(btn);
+  });
 
   advRenderHUD();
-
-  var isVisible = document.getElementById('tool-adventure').classList.contains('active');
-
-    // 直接显示完整文本（非打字机模式，用于后台标签页）
-    function showFullText() {
-    bodyEl.innerHTML = escapeHtml(rawText).replace(/\n/g, '<br>');
-    choicesEl.innerHTML = '';
-    choices.forEach(function (ch) {
-      var btn = document.createElement('button');
-      btn.className = 'adv-choice-btn adv-choice-show';
-      btn.textContent = ch.text;
-      btn.addEventListener('click', function () { advPlayClick(); enterScene(ch.next); });
-      choicesEl.appendChild(btn);
-    });
-  }
-
-  if (!isVisible) {
-    showFullText();
-    return;
-  }
-
-  var chars = escapeHtml(rawText).split('');
-  var idx = 0;
-  var speed = 18;
-
-  if (scene.isEnd) speed = 30;
-
-    // 逐字输出文本（打字机效果）
-    function doType() {
-    if (idx < chars.length) {
-      bodyEl.textContent += chars[idx++];
-      advTypingTimer = setTimeout(doType, speed);
-    } else {
-      bodyEl.innerHTML = bodyEl.textContent.replace(/\n/g, '<br>');
-      advTypingTimer = null;
-      choicesEl.innerHTML = '';
-      choices.forEach(function (ch) {
-        var btn = document.createElement('button');
-        btn.className = 'adv-choice-btn';
-        btn.textContent = ch.text;
-        btn.addEventListener('click', function () { advPlayClick(); enterScene(ch.next); });
-        choicesEl.appendChild(btn);
-        setTimeout(function () { btn.classList.add('adv-choice-show'); }, 30);
-      });
-    }
-  }
-
-  advTypingTimer = setTimeout(doType, 200);
-
-  // 点击跳过打字机效果，直接显示全文
-  textEl.advSkipFn = function advSkipText() {
-    if (advTypingTimer) {
-      clearTimeout(advTypingTimer);
-      advTypingTimer = null;
-      bodyEl.textContent = escapeHtml(rawText);
-      bodyEl.innerHTML = bodyEl.textContent.replace(/\n/g, '<br>');
-      choicesEl.innerHTML = '';
-      choices.forEach(function (ch) {
-        var btn = document.createElement('button');
-        btn.className = 'adv-choice-btn adv-choice-show';
-        btn.textContent = ch.text;
-        btn.addEventListener('click', function () { advPlayClick(); enterScene(ch.next); });
-        choicesEl.appendChild(btn);
-      });
-    }
-  };
-  textEl.addEventListener('click', textEl.advSkipFn);
 }
 
 // 渲染 HUD：生命值进度条、步数、背包物品
@@ -653,7 +571,6 @@ function advRenderHUD() {
 
 // 重置游戏状态回到开场
 function resetAdventure() {
-  advStopTyping();
   advState = {
     scene: 'intro',
     health: 100,
@@ -690,21 +607,3 @@ advState = {
 };
 advInitAudio();
 enterScene('intro');
-
-// 监听工具视图显隐，确保打开时内容已渲染
-var advView = document.getElementById('tool-adventure');
-if (advView) {
-  var advObserver = new MutationObserver(function (mutations) {
-    mutations.forEach(function (m) {
-      if (m.type === 'attributes' && m.attributeName === 'class') {
-        if (advView.classList.contains('active')) {
-          var textEl = document.getElementById('advText');
-          if (textEl && !textEl.textContent.trim()) {
-            enterScene(advState.scene || 'intro');
-          }
-        }
-      }
-    });
-  });
-  advObserver.observe(advView, { attributes: true, attributeFilter: ['class'] });
-}
