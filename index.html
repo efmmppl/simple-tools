@@ -5,7 +5,7 @@
 <!-- 字符编码与视口设置，确保移动端正确缩放 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="实用离线工具集：金价查询、IP信息、Cron解析、时间戳、正则测试、Base64、热榜、文字冒险、数独、模拟农场">
+<meta name="description" content="实用离线工具集：金价查询、汇率转换、IP信息、Cron解析、时间戳、正则测试、Base64、热榜、文字冒险、数独、模拟农场">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠</text></svg>">
 <title>工具箱</title>
 <!-- Font Awesome 图标库 CDN -->
@@ -26,6 +26,11 @@
   <!-- ======== 导航视图：工具卡片网格 ======== -->
   <!-- 每个 .nav-card 的 data-tool 属性对应一个工具视图的 ID，点击后切换显示 -->
   <div id="navView" class="nav-grid">
+    <div class="nav-card" data-tool="exchange">
+      <div class="nav-icon"><i class="fas fa-money-bill-wave"></i></div>
+      <div class="nav-name">汇率转换</div>
+      <div class="nav-desc">外币兑人民币汇率<br>实时汇率转换器</div>
+    </div>
     <div class="nav-card" data-tool="gold">
       <div class="nav-icon"><i class="fas fa-coins"></i></div>
       <div class="nav-name">金价查询</div>
@@ -160,6 +165,36 @@
       · 每 60 秒自动刷新
       · 数据时间 <span id="goldDataTime">-</span> · 刷新时间 <span id="goldRefreshTime">-</span>
     </div>
+  </div>
+
+  <!-- ======== 工具：汇率转换 ======== -->
+  <!-- 从免费 API 获取实时汇率，支持外币兑人民币双向转换 -->
+  <div id="tool-exchange" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="exchange"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-money-bill-wave" style="margin-right:6px;color:#6b8f5e"></i> 汇率转换</span>
+      <button class="btn btn-outline btn-sm" id="exchangeRefreshBtn" style="margin-left:auto"><i class="fas fa-sync-alt"></i> 刷新</button>
+      <span style="font-size:0.78rem;color:#8c8273;margin-left:8px" id="exchangeRefreshStatus">就绪</span>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-calculator" style="margin-right:6px"></i> 外币 → 人民币</div>
+        <div class="ts-row">
+          <label>金额</label>
+          <input type="number" id="exchangeAmount" value="1" min="0" step="any">
+          <select id="exchangeCurrency" style="flex:0 0 120px;padding:8px 12px;border:1px solid rgba(107,143,94,0.2);border-radius:6px;background:#fff;color:#3d3a35;font-size:0.88rem;outline:none"></select>
+          <span style="font-size:0.85rem;color:#6b6058;padding:0 4px">=</span>
+          <div class="ts-result" id="exchangeResult" style="flex:0 0 auto;min-width:140px;text-align:center;font-weight:600"><span class="hint">输入金额</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-list" style="margin-right:6px"></i> 常见货币汇率</div>
+        <div class="exchange-grid" id="exchangeRateGrid"></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:#6b6058" id="exchangeUpdateTime"></div>
   </div>
 
   <!-- ======== 工具：IP 信息 ======== -->
@@ -511,6 +546,7 @@
 <script src="js/nav.js" charset="UTF-8"></script>
 <script src="js/cron.js" charset="UTF-8"></script>
 <script src="js/gold.js" charset="UTF-8"></script>
+<script src="js/exchange.js" charset="UTF-8"></script>
 <script src="js/ip.js" charset="UTF-8"></script>
 <script src="js/timestamp.js" charset="UTF-8"></script>
 <script src="js/regex.js" charset="UTF-8"></script>
