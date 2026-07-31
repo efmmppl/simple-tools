@@ -23,7 +23,11 @@ function parseField(field, min, max, nameMap) {
           if (isNaN(n)) throw new Error(`无法解析: ${s}`);
           return n;
         });
-        for (let i = rmin; i <= (rmax || max); i += step) set.add(i);
+        const end = rmax === undefined ? max : rmax;
+        if (rmin < min || rmin > max) throw new Error(`${rmin} 超出范围 [${min}, ${max}]`);
+        if (end < min || end > max) throw new Error(`${end} 超出范围 [${min}, ${max}]`);
+        if (rmin > end) throw new Error(`范围无效: ${rmin}-${end}`);
+        for (let i = rmin; i <= end; i += step) set.add(i);
       }
       continue;
     }
@@ -33,6 +37,9 @@ function parseField(field, min, max, nameMap) {
         if (isNaN(n)) throw new Error(`无法解析: ${s}`);
         return n;
       });
+      if (a < min || a > max) throw new Error(`${a} 超出范围 [${min}, ${max}]`);
+      if (b < min || b > max) throw new Error(`${b} 超出范围 [${min}, ${max}]`);
+      if (a > b) throw new Error(`范围无效: ${a}-${b}`);
       for (let i = a; i <= b; i++) set.add(i);
       continue;
     }
@@ -93,47 +100,48 @@ function parseAndCompute(expr, count) {
   return getNextTimes(fields, count, new Date());
 }
 
-let cronCount = 1; // 当前 Cron 输入框数量
-const MAX_CRONS = 3; // 最大允许的输入框数量
+let cronExprs = ['']; // 每个 Cron 表达式的值，索引即编号
+const MAX_CRONS = 5;
 
-// renderInputs - 渲染 Cron 表达式输入框列表
 function renderInputs() {
   const list = document.getElementById('cronList');
-  const prev = [];
-  for (let i = 0; i < cronCount; i++) {
-    const el = document.getElementById(`cronInput${i}`);
-    prev[i] = el ? el.value : '';
-  }
-  const examples = ['0 0 9 * * ?', '0 0/15 * * * ?', '0 0 0 1 * ?'];
+  const examples = ['0 0 9 * * ?', '0 0/15 * * * ?', '0 0 0 1 * ?', '0 30 18 * * ?', '0 0 12 ? * 2'];
   let html = '';
-  for (let i = 0; i < cronCount; i++) {
-    const val = prev[i] || (i === 0 ? '0 0 9 * * ?' : '');
+  for (let i = 0; i < cronExprs.length; i++) {
+    const val = cronExprs[i] || (i === 0 ? '0 0 9 * * ?' : '');
     html += `<div class="cron-row" data-idx="${i}">
       <span class="num-label">#${i+1}</span>
-      <input type="text" id="cronInput${i}" placeholder="例: ${examples[i] || ''}" spellcheck="false" value="${val.replace(/"/g,'&quot;')}">
-      ${cronCount > 1 ? `<button class="remove-btn" onclick="removeCron(${i})"><i class="fas fa-times"></i></button>` : ''}
+      <input type="text" class="cron-input" data-idx="${i}" placeholder="例: ${examples[i] || ''}" spellcheck="false" value="${val.replace(/"/g,'&quot;')}">
+      ${cronExprs.length > 1 ? `<button class="remove-btn" data-idx="${i}"><i class="fas fa-times"></i></button>` : ''}
     </div>`;
   }
   list.innerHTML = html;
-  document.getElementById('addCronBtn').style.display = cronCount >= MAX_CRONS ? 'none' : '';
+  document.getElementById('addCronBtn').style.display = cronExprs.length >= MAX_CRONS ? 'none' : '';
 }
 
-// addCron - 添加一个 Cron 输入框
 function addCron() {
-  if (cronCount >= MAX_CRONS) return;
-  cronCount++;
+  if (cronExprs.length >= MAX_CRONS) return;
+  cronExprs.push('');
   renderInputs();
 }
 
-// removeCron - 移除指定索引的 Cron 输入框
-function removeCron(idx) {
-  if (cronCount <= 1) return;
-  cronCount--;
-  renderInputs();
-}
-
-// 添加按钮点击事件
 document.getElementById('addCronBtn').addEventListener('click', addCron);
+
+document.getElementById('cronList').addEventListener('click', function(e) {
+  const btn = e.target.closest('.remove-btn');
+  if (!btn) return;
+  const idx = parseInt(btn.dataset.idx);
+  if (cronExprs.length <= 1) return;
+  cronExprs.splice(idx, 1);
+  renderInputs();
+});
+
+document.getElementById('cronList').addEventListener('input', function(e) {
+  const input = e.target.closest('.cron-input');
+  if (!input) return;
+  const idx = parseInt(input.dataset.idx);
+  cronExprs[idx] = input.value;
+});
 
 // formatTime - 将日期对象格式化为 "YYYY-MM-DD HH:mm:ss"
 function formatTime(d) {
@@ -164,9 +172,8 @@ function parseAll() {
   const showRel = document.getElementById('showRelative').checked;
   const entries = [];
   let hasError = false;
-  for (let i = 0; i < cronCount; i++) {
-    const input = document.getElementById(`cronInput${i}`);
-    const expr = input.value.trim();
+  for (let i = 0; i < cronExprs.length; i++) {
+    const expr = (cronExprs[i] || '').trim();
     if (!expr) continue;
     try {
       const times = parseAndCompute(expr, count);
