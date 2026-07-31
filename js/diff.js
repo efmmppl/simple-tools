@@ -169,7 +169,8 @@ function runDiff() {
     rowIdx++;
   }
 
-  result.innerHTML = '<div class="diff-stats">共 <b>' + diffs.length + '</b> 处变更：<span style="color:#a33">' + delCount + ' 行删除</span> · <span style="color:#1a7a1a">' + addCount + ' 行新增</span> · <span style="color:#b07d30">' + modCount + ' 行修改</span></div>' +
+  var changeGroups = diffState.positions.length;
+  result.innerHTML = '<div class="diff-stats">共 <b>' + changeGroups + '</b> 处变更：<span style="color:#a33">' + delCount + ' 行删除</span> · <span style="color:#1a7a1a">' + addCount + ' 行新增</span> · <span style="color:#b07d30">' + modCount + ' 行修改</span></div>' +
     '<div class="diff-output">' +
       '<div class="diff-panel diff-panel-l">' +
         '<div class="diff-panel-header"><i class="fas fa-minus-circle" style="color:#a33;margin-right:4px"></i>旧文本</div>' +

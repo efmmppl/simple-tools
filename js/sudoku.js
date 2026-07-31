@@ -51,6 +51,30 @@ function sudokuSolve(board, random) {
   return true;
 }
 
+// sudokuCountSolutions - 统计解的数量，最多统计到 limit 个
+function sudokuCountSolutions(board, limit) {
+  var count = 0;
+  function solve() {
+    if (count >= limit) return;
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        if (board[r][c] !== 0) continue;
+        for (var n = 1; n <= 9; n++) {
+          if (!sudokuIsValid(board, r, c, n)) continue;
+          board[r][c] = n;
+          solve();
+          if (count >= limit) { board[r][c] = 0; return; }
+          board[r][c] = 0;
+        }
+        return;
+      }
+    }
+    count++;
+  }
+  solve();
+  return count;
+}
+
 // sudokuGenerate - 生成数独谜题（先随机生成完整盘，再挖空）
 function sudokuGenerate(diff) {
   var board = [];
@@ -66,7 +90,10 @@ function sudokuGenerate(diff) {
   sudokuShuffle(cells);
   var remove = diff === 'easy' ? 35 : diff === 'hard' ? 54 : 45;
   for (var i = 0; i < remove; i++) {
-    puzzle[Math.floor(cells[i] / 9)][cells[i] % 9] = 0;
+    var r = Math.floor(cells[i] / 9), c = cells[i] % 9;
+    puzzle[r][c] = 0;
+    var testBoard = puzzle.map(function (row) { return row.slice(); });
+    if (sudokuCountSolutions(testBoard, 2) !== 1) puzzle[r][c] = solution[r][c];
   }
   return { puzzle: puzzle, solution: solution };
 }

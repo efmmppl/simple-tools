@@ -10,7 +10,9 @@ ipObserver.observe(document.getElementById('tool-ip'), { attributes: true, attri
 // fetchIpInfo - 通过 api.ip.sb 获取公网 IP 及地理位置信息
 function fetchIpInfo() {
   document.getElementById('ipUpdateTime').textContent = '查询中...';
-  fetch('https://api.ip.sb/geoip')
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 10000);
+  fetch('https://api.ip.sb/geoip', { signal: ctrl.signal })
     .then(r => r.json())
     .then(d => {
       document.getElementById('ipAddress').textContent = d.ip;
@@ -23,7 +25,8 @@ function fetchIpInfo() {
     })
     .catch(() => {
       document.getElementById('ipUpdateTime').textContent = '查询失败，请重试';
-    });
+    })
+    .finally(() => clearTimeout(timer));
 }
 
 // fetchLocalIp - 通过 WebRTC ICE 候选者检测内网 IP 地址

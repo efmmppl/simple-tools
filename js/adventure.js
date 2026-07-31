@@ -62,7 +62,7 @@ function advDamage(amount) {
 
 // 治疗玩家（不超过上限 100）
 function advHeal(amount) {
-  advState.health = Math.min(100, advState.health + amount);
+  advState.health = Math.min(advState.maxHealth || 100, advState.health + amount);
   advRenderHUD();
 }
 

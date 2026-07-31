@@ -14,6 +14,7 @@
   npx serve
   ```
 - 无 lint / test / typecheck 命令。验证方式：用浏览器实际打开对应功能页面。
+- 本地验证热榜抓取：`node scripts/fetch-hotlist.js`（Node 18+，依赖内置 `fetch`），输出 `hotlist.json`，格式为 `{ updated: ISO时间戳, data: { biliHot: [...], tieba: [...] } }`。
 
 ## 文件约定
 
@@ -23,9 +24,9 @@
 - `js/*.js` — 每个工具一个文件，按职责拆分。
 - `scripts/fetch-hotlist.js` — 热榜抓取脚本，Node.js 18+，无外部依赖。
 - `hotlist.json` — 热榜缓存，由 GitHub Actions 生成。
-- `.github/workflows/hotlist.yml` — 每日 UTC 22:00（北京时间次日 06:00）抓取热榜并提交。
+- `.github/workflows/hotlist.yml` — 每日 UTC 22:00（北京时间次日 06:00）抓取热榜并提交（Node 20，`workflow_dispatch` 可手动触发）。注意 README 中写的 UTC 01:00 已过时，以 yml 为准。
 - `CNAME` — 自定义域名 `tools.kuak.top`，用于 GitHub Pages。
-- `.opencode/opencode.json` — OpenCode 配置（模型、agent 预设）。
+- `.opencode/opencode.json` — OpenCode 配置（模型、agent 预设）。此目录已入 `.gitignore`，不提交到仓库。
 
 ## 添加新工具
 
@@ -45,6 +46,7 @@
 - **外部 JS 必须带 `charset="UTF-8"`**：无 BOM 的 UTF-8 脚本在 `python -m http.server` 下可能被浏览器误判为 GBK，导致中文乱码或脚本异常。
 - **无虚拟 DOM**：HTML 用字符串拼接，所有函数在全局作用域，命名驼峰且动词在前（如 `fetchIpInfo`、`parseQuartzCron`）。
 - **事件绑定**：每个工具在 `<script>` 末尾用 `addEventListener` 集中绑定。
+- **共享函数**：`nav.js` 定义全局 `escapeHtml()` 用于 HTML 转义（被 `regex.js`、`base64.js`、`hotlist.js` 使用），新增工具可直接调用。
 - **缓存破坏**：部分 JS 文件引用带 `?v=N` 后缀（如 `adventure.js?v=4`、`farm.js?v=2`），修改后须递增版本号。
 
 ## 数据获取注意
