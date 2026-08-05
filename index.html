@@ -66,10 +66,10 @@
       <div class="nav-name">今日热榜</div>
       <div class="nav-desc">B站/贴吧<br>实时热搜榜单</div>
     </div>
-    <div class="nav-card" data-tool="adventure">
-      <div class="nav-icon"><i class="fas fa-dragon"></i></div>
-      <div class="nav-name">文字冒险</div>
-      <div class="nav-desc">神秘古堡<br>交互式剧情体验</div>
+    <div class="nav-card" data-tool="filehash">
+      <div class="nav-icon"><i class="fas fa-fingerprint"></i></div>
+      <div class="nav-name">文件校验</div>
+      <div class="nav-desc">MD5 与 SHA-256<br>校验文件一致性</div>
     </div>
     <div class="nav-card" data-tool="sudoku">
       <div class="nav-icon"><i class="fas fa-border-all"></i></div>
@@ -388,20 +388,35 @@
     </div>
   </div>
 
-  <!-- ======== 工具：文字冒险 ======== -->
-  <!-- 交互式剧情游戏"神秘古堡"，包含场景叙述和分支选项 -->
-  <div id="tool-adventure" class="tool-view">
+  <!-- ======== 工具：文件校验 ======== -->
+  <!-- 选择两个文件，计算 MD5 与 SHA-256 摘要，比对文件是否完全一致 -->
+  <div id="tool-filehash" class="tool-view">
     <div class="back-bar">
-      <button class="back-btn" data-tool="adventure"><i class="fas fa-arrow-left"></i> 返回</button>
-      <span class="tool-title"><i class="fas fa-dragon" style="margin-right:6px;color:#6b8f5e"></i> 文字冒险 · 神秘古堡</span>
-      <button class="btn btn-outline btn-sm" id="advResetBtn" style="margin-left:auto"><i class="fas fa-redo"></i> 重新开始</button>
+      <button class="back-btn" data-tool="filehash"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-fingerprint" style="margin-right:6px;color:#6b8f5e"></i> 文件校验</span>
     </div>
-    <div class="adv-hud" id="advHud"></div>
-    <div class="adv-container" id="advContainer">
-      <div class="adv-scene" id="advScene">
-        <div class="adv-text" id="advText"></div>
-        <div class="adv-choices" id="advChoices"></div>
+    <div class="filehash-grid">
+      <div class="filehash-box">
+        <div class="filehash-label"><i class="fas fa-file" style="margin-right:5px"></i>文件 A</div>
+        <label class="filehash-drop" id="fhDropA">
+          <input type="file" id="fhFileA" class="filehash-input">
+          <i class="fas fa-cloud-upload-alt" style="font-size:1.6rem;color:#b8ad9e;display:block;margin-bottom:6px"></i>
+          <span>点击选择或拖拽文件到此处</span>
+        </label>
+        <div class="filehash-meta" id="fhMetaA">未选择文件</div>
       </div>
+      <div class="filehash-box">
+        <div class="filehash-label"><i class="fas fa-file" style="margin-right:5px"></i>文件 B</div>
+        <label class="filehash-drop" id="fhDropB">
+          <input type="file" id="fhFileB" class="filehash-input">
+          <i class="fas fa-cloud-upload-alt" style="font-size:1.6rem;color:#b8ad9e;display:block;margin-bottom:6px"></i>
+          <span>点击选择或拖拽文件到此处</span>
+        </label>
+        <div class="filehash-meta" id="fhMetaB">未选择文件</div>
+      </div>
+    </div>
+    <div id="fhResult">
+      <div class="empty-state"><i class="fas fa-fingerprint" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>选择两个文件后自动计算摘要并比对</div>
     </div>
   </div>
 
@@ -552,7 +567,7 @@
 <script src="js/regex.js" charset="UTF-8"></script>
 <script src="js/base64.js" charset="UTF-8"></script>
 <script src="js/hotlist.js" charset="UTF-8"></script>
-<script src="js/adventure.js?v=4" charset="UTF-8"></script>
+<script src="js/filehash.js" charset="UTF-8"></script>
 <script src="js/sudoku.js" charset="UTF-8"></script>
 <script src="js/farm.js?v=2" charset="UTF-8"></script>
 <script src="js/diff.js" charset="UTF-8"></script>

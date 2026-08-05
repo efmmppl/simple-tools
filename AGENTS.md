@@ -46,13 +46,17 @@
 - **外部 JS 必须带 `charset="UTF-8"`**：无 BOM 的 UTF-8 脚本在 `python -m http.server` 下可能被浏览器误判为 GBK，导致中文乱码或脚本异常。
 - **无虚拟 DOM**：HTML 用字符串拼接，所有函数在全局作用域，命名驼峰且动词在前（如 `fetchIpInfo`、`parseQuartzCron`）。
 - **事件绑定**：每个工具在 `<script>` 末尾用 `addEventListener` 集中绑定。
+- **视图激活加载**：数据型工具（`gold.js`、`exchange.js`、`hotlist.js`）用 `MutationObserver` 监听 `#tool-xxx` 的 `class` 属性，进入视图时拉取数据、离开时停止（金价/汇率分别在激活期间每 60s/120s 定时刷新）。新数据工具沿用此模式。
 - **共享函数**：`nav.js` 定义全局 `escapeHtml()` 用于 HTML 转义（被 `regex.js`、`base64.js`、`hotlist.js` 使用），新增工具可直接调用。
-- **缓存破坏**：部分 JS 文件引用带 `?v=N` 后缀（如 `adventure.js?v=4`、`farm.js?v=2`），修改后须递增版本号。
+- **缓存破坏**：部分 JS 文件引用带 `?v=N` 后缀（如 `farm.js?v=2`），修改后须递增版本号。
+- **Web Crypto 不支持 MD5**：`crypto.subtle` 仅有 SHA 系列，MD5 由 `js/filehash.js` 内联实现（RFC 1321，函数 `md5()`，输入 `Uint8Array`）。修改该实现时需用 Node `crypto` 对照测试向量验证。
 
 ## 数据获取注意
 
 - 外部 API 用 `fetch()`；金价查询用 `<script>` JSONP 注入绕过 CORS。
-- 热榜通过 GitHub Actions 运行 `node scripts/fetch-hotlist.js` 生成 `hotlist.json`，前端直接读取（同源无 CORS）。
+- 金价 JSONP：`https://www.huilvbiao.com/api/gold_indexApi?t=<时间戳>`，解析全局 `window.hq_str_gds_AUTD` / `hf_GC` / `hf_XAU`（逗号分隔数组，字段下标见 `gold.js`）。
+- 汇率：`fetch('https://open.er-api.com/v6/latest/CNY')`，`rates` 为 1 CNY 兑外币，换算用 `金额 / rates[币种]`。
+- 热榜通过 GitHub Actions 运行 `node scripts/fetch-hotlist.js` 生成 `hotlist.json`，前端直接读取（同源无 CORS）。**`file://` 下热榜不可用**：`hotlist.js` 检测 `window.location.protocol === 'file:'` 并提示改用本地服务器。
 - 内网 IP 通过 WebRTC ICE 候选者检测，仅支持 `host` 类型和私有网段。
 - GitHub Actions（Azure US）对部分国内平台 API 访问受限，目前 B 站和贴吧可稳定获取。
 

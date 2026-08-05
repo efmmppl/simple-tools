@@ -344,210 +344,6 @@ body {
 /* 热榜元信息 */
 .hot-meta { font-size: 0.75rem; color: #b8ad9e; margin-top: 2px; }
 
-/* 冒险游戏 HUD */
-.adv-hud {
-  background: #16162a;
-  border: 1px solid rgba(107, 143, 94, 0.15);
-  border-radius: 10px;
-  padding: 14px 18px;
-  margin-bottom: 12px;
-  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-  font-size: 0.82rem;
-}
-/* HUD 行 */
-.adv-hud-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-/* HUD 生命值区域 */
-.adv-hud-health {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-}
-/* HUD 标签 */
-.adv-hud-label {
-  color: #b8ad9e;
-  white-space: nowrap;
-}
-/* HUD 血条背景 */
-.adv-hud-bar-bg {
-  flex: 1;
-  height: 8px;
-  background: #2a2a3e;
-  border-radius: 4px;
-  overflow: hidden;
-  max-width: 200px;
-}
-/* HUD 血条 */
-.adv-hud-bar {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.5s ease, background 0.5s ease;
-}
-/* HUD 数值 */
-.adv-hud-value {
-  color: #d4cdbc;
-  min-width: 50px;
-  text-align: right;
-  font-size: 0.78rem;
-}
-/* HUD 步数 */
-.adv-hud-steps {
-  color: #8c8273;
-  white-space: nowrap;
-  font-size: 0.78rem;
-}
-/* HUD 背包 */
-.adv-hud-inv {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(107, 143, 94, 0.08);
-}
-/* HUD 背包空状态 */
-.adv-hud-empty {
-  color: #5a5a6e;
-  font-size: 0.78rem;
-}
-/* HUD 物品 */
-.adv-hud-item {
-  background: rgba(107, 143, 94, 0.1);
-  border: 1px solid rgba(107, 143, 94, 0.15);
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-size: 0.78rem;
-  color: #d4cdbc;
-  white-space: nowrap;
-}
-
-/* 冒险游戏容器 */
-.adv-container {
-  background: #1a1a2e;
-  border: 1px solid rgba(107, 143, 94, 0.2);
-  border-radius: 10px;
-  padding: 32px 28px;
-  min-height: 360px;
-  color: #e8dcc8;
-  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-  line-height: 1.8;
-  position: relative;
-  overflow: hidden;
-}
-/* 容器顶部装饰线 */
-.adv-container::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #6b8f5e, transparent);
-  opacity: 0.4;
-}
-/* 结局变体 */
-.adv-container.adv-end {
-  background: linear-gradient(135deg, #1a1a2e 0%, #2a1520 100%);
-  border-color: rgba(212, 168, 74, 0.3);
-}
-/* 结局装饰线 */
-.adv-container.adv-end::before {
-  background: linear-gradient(90deg, transparent, #d4a84a, transparent);
-  opacity: 0.6;
-}
-/* 冒险标题 */
-.adv-title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #d4a84a;
-  margin-bottom: 16px;
-  text-align: center;
-  letter-spacing: 2px;
-  text-shadow: 0 0 12px rgba(212, 168, 74, 0.15);
-}
-/* 冒险故事正文 */
-.adv-body {
-  font-size: 0.92rem;
-  color: #d4cdbc;
-  margin-bottom: 24px;
-  white-space: pre-wrap;
-  line-height: 1.9;
-  min-height: 80px;
-  cursor: pointer;
-}
-/* 正文换行间距 */
-.adv-body br {
-  content: '';
-  display: block;
-  margin: 4px 0;
-}
-/* 等待动画 */
-.adv-waiting {
-  color: #6b8f5e;
-  font-size: 1.2rem;
-  text-align: center;
-  animation: advBlink 0.8s infinite;
-}
-/* 闪烁动画 */
-@keyframes advBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.2; }
-}
-/* 选项列表 */
-.adv-choices {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
-}
-/* 选项按钮 */
-.adv-choice-btn {
-  background: rgba(107, 143, 94, 0.08);
-  border: 1px solid rgba(107, 143, 94, 0.2);
-  border-radius: 8px;
-  padding: 12px 18px;
-  color: #c8c0b0;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.25s;
-  text-align: left;
-  font-family: inherit;
-  opacity: 0;
-  transform: translateX(-8px);
-}
-/* 选项按钮入场 */
-.adv-choice-btn.adv-choice-show {
-  opacity: 1;
-  transform: translateX(0);
-  transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s, border-color 0.2s;
-}
-/* 选项按钮悬停 */
-.adv-choice-btn:hover {
-  background: rgba(107, 143, 94, 0.2);
-  border-color: #6b8f5e;
-  color: #e8dcc8;
-  transform: translateX(4px);
-}
-/* 选项按钮点击 */
-.adv-choice-btn:active {
-  transform: translateX(2px) scale(0.99);
-}
-/* 结局选项按钮 */
-.adv-container.adv-end .adv-choice-btn {
-  border-color: rgba(212, 168, 74, 0.25);
-  background: rgba(212, 168, 74, 0.06);
-}
-/* 结局选项按钮悬停 */
-.adv-container.adv-end .adv-choice-btn:hover {
-  border-color: #d4a84a;
-  background: rgba(212, 168, 74, 0.15);
-  color: #f0e4c8;
-}
-
 /* 数独状态 */
 .sudoku-status {
   text-align: center; min-height: 24px; margin-bottom: 10px;
@@ -607,10 +403,6 @@ body {
   .gold-grid { grid-template-columns: 1fr; }
   .gold-details { flex-direction: column; gap: 4px; }
   .ip-address { font-size: 1.3rem; }
-  .adv-container { padding: 20px 16px; }
-  .adv-hud-row { flex-direction: column; align-items: stretch; gap: 6px; }
-  .adv-hud-steps { text-align: right; }
-  .adv-hud-bar-bg { max-width: none; }
   .sudoku-cell { font-size: 1rem; }
   .sudoku-num-btn { padding: 8px 4px; }
 }
@@ -740,3 +532,40 @@ body {
 }
 .diff-nav-btn:hover { background: #6b8f5e; color: #fff; }
 .diff-nav-label { font-size: 0.78rem; color: #8c8273; min-width: 36px; text-align: center; }
+
+/* 文件校验 */
+.filehash-grid { display: flex; gap: 16px; margin-bottom: 16px; }
+.filehash-box { flex: 1; min-width: 0; }
+.filehash-label {
+  font-size: 0.85rem; font-weight: 600; color: #6b6058; margin-bottom: 8px;
+}
+.filehash-drop {
+  display: block; padding: 24px 12px; text-align: center;
+  border: 1.5px dashed rgba(107,143,94,0.35); border-radius: 8px;
+  background: rgba(107,143,94,0.03); color: #8c8273; font-size: 0.82rem;
+  cursor: pointer; transition: all 0.15s; user-select: none;
+}
+.filehash-drop:hover, .filehash-drop-active {
+  border-color: #6b8f5e; background: rgba(107,143,94,0.07); color: #6b8f5e;
+}
+.filehash-input { display: none; }
+.filehash-meta { margin-top: 10px; font-size: 0.82rem; color: #6b6058; }
+.filehash-cards {
+  border: 1px solid rgba(107,143,94,0.12); border-radius: 8px; overflow: hidden;
+}
+.filehash-row { display: flex; padding: 7px 12px; border-bottom: 1px solid rgba(107,143,94,0.06); }
+.filehash-row:last-child { border-bottom: none; }
+.filehash-row-label {
+  width: 76px; min-width: 76px; font-weight: 600; color: #6b6058; flex-shrink: 0;
+}
+.filehash-row-value { flex: 1; min-width: 0; word-break: break-all; }
+.filehash-name { color: #3d3a35; }
+.filehash-hash {
+  font-family: 'SF Mono','Fira Code','Consolas',monospace; font-size: 0.8rem; color: #4a463f;
+}
+.filehash-verdict {
+  display: flex; align-items: center; justify-content: center;
+  padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 600;
+}
+.filehash-match { background: #e6f7e6; color: #1a7a1a; }
+.filehash-mismatch { background: #fde8e8; color: #a33; }
