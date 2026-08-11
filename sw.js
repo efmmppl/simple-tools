@@ -1,7 +1,7 @@
 // sw.js - 工具箱 Service Worker：离线缓存 + 网络兜底
 // 版本号：修改缓存策略或文件清单后必须递增 CACHE_VERSION，否则不更新
 
-var CACHE_VERSION = 'v1';
+var CACHE_VERSION = 'v5';
 var CACHE_NAME = 'toolbox-' + CACHE_VERSION;
 
 var PRECACHE_URLS = [
@@ -9,8 +9,8 @@ var PRECACHE_URLS = [
   './index.html',
   './manifest.json',
   './css/style.css',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
+  './icons/brain-192.png',
+  './icons/brain-512.png',
   './js/theme.js',
   './js/nav.js',
   './js/cron.js',
@@ -23,6 +23,8 @@ var PRECACHE_URLS = [
   './js/hotlist.js',
   './js/filehash.js',
   './js/hash.js',
+  './js/imgtool.js',
+  './js/convert.js',
   './js/sudoku.js',
   './js/diff.js',
   './js/admin.js',

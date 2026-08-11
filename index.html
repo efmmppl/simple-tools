@@ -11,7 +11,7 @@
 <!-- PWA：应用清单与图标 -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#6b8f5e">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/brain-192.png">
 <!-- Font Awesome 图标库 CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <!-- 全局样式表 -->
@@ -89,6 +89,16 @@
       <div class="nav-icon"><i class="fas fa-hashtag"></i></div>
       <div class="nav-name">Hash 工具</div>
       <div class="nav-desc">MD5/SHA 系列<br>多种摘要算法</div>
+    </div>
+    <div class="nav-card" data-tool="imgtool">
+      <div class="nav-icon"><i class="fas fa-image"></i></div>
+      <div class="nav-name">图片压缩</div>
+      <div class="nav-desc">调整尺寸/质量<br>压缩后显示大小</div>
+    </div>
+    <div class="nav-card" data-tool="convert">
+      <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
+      <div class="nav-name">格式转换</div>
+      <div class="nav-desc">图片互转/音频转WAV<br>常用文件格式</div>
     </div>
     <div class="nav-card" data-tool="sudoku">
       <div class="nav-icon"><i class="fas fa-border-all"></i></div>
@@ -454,6 +464,86 @@
     </div>
   </div>
 
+  <!-- ======== 工具：图片压缩 ======== -->
+  <!-- 图片尺寸/质量调整，输出压缩前后大小对比 -->
+  <div id="tool-imgtool" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="imgtool"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-image" style="margin-right:6px;color:var(--primary)"></i> 图片压缩</span>
+    </div>
+    <div class="ts-card">
+      <div class="ts-card-title"><i class="fas fa-upload" style="margin-right:6px"></i> 选择图片</div>
+      <input type="file" id="imgInput" accept="image/*" style="display:none">
+      <div id="imgDrop" class="filehash-drop">
+        <i class="fas fa-cloud-upload-alt" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>
+        点击或拖拽图片到此处<br><span style="font-size:0.8rem;color:var(--text-soft)">支持 JPG / PNG / WebP</span>
+      </div>
+      <div id="imgMeta" style="margin-top:12px;display:none"></div>
+      <div id="imgOptions" style="display:none;margin-top:14px">
+        <div class="ts-row" style="flex-wrap:wrap">
+          <label style="min-width:80px">目标宽度</label>
+          <input type="number" id="imgWidth" min="16" value="" placeholder="保持原宽" style="flex:1">
+        </div>
+        <div class="ts-row" style="flex-wrap:wrap">
+          <label style="min-width:80px">目标高度</label>
+          <input type="number" id="imgHeight" min="16" value="" placeholder="保持原高" style="flex:1">
+        </div>
+        <div class="ts-row" style="flex-wrap:wrap">
+          <label style="min-width:80px">质量</label>
+          <input type="range" id="imgQuality" min="10" max="100" value="70" style="flex:1">
+          <span id="imgQualityVal" style="min-width:44px;text-align:right;color:var(--text-soft)">70%</span>
+        </div>
+        <label class="imgtool-lock">
+          <input type="checkbox" id="imgLockRatio" checked>
+          保持纵横比（等比缩放）
+        </label>
+        <div class="ts-row">
+          <button class="btn btn-primary" id="imgCompressBtn"><i class="fas fa-compress-alt"></i> 压缩</button>
+          <button class="btn btn-outline" id="imgResetBtn"><i class="fas fa-redo"></i> 重新选择</button>
+        </div>
+      </div>
+    </div>
+    <div id="imgResult">
+      <div class="empty-state"><i class="fas fa-image" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>选择图片后调整参数并压缩，查看压缩前后大小</div>
+    </div>
+  </div>
+
+  <!-- ======== 工具：格式转换 ======== -->
+  <!-- 图片互转（PNG/JPG/WebP）与音频转 WAV，浏览器本地完成 -->
+  <div id="tool-convert" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="convert"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-exchange-alt" style="margin-right:6px;color:var(--primary)"></i> 格式转换</span>
+    </div>
+    <div class="ts-card">
+      <div class="ts-card-title"><i class="fas fa-upload" style="margin-right:6px"></i> 选择文件</div>
+      <input type="file" id="cvFile" accept="image/*,audio/*" style="display:none">
+      <div id="cvDrop" class="filehash-drop">
+        <i class="fas fa-file-import" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>
+        点击或拖拽文件到此处<br><span style="font-size:0.8rem;color:var(--text-soft)">图片 PNG/JPG/WebP 互转 · 音频 MP3/M4A/OGG/WAV 转 WAV</span>
+      </div>
+      <div id="cvMeta" style="margin-top:12px;display:none"></div>
+      <div id="cvOptions" style="display:none;margin-top:14px">
+        <div class="ts-row" style="flex-wrap:wrap">
+          <label style="min-width:80px">目标格式</label>
+          <select id="cvFormat" style="flex:1"></select>
+        </div>
+        <div class="ts-row" id="cvQualityRow" style="flex-wrap:wrap;display:none">
+          <label style="min-width:80px">质量</label>
+          <input type="range" id="cvQuality" min="10" max="100" value="85" style="flex:1">
+          <span id="cvQualityVal" style="min-width:44px;text-align:right;color:var(--text-soft)">85%</span>
+        </div>
+        <div class="ts-row">
+          <button class="btn btn-primary" id="cvConvertBtn"><i class="fas fa-exchange-alt"></i> 转换</button>
+          <button class="btn btn-outline" id="cvResetBtn"><i class="fas fa-redo"></i> 重新选择</button>
+        </div>
+      </div>
+    </div>
+    <div id="cvResult">
+      <div class="empty-state"><i class="fas fa-file-import" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>选择文件后选择目标格式并转换</div>
+    </div>
+  </div>
+
   <!-- ======== 工具：数独 ======== -->
   <!-- 九宫格数独游戏，支持简单/中等/困难三档难度，含提示和答案功能 -->
   <div id="tool-sudoku" class="tool-view">
@@ -602,6 +692,8 @@
 <script src="js/hotlist.js" charset="UTF-8"></script>
 <script src="js/filehash.js" charset="UTF-8"></script>
 <script src="js/hash.js" charset="UTF-8"></script>
+<script src="js/imgtool.js" charset="UTF-8"></script>
+<script src="js/convert.js" charset="UTF-8"></script>
 <script src="js/sudoku.js" charset="UTF-8"></script>
 <script src="js/diff.js" charset="UTF-8"></script>
 <script src="js/admin.js" charset="UTF-8"></script>
