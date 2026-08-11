@@ -25,13 +25,13 @@ document.getElementById('tsToDateBtn').addEventListener('click', () => {
   const result = document.getElementById('tsToDateResult');
   const ts = Number(input);
   if (isNaN(ts) || input === '') {
-    result.innerHTML = '<span style="color:#b85454">请输入有效数字</span>';
+    result.innerHTML = '<span style="color:var(--up)">请输入有效数字</span>';
     return;
   }
   const ms = ts > 1e10 ? ts : ts * 1000;
   const d = new Date(ms);
   if (isNaN(d.getTime())) {
-    result.innerHTML = '<span style="color:#b85454">无效时间戳</span>';
+    result.innerHTML = '<span style="color:var(--up)">无效时间戳</span>';
     return;
   }
   result.textContent = formatDate(d) + ' (UTC' + (d.getTimezoneOffset() === 0 ? '+0' : (d.getTimezoneOffset() > 0 ? '-' : '+') + Math.abs(d.getTimezoneOffset() / 60)) + ')';
@@ -43,14 +43,14 @@ document.getElementById('tsFromDateBtn').addEventListener('click', () => {
   const secEl = document.getElementById('tsFromDateSec');
   const msEl = document.getElementById('tsFromDateMs');
   if (!input) {
-    secEl.innerHTML = '<span style="color:#b85454">请选择日期时间</span>';
-    msEl.innerHTML = '<span style="color:#b85454">请选择日期时间</span>';
+    secEl.innerHTML = '<span style="color:var(--up)">请选择日期时间</span>';
+    msEl.innerHTML = '<span style="color:var(--up)">请选择日期时间</span>';
     return;
   }
   const d = new Date(input);
   if (isNaN(d.getTime())) {
-    secEl.innerHTML = '<span style="color:#b85454">无效日期</span>';
-    msEl.innerHTML = '<span style="color:#b85454">无效日期</span>';
+    secEl.innerHTML = '<span style="color:var(--up)">无效日期</span>';
+    msEl.innerHTML = '<span style="color:var(--up)">无效日期</span>';
     return;
   }
   const ms = d.getTime();

@@ -72,13 +72,13 @@ function handleFileChange(slot, file) {
   if (!file) return;
   var metaId = slot === 'a' ? 'fhMetaA' : 'fhMetaB';
   var metaEl = document.getElementById(metaId);
-  metaEl.innerHTML = '<i class="fas fa-spinner fa-pulse" style="margin-right:4px;color:#6b8f5e"></i>' + escapeHtml(file.name) + ' 计算中...';
+  metaEl.innerHTML = '<i class="fas fa-spinner fa-pulse" style="margin-right:4px;color:var(--primary)"></i>' + escapeHtml(file.name) + ' 计算中...';
   computeFileHashes(file).then(function (r) {
     fhState[slot] = r;
     renderFileHash(metaEl, r);
     renderComparison();
   }).catch(function () {
-    metaEl.innerHTML = '<span style="color:#b85454">计算失败，请重试</span>';
+    metaEl.innerHTML = '<span style="color:var(--up)">计算失败，请重试</span>';
   });
 }
 
@@ -96,7 +96,7 @@ function renderFileHash(metaEl, r) {
 function renderComparison() {
   var resultEl = document.getElementById('fhResult');
   if (!fhState.a && !fhState.b) {
-    resultEl.innerHTML = '<div class="empty-state"><i class="fas fa-fingerprint" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>选择两个文件后自动计算摘要并比对</div>';
+    resultEl.innerHTML = '<div class="empty-state"><i class="fas fa-fingerprint" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>选择两个文件后自动计算摘要并比对</div>';
     return;
   }
   if (!fhState.a || !fhState.b) return;

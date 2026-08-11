@@ -186,7 +186,7 @@ function parseAll() {
   if (hasError) errorMsg.style.display = 'block';
   const area = document.getElementById('resultArea');
   if (entries.length === 0) {
-    area.innerHTML = `<div class="empty-state"><i class="far fa-hourglass" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>无有效时间点</div>`;
+    area.innerHTML = `<div class="empty-state"><i class="far fa-hourglass" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>无有效时间点</div>`;
     return;
   }
   entries.sort((a, b) => a.time - b.time);
@@ -205,11 +205,11 @@ function parseAll() {
   let html = `<div class="result-card">
     <div class="result-card-header" style="justify-content:space-between">
       <span><i class="fas fa-list"></i> 未来执行时间线</span>
-      <span style="font-size:0.8rem;color:#8c8273">共 ${merged.length} 个时间点</span>
+      <span style="font-size:0.8rem;color:var(--text-soft)">共 ${merged.length} 个时间点</span>
     </div>
     <div class="result-card-body">`;
   merged.forEach((m, i) => {
-    const badges = [...new Set(m.labels)].map(l => `<span style="display:inline-block;padding:0 6px;border-radius:4px;font-size:0.7rem;background:rgba(107,143,94,0.12);color:#6b8f5e;margin-right:3px">${l}</span>`).join('');
+    const badges = [...new Set(m.labels)].map(l => `<span style="display:inline-block;padding:0 6px;border-radius:4px;font-size:0.7rem;background:rgba(var(--green-rgb),0.12);color:var(--primary);margin-right:3px">${l}</span>`).join('');
     html += `<div class="time-item">
       <span class="idx">#${i+1}</span>
       <span class="time">${formatTime(m.time)}</span>

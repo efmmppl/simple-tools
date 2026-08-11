@@ -48,7 +48,7 @@
 - **事件绑定**：每个工具在 `<script>` 末尾用 `addEventListener` 集中绑定。
 - **视图激活加载**：数据型工具（`gold.js`、`exchange.js`、`hotlist.js`）用 `MutationObserver` 监听 `#tool-xxx` 的 `class` 属性，进入视图时拉取数据、离开时停止（金价/汇率分别在激活期间每 60s/120s 定时刷新）。新数据工具沿用此模式。
 - **共享函数**：`nav.js` 定义全局 `escapeHtml()` 用于 HTML 转义（被 `regex.js`、`base64.js`、`hotlist.js` 使用），新增工具可直接调用。
-- **缓存破坏**：部分 JS 文件引用带 `?v=N` 后缀（如 `farm.js?v=2`），修改后须递增版本号。
+- **缓存破坏**：部分 JS 文件引用带 ?v=N 后缀，修改后须递增版本号。
 - **Web Crypto 不支持 MD5**：`crypto.subtle` 仅有 SHA 系列，MD5 由 `js/filehash.js` 内联实现（RFC 1321，函数 `md5()`，输入 `Uint8Array`）。修改该实现时需用 Node `crypto` 对照测试向量验证。
 
 ## 数据获取注意

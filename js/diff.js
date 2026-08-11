@@ -124,7 +124,7 @@ function runDiff() {
   diffState.current = -1;
 
   if (!oldText.trim() && !newText.trim()) {
-    result.innerHTML = '<div class="empty-state"><i class="fas fa-code-branch" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>输入文本后点击"对比"查看差异</div>';
+    result.innerHTML = '<div class="empty-state"><i class="fas fa-code-branch" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>输入文本后点击"对比"查看差异</div>';
     document.getElementById('diffNav').style.display = 'none';
     return;
   }
@@ -170,14 +170,14 @@ function runDiff() {
   }
 
   var changeGroups = diffState.positions.length;
-  result.innerHTML = '<div class="diff-stats">共 <b>' + changeGroups + '</b> 处变更：<span style="color:#a33">' + delCount + ' 行删除</span> · <span style="color:#1a7a1a">' + addCount + ' 行新增</span> · <span style="color:#b07d30">' + modCount + ' 行修改</span></div>' +
+  result.innerHTML = '<div class="diff-stats">共 <b>' + changeGroups + '</b> 处变更：<span style="color:var(--del)">' + delCount + ' 行删除</span> · <span style="color:var(--add)">' + addCount + ' 行新增</span> · <span style="color:var(--mod)">' + modCount + ' 行修改</span></div>' +
     '<div class="diff-output">' +
       '<div class="diff-panel diff-panel-l">' +
-        '<div class="diff-panel-header"><i class="fas fa-minus-circle" style="color:#a33;margin-right:4px"></i>旧文本</div>' +
+        '<div class="diff-panel-header"><i class="fas fa-minus-circle" style="color:var(--del);margin-right:4px"></i>旧文本</div>' +
         '<div class="diff-lines" id="diffOldLines">' + oldHtml + '</div>' +
       '</div>' +
       '<div class="diff-panel diff-panel-r">' +
-        '<div class="diff-panel-header"><i class="fas fa-plus-circle" style="color:#1a7a1a;margin-right:4px"></i>新文本</div>' +
+        '<div class="diff-panel-header"><i class="fas fa-plus-circle" style="color:var(--add);margin-right:4px"></i>新文本</div>' +
         '<div class="diff-lines" id="diffNewLines">' + newHtml + '</div>' +
       '</div>' +
     '</div>';

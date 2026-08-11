@@ -35,10 +35,10 @@ function fetchHotData() {
   const updateTime = document.getElementById('hotUpdateTime');
 
   status.textContent = '加载中...';
-  container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>加载中...</div>';
+  container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-pulse" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>加载中...</div>';
 
   if (window.location.protocol === 'file:') {
-    container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>file:// 协议无法读取数据<br><span style="font-size:0.8rem">请使用本地服务器访问（如 python -m http.server 8000）</span></div>';
+    container.innerHTML = '<div class="empty-state" style="color:var(--up)"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>file:// 协议无法读取数据<br><span style="font-size:0.8rem">请使用本地服务器访问（如 python -m http.server 8000）</span></div>';
     status.textContent = '未就绪';
     return;
   }
@@ -59,7 +59,7 @@ function fetchHotData() {
       throw new Error('no data');
     })
     .catch(() => {
-      container.innerHTML = '<div class="empty-state" style="color:#b85454"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>等待 GitHub Actions 生成数据<br><span style="font-size:0.8rem">或手动去 Actions 页面触发更新</span></div>';
+      container.innerHTML = '<div class="empty-state" style="color:var(--up)"><i class="fas fa-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:8px"></i>等待 GitHub Actions 生成数据<br><span style="font-size:0.8rem">或手动去 Actions 页面触发更新</span></div>';
       status.textContent = '未就绪';
     });
 }
@@ -67,17 +67,17 @@ function fetchHotData() {
 // renderHotList - 渲染热榜列表 HTML
 function renderHotList(items, type, container, status, updateTime) {
   if (items.length === 0) {
-    container.innerHTML = '<div class="empty-state"><i class="far fa-frown" style="font-size:2rem;display:block;margin-bottom:8px;color:#d4cdbc"></i>暂无数据</div>';
+    container.innerHTML = '<div class="empty-state"><i class="far fa-frown" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>暂无数据</div>';
     status.textContent = '就绪';
     return;
   }
 
-  const bgColor = HOT_BG_COLORS[type] || 'rgba(107,143,94,0.06)';
-  const borderColor = HOT_BORDER_COLORS[type] || 'rgba(107,143,94,0.1)';
+  const bgColor = HOT_BG_COLORS[type] || 'rgba(var(--green-rgb),0.06)';
+  const borderColor = HOT_BORDER_COLORS[type] || 'rgba(var(--green-rgb),0.1)';
   const platformName = HOT_PLATFORMS[type] || type;
 
-  let html = '<div style="background:#fcfaf5;border:1px solid ' + borderColor + ';border-radius:10px;overflow:hidden">';
-  html += '<div style="padding:10px 14px;font-size:0.82rem;font-weight:600;color:#6b8f5e;background:' + bgColor + ';border-bottom:1px solid ' + borderColor + '"><i class="fas fa-fire" style="margin-right:6px"></i>' + platformName + '</div>';
+  let html = '<div style="background:var(--card);border:1px solid ' + borderColor + ';border-radius:10px;overflow:hidden">';
+  html += '<div style="padding:10px 14px;font-size:0.82rem;font-weight:600;color:var(--primary);background:' + bgColor + ';border-bottom:1px solid ' + borderColor + '"><i class="fas fa-fire" style="margin-right:6px"></i>' + platformName + '</div>';
 
   items.forEach((item, i) => {
     const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : 'normal';

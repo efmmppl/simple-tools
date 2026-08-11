@@ -24,7 +24,7 @@ function testRegex() {
   const groups = document.getElementById('rxGroups');
 
   if (!patternStr) {
-    output.innerHTML = '<span style="color:#b8ad9e">请输入正则表达式</span>';
+    output.innerHTML = '<span style="color:var(--text-faint)">请输入正则表达式</span>';
     stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果';
     matchList.style.display = 'none';
     return;
@@ -34,14 +34,14 @@ function testRegex() {
   try {
     re = new RegExp(patternStr, getRegexFlags());
   } catch (e) {
-    output.innerHTML = '<span style="color:#b85454">' + escapeHtml(e.message) + '</span>';
+    output.innerHTML = '<span style="color:var(--up)">' + escapeHtml(e.message) + '</span>';
     stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果';
     matchList.style.display = 'none';
     return;
   }
 
   if (!text) {
-    output.innerHTML = '<span style="color:#b8ad9e">请输入测试文本</span>';
+    output.innerHTML = '<span style="color:var(--text-faint)">请输入测试文本</span>';
     stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果';
     matchList.style.display = 'none';
     return;
@@ -57,7 +57,7 @@ function testRegex() {
       matches.push({ full: m[0], index: m.index, groups: m.slice(1) });
       if (m.index === re.lastIndex) re.lastIndex++;
       if (Date.now() - regexStart > REGEX_TIMEOUT) {
-        output.innerHTML = '<span style="color:#b85454">正则匹配超时，表达式可能过于复杂</span>';
+        output.innerHTML = '<span style="color:var(--up)">正则匹配超时，表达式可能过于复杂</span>';
         stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果';
         matchList.style.display = 'none';
         return;
@@ -69,10 +69,10 @@ function testRegex() {
   }
 
   stats.innerHTML = '<i class="fas fa-chart-bar" style="margin-right:6px"></i> 匹配结果' +
-    ' <span style="font-weight:normal;font-size:0.82rem;color:#8c8273">— 共 ' + matches.length + ' 处匹配</span>';
+    ' <span style="font-weight:normal;font-size:0.82rem;color:var(--text-soft)">— 共 ' + matches.length + ' 处匹配</span>';
 
   if (matches.length === 0) {
-    output.innerHTML = '<span style="color:#8c8273">无匹配结果</span>';
+    output.innerHTML = '<span style="color:var(--text-soft)">无匹配结果</span>';
     matchList.style.display = 'none';
     return;
   }
@@ -81,7 +81,7 @@ function testRegex() {
   let html = '';
   for (const m of matches) {
     html += escapeHtml(text.slice(lastIdx, m.index));
-    html += '<span style="background:rgba(107,143,94,0.2);border-radius:3px;padding:1px 2px">' + escapeHtml(m.full) + '</span>';
+    html += '<span style="background:rgba(var(--green-rgb),0.2);border-radius:3px;padding:1px 2px">' + escapeHtml(m.full) + '</span>';
     lastIdx = m.index + m.full.length;
   }
   html += escapeHtml(text.slice(lastIdx));
@@ -93,10 +93,10 @@ function testRegex() {
     let gHtml = '';
     matches.forEach((m, i) => {
       if (m.groups.length > 0) {
-        gHtml += '<div style="margin:4px 0"><span style="color:#8c8273">#' + (i + 1) + '</span> <span style="color:#6b6058">"' + escapeHtml(m.full) + '"</span> → ';
+        gHtml += '<div style="margin:4px 0"><span style="color:var(--text-soft)">#' + (i + 1) + '</span> <span style="color:var(--text-mid)">"' + escapeHtml(m.full) + '"</span> → ';
         gHtml += m.groups.map((g, j) => {
           if (g !== undefined) {
-            return '<span style="background:rgba(107,143,94,0.08);border-radius:3px;padding:0 4px;margin:0 2px"><b style="color:#6b8f5e">$' + (j + 1) + '</b> ' + escapeHtml(g) + '</span>';
+            return '<span style="background:rgba(var(--green-rgb),0.08);border-radius:3px;padding:0 4px;margin:0 2px"><b style="color:var(--primary)">$' + (j + 1) + '</b> ' + escapeHtml(g) + '</span>';
           }
           return '';
         }).filter(Boolean).join(' ');

@@ -2,14 +2,14 @@
 document.getElementById('b64EncodeBtn').addEventListener('click', () => {
   const input = document.getElementById('b64EncodeInput').value;
   const result = document.getElementById('b64EncodeResult');
-  if (!input) { result.innerHTML = '<span style="color:#b85454">请输入要编码的文本</span>'; return; }
+  if (!input) { result.innerHTML = '<span style="color:var(--up)">请输入要编码的文本</span>'; return; }
   try {
     var bytes = new TextEncoder().encode(input);
     var bin = '';
     for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
     result.textContent = btoa(bin);
   } catch (e) {
-    result.innerHTML = '<span style="color:#b85454">编码失败: ' + escapeHtml(e.message) + '</span>';
+    result.innerHTML = '<span style="color:var(--up)">编码失败: ' + escapeHtml(e.message) + '</span>';
   }
 });
 
@@ -18,7 +18,7 @@ document.getElementById('b64DecodeBtn').addEventListener('click', () => {
   const input = document.getElementById('b64DecodeInput').value.trim();
   const result = document.getElementById('b64DecodeResult');
   const asHex = document.getElementById('b64DecodeBinary').checked;
-  if (!input) { result.innerHTML = '<span style="color:#b85454">请输入 Base64 字符串</span>'; return; }
+  if (!input) { result.innerHTML = '<span style="color:var(--up)">请输入 Base64 字符串</span>'; return; }
   try {
     const raw = atob(input);
     if (asHex) {
@@ -32,7 +32,7 @@ document.getElementById('b64DecodeBtn').addEventListener('click', () => {
       result.textContent = new TextDecoder('utf-8', { fatal: false }).decode(rawBytes);
     }
   } catch (e) {
-    result.innerHTML = '<span style="color:#b85454">解码失败: Base64 格式无效</span>';
+    result.innerHTML = '<span style="color:var(--up)">解码失败: Base64 格式无效</span>';
   }
 });
 
