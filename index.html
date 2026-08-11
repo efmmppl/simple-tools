@@ -81,6 +81,11 @@
       <div class="nav-name">文件校验</div>
       <div class="nav-desc">MD5 与 SHA-256<br>校验文件一致性</div>
     </div>
+    <div class="nav-card" data-tool="hash">
+      <div class="nav-icon"><i class="fas fa-hashtag"></i></div>
+      <div class="nav-name">Hash 工具</div>
+      <div class="nav-desc">MD5/SHA 系列<br>多种摘要算法</div>
+    </div>
     <div class="nav-card" data-tool="sudoku">
       <div class="nav-icon"><i class="fas fa-border-all"></i></div>
       <div class="nav-name">数独</div>
@@ -425,6 +430,26 @@
     </div>
   </div>
 
+  <!-- ======== 工具：Hash 工具 ======== -->
+  <!-- 文本摘要计算：MD5（自实现）与 SHA-1/256/384/512（Web Crypto），支持大文件 -->
+  <div id="tool-hash" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="hash"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-hashtag" style="margin-right:6px;color:var(--primary)"></i> Hash 工具</span>
+    </div>
+    <div class="ts-card">
+      <div class="ts-card-title"><i class="fas fa-font" style="margin-right:6px"></i> 输入内容</div>
+      <textarea id="hashInput" style="width:100%;box-sizing:border-box;min-height:140px;padding:12px;border:1px solid rgba(var(--green-rgb),0.2);border-radius:8px;background:var(--input-bg);color:var(--text);font-size:0.88rem;font-family:'SF Mono','Fira Code','Consolas',monospace;outline:none;resize:vertical" placeholder="输入要计算摘要的文本或粘贴内容..."></textarea>
+      <div class="ts-row">
+        <button class="btn btn-primary" id="hashCalcBtn"><i class="fas fa-calculator"></i> 计算摘要</button>
+        <button class="btn btn-outline" id="hashClearBtn"><i class="fas fa-eraser"></i> 清空</button>
+      </div>
+    </div>
+    <div id="hashResult">
+      <div class="empty-state"><i class="fas fa-hashtag" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>输入文本后点击计算，输出 MD5 与 SHA 系列摘要</div>
+    </div>
+  </div>
+
   <!-- ======== 工具：数独 ======== -->
   <!-- 九宫格数独游戏，支持简单/中等/困难三档难度，含提示和答案功能 -->
   <div id="tool-sudoku" class="tool-view">
@@ -543,6 +568,8 @@
         <div class="admin-stat-card"><div class="admin-stat-label"><i class="fas fa-clock"></i> 热榜缓存时间</div><div class="admin-stat-val" id="adminCacheTime">-</div></div>
         <div class="admin-stat-card"><div class="admin-stat-label"><i class="fas fa-fire"></i> B站条数</div><div class="admin-stat-val" id="adminBiliCount">-</div></div>
         <div class="admin-stat-card"><div class="admin-stat-label"><i class="fas fa-comments"></i> 贴吧条数</div><div class="admin-stat-val" id="adminTiebaCount">-</div></div>
+        <div class="admin-stat-card"><div class="admin-stat-label"><i class="fas fa-eye"></i> 总访问量</div><div class="admin-stat-val" id="adminPv"><span id="busuanzi_value_site_pv"></span></div></div>
+        <div class="admin-stat-card"><div class="admin-stat-label"><i class="fas fa-user-friends"></i> 访客数</div><div class="admin-stat-val" id="adminUv"><span id="busuanzi_value_site_uv"></span></div></div>
       </div>
       <div class="options-row" style="margin-bottom:20px">
         <button class="btn btn-primary" id="adminRefreshBtn"><i class="fas fa-sync-alt"></i> 手动刷新缓存</button>
@@ -570,8 +597,10 @@
 <script src="js/base64.js" charset="UTF-8"></script>
 <script src="js/hotlist.js" charset="UTF-8"></script>
 <script src="js/filehash.js" charset="UTF-8"></script>
+<script src="js/hash.js" charset="UTF-8"></script>
 <script src="js/sudoku.js" charset="UTF-8"></script>
 <script src="js/diff.js" charset="UTF-8"></script>
 <script src="js/admin.js" charset="UTF-8"></script>
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>
