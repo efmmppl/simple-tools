@@ -36,16 +36,27 @@ body {
   background: #fcfaf5; border: 1px solid rgba(107, 143, 94, 0.12);
   border-radius: 12px; padding: 28px 24px; cursor: pointer;
   transition: all 0.25s; text-align: center;
+  position: relative; overflow: hidden;
+}
+/* 导航卡片顶部高光线 */
+.nav-card::before {
+  content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(107, 143, 94, 0.7), transparent);
+  opacity: 0; transition: opacity 0.3s;
 }
 /* 导航卡片悬停 */
 .nav-card:hover {
-  transform: translateY(-4px); box-shadow: 0 8px 24px rgba(107, 143, 94, 0.12);
-  border-color: rgba(107, 143, 94, 0.25);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 28px rgba(107, 143, 94, 0.2), 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(107, 143, 94, 0.4);
 }
+.nav-card:hover::before { opacity: 1; }
 /* 导航卡片图标 */
 .nav-card .nav-icon {
   font-size: 2.4rem; color: #6b8f5e; margin-bottom: 12px;
+  display: inline-block; transition: transform 0.3s, color 0.3s;
 }
+.nav-card:hover .nav-icon { transform: scale(1.18); color: #4a7a3f; }
 /* 导航卡片名称 */
 .nav-card .nav-name { font-size: 1.1rem; font-weight: 600; color: #3d3a35; margin-bottom: 6px; }
 /* 导航卡片描述 */
@@ -66,7 +77,7 @@ body {
   font-size: 0.88rem; padding: 4px 10px; border-radius: 6px; transition: all 0.2s;
 }
 /* 返回按钮悬停 */
-.back-btn:hover { background: rgba(107, 143, 94, 0.08); }
+.back-btn:hover { background: rgba(107, 143, 94, 0.08); transform: translateX(-2px); }
 /* 返回栏工具标题 */
 .back-bar .tool-title { font-weight: 600; font-size: 0.95rem; color: #3d3a35; }
 
@@ -119,10 +130,10 @@ body {
 }
 /* 主按钮 */
 .btn-primary { background: linear-gradient(135deg, #6b8f5e, #5a7a4a); color: #fff; }
-.btn-primary:hover { transform: scale(1.02); box-shadow: 0 2px 10px rgba(107, 143, 94, 0.25); }
+.btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 14px rgba(107, 143, 94, 0.35); }
 /* 轮廓按钮 */
 .btn-outline { background: transparent; border: 1px solid rgba(107, 143, 94, 0.3); color: #6b8f5e; }
-.btn-outline:hover { background: rgba(107, 143, 94, 0.06); }
+.btn-outline:hover { background: rgba(107, 143, 94, 0.06); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(107, 143, 94, 0.12); }
 /* 小号按钮 */
 .btn-sm { padding: 5px 14px; font-size: 0.8rem; }
 /* 添加按钮 */
@@ -271,6 +282,7 @@ body {
 }
 .exchange-rate-card:hover {
   border-color: #6b8f5e; box-shadow: 0 2px 8px rgba(107, 143, 94, 0.1);
+  transform: translateY(-3px);
 }
 /* 汇率代码 */
 .exchange-rate-code {
@@ -337,7 +349,7 @@ body {
 .hot-rank.top3 { color: #d4a84a; }
 .hot-rank.normal { color: #8c8273; }
 /* 热榜标题 */
-.hot-title { flex: 1; font-size: 0.88rem; color: #3d3a35; cursor: pointer; }
+.hot-title { flex: 1; font-size: 0.88rem; color: #3d3a35; cursor: pointer; transition: color 0.2s; }
 .hot-title:hover { color: #6b8f5e; }
 /* 热榜热度 */
 .hot-hot { font-size: 0.78rem; color: #b8ad9e; white-space: nowrap; }
