@@ -60,6 +60,13 @@ async function sha256(str) {
   return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+function formatTime(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+
 function adminLoadStats() {
   const timeEl = document.getElementById('adminCacheTime');
   const biliEl = document.getElementById('adminBiliCount');
@@ -67,7 +74,7 @@ function adminLoadStats() {
   fetch('hotlist.json?_=' + Date.now())
     .then(function (res) { return res.json(); })
     .then(function (data) {
-      timeEl.textContent = data.updated ? data.updated.replace('T', ' ').slice(0, 16) : '-';
+      timeEl.textContent = data.updated ? formatTime(data.updated) : '-';
       biliEl.textContent = data.data && data.data.biliHot ? data.data.biliHot.length : 0;
       tiebaEl.textContent = data.data && data.data.tieba ? data.data.tieba.length : 0;
     })
