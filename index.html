@@ -8,6 +8,10 @@
 <meta name="description" content="实用离线工具集：金价查询、汇率转换、IP信息、Cron解析、时间戳、正则测试、Base64、热榜、文字冒险、数独">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠</text></svg>">
 <title>工具箱</title>
+<!-- PWA：应用清单与图标 -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6b8f5e">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <!-- Font Awesome 图标库 CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <!-- 全局样式表 -->
@@ -602,6 +606,14 @@
 <script src="js/diff.js" charset="UTF-8"></script>
 <script src="js/admin.js" charset="UTF-8"></script>
 <script src="js/easter-egg.js" charset="UTF-8"></script>
+<!-- PWA Service Worker 注册：仅在 https 或 localhost 下生效（file:// 不适用） -->
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
 <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>

@@ -31,12 +31,16 @@
 - 无后端：所有工具在浏览器端运行，外部数据通过 `fetch` 或 JSONP 获取。
 - 中文优先：界面与代码注释均使用简体中文。
 - 暖色米白主题：主色 `#6b8f5e`，卡片背景 `#fcfaf5`，正文字体 `#3d3a35`。
+- PWA：支持安装到桌面/主屏与离线缓存，仅在 `https` 或 `localhost` 下生效（`file://` 不可用）。
 
 ## 文件结构
 
 ```
 .
 ├── index.html              # 页面骨架与导航
+├── manifest.json            # PWA 应用清单（名称、图标、主题色）
+├── sw.js                    # PWA Service Worker（离线缓存，仅 https/localhost 生效）
+├── icons/                   # PWA 应用图标（192/512 PNG）
 ├── css/style.css           # 全局样式
 ├── js/
 │   ├── nav.js              # 导航路由、footer 时钟、复制按钮等通用逻辑
@@ -52,6 +56,7 @@
 │   ├── sudoku.js           # 数独游戏
 │   ├── diff.js             # 文本差异对比
 │   ├── admin.js            # 后台数据面板（管理员登录、热榜统计）
+│   ├── easter-egg.js       # 彩蛋（数字雨、像素风、打地鼠）
 ├── scripts/fetch-hotlist.js # 热榜抓取脚本（Node.js 18+，无外部依赖）
 ├── hotlist.json             # 热榜缓存数据
 ├── .github/workflows/hotlist.yml # 定时抓取热榜的 GitHub Actions 工作流

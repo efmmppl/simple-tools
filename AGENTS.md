@@ -26,6 +26,7 @@
 - `hotlist.json` — 热榜缓存，由 GitHub Actions 生成。
 - `.github/workflows/hotlist.yml` — 每日 UTC 22:00（北京时间次日 06:00）抓取热榜并提交（Node 20，`workflow_dispatch` 可手动触发）。注意 README 中写的 UTC 01:00 已过时，以 yml 为准。
 - `CNAME` — 自定义域名 `tools.kuak.top`，用于 GitHub Pages。
+- `manifest.json` / `sw.js` / `icons/` — PWA 支持：应用清单、Service Worker 离线缓存、应用图标（192/512 PNG）。仅 `https` 或 `localhost` 下生效（`file://` 不可用）。
 - `.opencode/opencode.json` — OpenCode 配置（模型、agent 预设）。此目录已入 `.gitignore`，不提交到仓库。
 
 ## 添加新工具
@@ -49,6 +50,7 @@
 - **视图激活加载**：数据型工具（`gold.js`、`exchange.js`、`hotlist.js`）用 `MutationObserver` 监听 `#tool-xxx` 的 `class` 属性，进入视图时拉取数据、离开时停止（金价/汇率分别在激活期间每 60s/120s 定时刷新）。新数据工具沿用此模式。
 - **共享函数**：`nav.js` 定义全局 `escapeHtml()` 用于 HTML 转义（被 `regex.js`、`base64.js`、`hotlist.js` 使用），新增工具可直接调用。
 - **缓存破坏**：部分 JS 文件引用带 ?v=N 后缀，修改后须递增版本号。
+- **PWA 缓存更新**：`sw.js` 里有 `CACHE_VERSION`（当前 `'v1'`），修改任何前端文件（HTML/CSS/JS/图标）后**必须递增它**，否则已安装用户的浏览器不会拉到新版本（Service Worker 缓存优先）。`sw.js` 的 `PRECACHE_URLS` 清单新增文件时也要同步更新。热榜 `hotlist.json` 走 network-first 不受影响。
 - **Web Crypto 不支持 MD5**：`crypto.subtle` 仅有 SHA 系列，MD5 由 `js/filehash.js` 内联实现（RFC 1321，函数 `md5()`，输入 `Uint8Array`）。修改该实现时需用 Node `crypto` 对照测试向量验证。
 
 ## 数据获取注意
