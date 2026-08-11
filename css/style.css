@@ -705,3 +705,13 @@ body.pixel-mode .pixel-scanline {
   margin: 4px 0 12px; cursor: pointer;
 }
 .imgtool-lock input { accent-color: var(--primary); }
+
+/* 导航卡片拖拽排序 */
+.nav-card { cursor: grab; }
+.nav-card:active { cursor: grabbing; }
+.nav-card.nav-dragging {
+  opacity: 0.45;
+  transform: scale(0.96);
+  border-style: dashed;
+  border-color: var(--primary);
+}
