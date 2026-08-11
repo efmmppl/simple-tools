@@ -637,3 +637,40 @@ body {
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 1.25rem; font-weight: 600; color: var(--text);
 }
+
+/* 神秘像素风彩蛋模式（body.pixel-mode） */
+body.pixel-mode {
+  font-family: 'Courier New', monospace;
+}
+body.pixel-mode .header { background: linear-gradient(135deg, #3d3a35, #241f16); }
+body.pixel-mode .nav-card,
+body.pixel-mode .ts-card,
+body.pixel-mode .ts-section,
+body.pixel-mode .options-row,
+body.pixel-mode .result-card,
+body.pixel-mode .admin-login-card,
+body.pixel-mode .admin-stat-card,
+body.pixel-mode .exchange-rate-card,
+body.pixel-mode .ip-card,
+body.pixel-mode .gold-card,
+body.pixel-mode .filehash-box {
+  border-radius: 0 !important;
+  border: 2px solid #3d3a35 !important;
+  box-shadow: 3px 3px 0 #3d3a35;
+}
+body.pixel-mode .btn { border-radius: 0 !important; box-shadow: 2px 2px 0 #3d3a35; }
+body.pixel-mode .back-btn { border-radius: 0 !important; }
+body.pixel-mode .nav-card::before { display: none; }
+body.pixel-mode .pixel-overlay {
+  position: fixed; inset: 0; z-index: 9996; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,0.18) 3px 4px);
+}
+body.pixel-mode .pixel-scanline {
+  position: fixed; left: 0; right: 0; height: 120px; z-index: 9996; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(107,143,94,0.15), transparent);
+  animation: pixelScan 4s linear infinite;
+}
+@keyframes pixelScan {
+  0% { top: -120px; }
+  100% { top: 100vh; }
+}
