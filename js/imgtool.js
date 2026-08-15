@@ -1,5 +1,5 @@
 // imgtool - 图片压缩：调整宽高与质量，输出压缩前后大小对比
-var imgToolState = { file: null, srcUrl: null, origSize: 0, origName: '', width: 0, height: 0, ratio: 1 };
+var imgToolState = { file: null, srcUrl: null, outUrl: null, origSize: 0, origName: '', width: 0, height: 0, ratio: 1 };
 
 // imgToolLoadImage - 读取文件为 Image 对象
 function imgToolLoadImage(file) {
@@ -97,7 +97,9 @@ function imgToolRenderResult(blob) {
   var oldSize = imgToolState.origSize;
   var newSize = blob.size;
   var ratio = oldSize > 0 ? Math.round((1 - newSize / oldSize) * 100) : 0;
+  if (imgToolState.outUrl) URL.revokeObjectURL(imgToolState.outUrl);
   var outUrl = URL.createObjectURL(blob);
+  imgToolState.outUrl = outUrl;
   var resultEl = document.getElementById('imgResult');
   resultEl.innerHTML =
     '<div class="imgtool-card">' +
@@ -110,7 +112,7 @@ function imgToolRenderResult(blob) {
     '</div>' +
     '<div class="imgtool-preview"><img src="' + outUrl + '" alt="压缩后预览"></div>' +
     '<div class="ts-row">' +
-    '<a class="btn btn-primary" id="imgDownloadBtn" download="' + imgToolState.origName.replace(/\.[^.]+$/, '') + '-compressed.jpg" href="' + outUrl + '"><i class="fas fa-download"></i> 下载图片</a>' +
+    '<a class="btn btn-primary" id="imgDownloadBtn" download="' + escapeHtml(imgToolState.origName.replace(/\.[^.]+$/, '')) + '-compressed.jpg" href="' + outUrl + '"><i class="fas fa-download"></i> 下载图片</a>' +
     '<button class="btn btn-outline" id="imgRedoBtn"><i class="fas fa-sync-alt"></i> 重新压缩</button>' +
     '</div>' +
     '</div>';
@@ -121,7 +123,9 @@ function imgToolRenderResult(blob) {
 
 // imgToolReset - 清除当前图片，回到初始状态
 function imgToolReset() {
-  imgToolState = { file: null, srcUrl: null, origSize: 0, origName: '' };
+  if (imgToolState.srcUrl) URL.revokeObjectURL(imgToolState.srcUrl);
+  if (imgToolState.outUrl) URL.revokeObjectURL(imgToolState.outUrl);
+  imgToolState = { file: null, srcUrl: null, outUrl: null, origSize: 0, origName: '' };
   document.getElementById('imgDrop').style.display = 'block';
   document.getElementById('imgMeta').style.display = 'none';
   document.getElementById('imgMeta').innerHTML = '';

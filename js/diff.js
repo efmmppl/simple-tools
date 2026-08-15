@@ -87,7 +87,7 @@ function charDiff(oldStr, newStr) {
 }
 
 function escHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function renderParts(parts) {
@@ -129,8 +129,8 @@ function runDiff() {
     return;
   }
 
-  var oldLines = oldText.split('\n');
-  var newLines = newText.split('\n');
+  var oldLines = oldText === '' ? [] : oldText.split('\n');
+  var newLines = newText === '' ? [] : newText.split('\n');
   var diffs = diffLines(oldLines, newLines);
 
   var oldHtml = '', newHtml = '';

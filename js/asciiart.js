@@ -73,7 +73,7 @@ var ASCII_RAMPS = {
   coarse: '@#%= '
 };
 
-var ASCII_IMG_STATE = { img: null, url: null, name: '', width: 0, height: 0 };
+var ASCII_IMG_STATE = { img: null, url: null, name: '', width: 0, height: 0, outUrl: null };
 
 function asciiArtRenderGlyph(g, style) {
   var out = [];
@@ -144,7 +144,8 @@ function asciiArtPick(file) {
 
 function asciiArtReset() {
   if (ASCII_IMG_STATE.url) URL.revokeObjectURL(ASCII_IMG_STATE.url);
-  ASCII_IMG_STATE = { img: null, url: null, name: '', width: 0, height: 0 };
+  if (ASCII_IMG_STATE.outUrl) URL.revokeObjectURL(ASCII_IMG_STATE.outUrl);
+  ASCII_IMG_STATE = { img: null, url: null, name: '', width: 0, height: 0, outUrl: null };
   document.getElementById('asciiImgMeta').textContent = '';
   document.getElementById('asciiImgResult').textContent = '';
   var dl = document.getElementById('asciiDownload');
@@ -188,8 +189,10 @@ function asciiArtImg() {
   }
   var out = lines.join('\n');
   document.getElementById('asciiImgResult').textContent = out;
+  if (ASCII_IMG_STATE.outUrl) URL.revokeObjectURL(ASCII_IMG_STATE.outUrl);
   var blob = new Blob([out], { type: 'text/plain;charset=utf-8' });
   var url = URL.createObjectURL(blob);
+  ASCII_IMG_STATE.outUrl = url;
   var dl = document.getElementById('asciiDownload');
   dl.href = url;
   dl.download = 'ascii-art.txt';

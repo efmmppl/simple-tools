@@ -1,6 +1,6 @@
 // escapeHtml - HTML 转义，防止 XSS
 function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // showNav - 显示导航主页，隐藏所有工具视图

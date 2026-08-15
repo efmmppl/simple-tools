@@ -1,5 +1,5 @@
 // convert - 格式转换：图片互转（PNG/JPG/WebP）与音频转 WAV，全部在浏览器本地完成
-var cvState = { file: null, kind: null, url: null, width: 0, height: 0 };
+var cvState = { file: null, kind: null, url: null, width: 0, height: 0, outUrl: null };
 
 var CV_IMAGE_FORMATS = [
   { value: 'image/png', label: 'PNG（无损）', ext: 'png' },
@@ -188,7 +188,9 @@ function audioToWav(buffer) {
 // cvRenderResult - 渲染转换结果与下载入口
 function cvRenderResult(blob, mime) {
   var ext = mime === 'image/jpeg' ? 'jpg' : (mime === 'image/png' ? 'png' : (mime === 'image/webp' ? 'webp' : 'wav'));
+  if (cvState.outUrl) URL.revokeObjectURL(cvState.outUrl);
   var outUrl = URL.createObjectURL(blob);
+  cvState.outUrl = outUrl;
   var oldSize = cvState.file.size;
   var newSize = blob.size;
   var isImage = cvState.kind === 'image';
@@ -203,7 +205,7 @@ function cvRenderResult(blob, mime) {
     '</div>' +
     (isImage ? '<div class="imgtool-preview"><img src="' + outUrl + '" alt="转换预览"></div>' : '') +
     '<div class="ts-row">' +
-    '<a class="btn btn-primary" download="' + cvState.file.name.replace(/\.[^.]+$/, '') + '-converted.' + ext + '" href="' + outUrl + '"><i class="fas fa-download"></i> 下载 ' + ext.toUpperCase() + '</a>' +
+    '<a class="btn btn-primary" download="' + escapeHtml(cvState.file.name.replace(/\.[^.]+$/, '')) + '-converted.' + ext + '" href="' + outUrl + '"><i class="fas fa-download"></i> 下载 ' + ext.toUpperCase() + '</a>' +
     '<button class="btn btn-outline" id="cvRedoBtn"><i class="fas fa-sync-alt"></i> 再转一次</button>' +
     '</div>' +
     '</div>';
@@ -214,7 +216,8 @@ function cvRenderResult(blob, mime) {
 
 // cvReset - 清除当前文件，回到初始状态
 function cvReset() {
-  cvState = { file: null, kind: null, url: null, width: 0, height: 0 };
+  if (cvState.outUrl) URL.revokeObjectURL(cvState.outUrl);
+  cvState = { file: null, kind: null, url: null, width: 0, height: 0, outUrl: null };
   document.getElementById('cvDrop').style.display = 'block';
   document.getElementById('cvMeta').style.display = 'none';
   document.getElementById('cvMeta').innerHTML = '';
