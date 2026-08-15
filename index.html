@@ -115,6 +115,21 @@
       <div class="nav-name">ASCII 艺术</div>
       <div class="nav-desc">文字或图片<br>生成字符画</div>
     </div>
+    <div class="nav-card" data-tool="stock">
+      <div class="nav-icon"><i class="fas fa-chart-line"></i></div>
+      <div class="nav-name">股票分析</div>
+      <div class="nav-desc">行情与技术指标<br>买卖信号·止损参考</div>
+    </div>
+    <div class="nav-card" data-tool="backtest">
+      <div class="nav-icon"><i class="fas fa-flask"></i></div>
+      <div class="nav-name">量化回测</div>
+      <div class="nav-desc">多策略历史模拟<br>收益·回撤·胜率</div>
+    </div>
+    <div class="nav-card" data-tool="monitor">
+      <div class="nav-icon"><i class="fas fa-bell"></i></div>
+      <div class="nav-name">信号监控</div>
+      <div class="nav-desc">策略买卖信号提醒<br>触发记录·声音·通知</div>
+    </div>
   </div>
 
   <!-- ======== 工具：Cron 解析器 ======== -->
@@ -680,6 +695,150 @@
     </div>
   </div>
 
+  <!-- ======== 工具：股票分析 ======== -->
+  <!-- 输入 A 股代码，拉取实时行情与前复权日K，计算技术指标并给出买卖信号、止损位与支撑压力 -->
+  <div id="tool-stock" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="stock"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-chart-line" style="margin-right:6px;color:var(--primary)"></i> 股票分析</span>
+      <span style="margin-left:auto;font-size:0.78rem;color:var(--text-soft)" id="stockStatus">就绪</span>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-search" style="margin-right:6px"></i> 股票代码</div>
+        <div class="ts-row">
+          <label>代码</label>
+          <input type="text" id="stockCode" placeholder="如 600519 / sh600519 / 000858" autocomplete="off">
+          <button class="btn btn-primary" id="stockAnalyzeBtn"><i class="fas fa-chart-line"></i> 分析</button>
+        </div>
+        <div class="error-msg" id="stockError" style="display:none"></div>
+      </div>
+    </div>
+    <div id="stockResult">
+      <div class="empty-state"><i class="fas fa-chart-line" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>输入股票代码后点击「分析」，查看行情、指标与信号</div>
+    </div>
+  </div>
+
+  <!-- ======== 工具：量化回测 ======== -->
+  <!-- 拉取历史前复权日K，按策略模拟买卖，统计收益/回撤/胜率并对比买入持有 -->
+  <div id="tool-backtest" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="backtest"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-flask" style="margin-right:6px;color:var(--primary)"></i> 量化回测</span>
+      <span style="margin-left:auto;font-size:0.78rem;color:var(--text-soft)" id="backtestStatus">就绪</span>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-sliders-h" style="margin-right:6px"></i> 回测设置</div>
+        <div class="ts-row">
+          <label>股票代码</label>
+          <input type="text" id="btCode" placeholder="如 600519 / sh600519 / 000858" autocomplete="off">
+        </div>
+        <div class="ts-row">
+          <label>初始资金</label>
+          <input type="number" class="bt-num" id="btCapital" value="100000" min="1000" step="1000">
+          <label>K线数量</label>
+          <input type="number" class="bt-num" id="btKlines" value="400" min="60" max="800" step="20">
+        </div>
+        <div class="ts-row">
+          <label>佣金率 %</label>
+          <input type="number" class="bt-num" id="btCommission" value="0.03" min="0" step="0.01">
+          <label>印花税 %</label>
+          <input type="number" class="bt-num" id="btStamp" value="0.1" min="0" step="0.01">
+          <button class="btn btn-primary" id="btRun"><i class="fas fa-flask"></i> 回测</button>
+        </div>
+        <div class="error-msg" id="btError" style="display:none"></div>
+      </div>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-chess" style="margin-right:6px"></i> 策略与参数（勾选启用，参数可自定义）</div>
+        <div class="bt-strat-grid">
+          <div class="bt-strat">
+            <label class="bt-enable"><input type="checkbox" id="btMaEnable" checked> 双均线</label>
+            <div class="bt-strat-desc">短均线上穿长均线（金叉）买入，下穿（死叉）卖出</div>
+            <div class="bt-param"><label>短周期</label><input type="number" id="btMaShort" value="5" min="1"><span class="bt-hint">短均线天数，越小越敏感、信号越多</span></div>
+            <div class="bt-param"><label>长周期</label><input type="number" id="btMaLong" value="20" min="1"><span class="bt-hint">长均线天数，越大越稳、信号越少</span></div>
+          </div>
+          <div class="bt-strat">
+            <label class="bt-enable"><input type="checkbox" id="btRsiEnable" checked> RSI 超买超卖</label>
+            <div class="bt-strat-desc">RSI 跌破买入阈值（超卖）买入，升破卖出阈值（超买）卖出</div>
+            <div class="bt-param"><label>周期</label><input type="number" id="btRsiN" value="14" min="1"><span class="bt-hint">RSI 计算天数</span></div>
+            <div class="bt-param"><label>买入阈值</label><input type="number" id="btRsiBuy" value="30" min="1" max="100"><span class="bt-hint">低于此值视为超卖，触发买入</span></div>
+            <div class="bt-param"><label>卖出阈值</label><input type="number" id="btRsiSell" value="70" min="1" max="100"><span class="bt-hint">高于此值视为超买，触发卖出</span></div>
+          </div>
+          <div class="bt-strat">
+            <label class="bt-enable"><input type="checkbox" id="btBollEnable" checked> 布林带</label>
+            <div class="bt-strat-desc">收盘跌破下轨买入，升破上轨卖出</div>
+            <div class="bt-param"><label>周期</label><input type="number" id="btBollN" value="20" min="1"><span class="bt-hint">中轨（均线）天数</span></div>
+            <div class="bt-param"><label>倍数</label><input type="number" id="btBollMult" value="2" min="0.1" step="0.1"><span class="bt-hint">标准差倍数，越大带越宽、信号越少</span></div>
+          </div>
+          <div class="bt-strat">
+            <label class="bt-enable"><input type="checkbox" id="btMacdEnable" checked> MACD</label>
+            <div class="bt-strat-desc">DIF 上穿 DEA（金叉）买入，下穿（死叉）卖出</div>
+            <div class="bt-param"><label>快线</label><input type="number" id="btMacdFast" value="12" min="1"><span class="bt-hint">DIF 的快速 EMA 天数</span></div>
+            <div class="bt-param"><label>慢线</label><input type="number" id="btMacdSlow" value="26" min="1"><span class="bt-hint">DIF 的慢速 EMA 天数</span></div>
+            <div class="bt-param"><label>信号线</label><input type="number" id="btMacdSignal" value="9" min="1"><span class="bt-hint">DEA 的平滑天数</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="btResult">
+      <div class="empty-state"><i class="fas fa-flask" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>设置参数后点击「回测」，查看各策略表现对比</div>
+    </div>
+  </div>
+
+  <!-- ======== 工具：信号监控 ======== -->
+  <!-- 定时轮询行情，按策略实时检测买卖信号，触发时提醒并记录到 localStorage -->
+  <div id="tool-monitor" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="monitor"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-bell" style="margin-right:6px;color:var(--primary)"></i> 信号监控</span>
+      <span style="margin-left:auto;font-size:0.78rem;color:var(--text-soft)" id="monStatus">未运行</span>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-sliders-h" style="margin-right:6px"></i> 监控设置</div>
+        <div class="ts-row">
+          <label>股票代码</label>
+          <input type="text" id="monCodes" placeholder="逗号分隔，如 600519,000858,300750" autocomplete="off">
+        </div>
+        <div class="ts-row">
+          <label>策略</label>
+          <span class="mon-checks">
+            <label><input type="checkbox" id="monMa" checked> 双均线</label>
+            <label><input type="checkbox" id="monRsi" checked> RSI</label>
+            <label><input type="checkbox" id="monBoll" checked> 布林带</label>
+            <label><input type="checkbox" id="monMacd" checked> MACD</label>
+          </span>
+        </div>
+        <div class="ts-row">
+          <label>轮询间隔</label>
+          <input type="number" class="bt-num" id="monInterval" value="30" min="10" step="5">
+          <span style="font-size:0.85rem;color:var(--text-mid)">秒</span>
+          <button class="btn btn-primary" id="monStartBtn"><i class="fas fa-play"></i> 开始监控</button>
+          <button class="btn btn-outline" id="monStopBtn" disabled><i class="fas fa-stop"></i> 停止</button>
+        </div>
+        <div class="error-msg" id="monError" style="display:none"></div>
+      </div>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-satellite-dish" style="margin-right:6px"></i> 监控状态</div>
+        <div id="monStatusBox"></div>
+      </div>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-list" style="margin-right:6px"></i> 信号记录
+          <button class="btn btn-outline btn-sm" id="monClearBtn" style="margin-left:8px"><i class="fas fa-trash-alt"></i> 清空</button>
+        </div>
+        <div id="monRecords"></div>
+      </div>
+    </div>
+    <div class="mon-toast" id="monToast"></div>
+  </div>
+
   <!-- ======== 工具：文本差异对比 ======== -->
   <div id="tool-diff" class="tool-view">
     <div class="back-bar">
@@ -770,6 +929,9 @@
 <script src="js/admin.js" charset="UTF-8"></script>
 <script src="js/easter-egg.js" charset="UTF-8"></script>
 <script src="js/asciiart.js" charset="UTF-8"></script>
+<script src="js/stock.js" charset="UTF-8"></script>
+<script src="js/backtest.js" charset="UTF-8"></script>
+<script src="js/monitor.js" charset="UTF-8"></script>
 <!-- PWA Service Worker 注册：仅在 https 或 localhost 下生效（file:// 不适用） -->
 <script>
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
