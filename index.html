@@ -110,6 +110,11 @@
       <div class="nav-name">今日热榜</div>
       <div class="nav-desc">B站/贴吧<br>实时热搜榜单</div>
     </div>
+    <div class="nav-card" data-tool="asciiart">
+      <div class="nav-icon"><i class="fas fa-terminal"></i></div>
+      <div class="nav-name">ASCII 艺术</div>
+      <div class="nav-desc">文字或图片<br>生成字符画</div>
+    </div>
   </div>
 
   <!-- ======== 工具：Cron 解析器 ======== -->
@@ -609,6 +614,72 @@
     <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:var(--text-mid)" id="hotUpdateTime"></div>
   </div>
 
+  <!-- ======== 工具：ASCII 艺术 ======== -->
+  <!-- 文字转大字字符画（内嵌字体位图）、图片转字符画（canvas 灰度映射），全部本地完成 -->
+  <div id="tool-asciiart" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="asciiart"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-terminal" style="margin-right:6px;color:var(--primary)"></i> ASCII 艺术</span>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-font" style="margin-right:6px"></i> 文字 → 大字艺术</div>
+        <div class="ts-row">
+          <textarea id="asciiTextInput" rows="3" style="width:100%;padding:12px;border:1px solid rgba(var(--green-rgb),0.2);border-radius:6px;background:var(--input-bg);color:var(--text);font-family:monospace;font-size:0.88rem;outline:none;resize:vertical;line-height:1.6" placeholder="输入要转换的文字（英文/数字效果最佳，中文字符直接显示）"></textarea>
+        </div>
+        <div class="ts-row" style="flex-wrap:wrap">
+          <label style="margin-right:8px">字体</label>
+          <select id="asciiFontStyle" style="margin-right:16px">
+            <option value="solid">实心</option>
+            <option value="outline">空心</option>
+          </select>
+          <button class="btn btn-primary btn-sm" id="asciiTextBtn"><i class="fas fa-play"></i> 生成</button>
+        </div>
+        <div class="ts-row">
+          <label style="margin-right:8px">结果</label>
+          <button class="btn btn-outline btn-sm ts-copy" data-target="asciiTextResult" title="复制"><i class="fas fa-copy"></i></button>
+        </div>
+        <div class="ts-row">
+          <pre id="asciiTextResult" class="asciiart-pre"><span class="hint">输入文字后点击「生成」，输出等宽字符组成的大字艺术</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="ts-section">
+      <div class="ts-card">
+        <div class="ts-card-title"><i class="fas fa-image" style="margin-right:6px"></i> 图片 → 字符画</div>
+        <input type="file" id="asciiImgInput" accept="image/*" style="display:none">
+        <div id="asciiDrop" class="filehash-drop">
+          <i class="fas fa-cloud-upload-alt" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--header-sub)"></i>
+          点击或拖拽图片到此处<br><span style="font-size:0.8rem;color:var(--text-soft)">支持 JPG / PNG / WebP</span>
+        </div>
+        <div id="asciiImgMeta" style="margin-top:10px;font-size:0.85rem;color:var(--text-mid)"></div>
+        <div class="ts-row" style="flex-wrap:wrap">
+          <label style="margin-right:8px">字符集</label>
+          <select id="asciiCharset" style="margin-right:16px">
+            <option value="dense">紧凑</option>
+            <option value="normal" selected>标准</option>
+            <option value="coarse">宽松</option>
+          </select>
+          <label style="margin-right:8px">宽度</label>
+          <input type="number" id="asciiWidth" value="80" min="10" max="240" style="width:70px;margin-right:16px">字符
+        </div>
+        <div class="ts-row" style="flex-wrap:wrap">
+          <label style="margin-right:16px"><input type="checkbox" id="asciiInvert"> 反色</label>
+          <button class="btn btn-primary btn-sm" id="asciiImgBtn"><i class="fas fa-play"></i> 生成</button>
+          <button class="btn btn-outline btn-sm" id="asciiResetBtn"><i class="fas fa-redo"></i> 清除</button>
+        </div>
+        <div class="ts-row">
+          <label style="margin-right:8px">结果</label>
+          <button class="btn btn-outline btn-sm ts-copy" data-target="asciiImgResult" title="复制"><i class="fas fa-copy"></i></button>
+          <a class="btn btn-outline btn-sm" id="asciiDownload" title="下载"><i class="fas fa-download"></i> 下载</a>
+        </div>
+        <div class="ts-row">
+          <pre id="asciiImgResult" class="asciiart-pre"><span class="hint">选择图片后点击「生成」，图片将按亮度映射为字符画</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ======== 工具：文本差异对比 ======== -->
   <div id="tool-diff" class="tool-view">
     <div class="back-bar">
@@ -698,6 +769,7 @@
 <script src="js/diff.js" charset="UTF-8"></script>
 <script src="js/admin.js" charset="UTF-8"></script>
 <script src="js/easter-egg.js" charset="UTF-8"></script>
+<script src="js/asciiart.js" charset="UTF-8"></script>
 <!-- PWA Service Worker 注册：仅在 https 或 localhost 下生效（file:// 不适用） -->
 <script>
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
