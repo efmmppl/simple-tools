@@ -1,7 +1,7 @@
 // sw.js - 工具箱 Service Worker：离线缓存 + 网络兜底
 // 版本号：修改缓存策略或文件清单后必须递增 CACHE_VERSION，否则不更新
 
-var CACHE_VERSION = 'v11';
+var CACHE_VERSION = 'v13';
 var CACHE_NAME = 'toolbox-' + CACHE_VERSION;
 
 var PRECACHE_URLS = [
@@ -27,6 +27,7 @@ var PRECACHE_URLS = [
   './js/convert.js',
   './js/sudoku.js',
   './js/diff.js',
+  './js/markdown.js',
   './js/admin.js',
   './js/easter-egg.js',
   './js/asciiart.js',
