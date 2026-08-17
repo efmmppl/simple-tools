@@ -105,6 +105,11 @@
       <div class="nav-name">文本差异对比</div>
       <div class="nav-desc">左右对照文本差异<br>字符级高亮显示</div>
     </div>
+    <div class="nav-card" data-tool="markdown">
+      <div class="nav-icon"><i class="fab fa-markdown"></i></div>
+      <div class="nav-name">Markdown 编辑器</div>
+      <div class="nav-desc">编辑与实时预览<br>导入和下载文档</div>
+    </div>
     <div class="nav-card" data-tool="hotlist">
       <div class="nav-icon"><i class="fas fa-fire"></i></div>
       <div class="nav-name">今日热榜</div>
@@ -868,6 +873,32 @@
     </div>
   </div>
 
+  <div id="tool-markdown" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="markdown"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fab fa-markdown" style="margin-right:6px;color:var(--primary)"></i> Markdown 编辑器</span>
+      <span class="markdown-stats" id="markdownStats">0 字符 · 0 行</span>
+    </div>
+    <div class="markdown-actions">
+      <input type="file" id="markdownFileInput" accept=".md,.markdown,text/markdown,text/plain" hidden>
+      <button class="btn btn-outline btn-sm" id="markdownOpenBtn"><i class="fas fa-folder-open"></i> 打开 Markdown</button>
+      <button class="btn btn-outline btn-sm" id="markdownDownloadBtn"><i class="fas fa-download"></i> 下载 .md</button>
+      <button class="btn btn-outline btn-sm" id="markdownClearBtn"><i class="fas fa-eraser"></i> 清空</button>
+    </div>
+    <div class="markdown-editor">
+      <section class="markdown-pane">
+        <div class="markdown-pane-title"><i class="fas fa-pen"></i> 编辑</div>
+        <textarea id="markdownInput" class="markdown-textarea" spellcheck="false" placeholder="# 输入 Markdown 文档
+
+支持标题、列表、链接、引用、代码块等常用语法。"></textarea>
+      </section>
+      <section class="markdown-pane markdown-preview-pane" id="markdownPreviewPane">
+        <div class="markdown-pane-title"><i class="fas fa-eye"></i> 预览 <button class="btn btn-outline btn-sm markdown-fullscreen-btn" id="markdownFullscreenBtn" type="button" aria-label="全屏预览" aria-pressed="false"><i class="fas fa-expand"></i> 全屏</button></div>
+        <article id="markdownPreview" class="markdown-preview"></article>
+      </section>
+    </div>
+  </div>
+
   <!-- ======== 后台：数据面板 ======== -->
   <!-- 管理员数据面板：展示热榜缓存时间、各平台条数、可手动刷新 -->
   <div id="tool-admin" class="tool-view">
@@ -926,6 +957,7 @@
 <script src="js/convert.js" charset="UTF-8"></script>
 <script src="js/sudoku.js" charset="UTF-8"></script>
 <script src="js/diff.js" charset="UTF-8"></script>
+<script src="js/markdown.js" charset="UTF-8"></script>
 <script src="js/admin.js" charset="UTF-8"></script>
 <script src="js/easter-egg.js" charset="UTF-8"></script>
 <script src="js/asciiart.js" charset="UTF-8"></script>
