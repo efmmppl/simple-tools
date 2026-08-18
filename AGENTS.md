@@ -13,7 +13,7 @@
   # 或
   npx serve
   ```
-- 无 lint / test / typecheck 命令。验证方式：用浏览器实际打开对应功能页面。
+- 无 lint / typecheck 命令。Markdown 工具有测试：`node --test tests/markdown.test.js`（Node 18+ 内置 test runner，需先启动本地服务器再跑，脚本从 `js/markdown.js` 读源码，勿改动该文件里 `renderMarkdown` / `toggleMarkdownFullscreen` 的全局导出）。其他工具无自动化测试，验证方式：用浏览器实际打开对应功能页面。
 - 本地验证热榜抓取：`node scripts/fetch-hotlist.js`（Node 18+，依赖内置 `fetch`），输出 `hotlist.json`，格式为 `{ updated: ISO时间戳, data: { biliHot: [...], tieba: [...] } }`。
 
 ## 文件约定
@@ -50,9 +50,9 @@
 - **无虚拟 DOM**：HTML 用字符串拼接，所有函数在全局作用域，命名驼峰且动词在前（如 `fetchIpInfo`、`parseQuartzCron`）。
 - **事件绑定**：每个工具在 `<script>` 末尾用 `addEventListener` 集中绑定。
 - **视图激活加载**：数据型工具（`gold.js`、`exchange.js`、`hotlist.js`）用 `MutationObserver` 监听 `#tool-xxx` 的 `class` 属性（`showTool()` 切换 `.active`），进入视图时拉取数据、离开时停止（金价/汇率分别在激活期间每 60s/120s 定时刷新）。新数据工具沿用此模式。
-- **共享函数**：`nav.js` 定义全局 `escapeHtml()` 用于 HTML 转义（被 `base64.js`、`convert.js`、`filehash.js`、`hotlist.js`、`imgtool.js`、`regex.js` 使用），新增工具可直接调用。
+- **共享函数**：`nav.js` 定义全局 `escapeHtml()` 用于 HTML 转义（被 `backtest.js`、`base64.js`、`convert.js`、`filehash.js`、`hotlist.js`、`imgtool.js`、`monitor.js`、`regex.js`、`stock.js` 使用），新增工具可直接调用。
 - **非导航卡片工具**：`admin.js`（后台数据面板）无 `.nav-card`，经 header 的 `#adminToggle` 按钮进入；`easter-egg.js`（彩蛋）无卡片，由点击 header 标题 `#eggTitle` 或 footer 时钟 `#footerClock` 触发。
-- **PWA 缓存更新**：`sw.js` 里有 `CACHE_VERSION`（当前 `'v6'`），修改任何前端文件（HTML/CSS/JS/图标）后**必须递增它**，否则已安装用户的浏览器不会拉到新版本（Service Worker 缓存优先）。`sw.js` 的 `PRECACHE_URLS` 清单新增文件时也要同步更新。热榜 `hotlist.json` 走 network-first 不受影响。
+- **PWA 缓存更新**：`sw.js` 里有 `CACHE_VERSION`（当前 `'v13'`），修改任何前端文件（HTML/CSS/JS/图标）后**必须递增它**，否则已安装用户的浏览器不会拉到新版本（Service Worker 缓存优先）。`sw.js` 的 `PRECACHE_URLS` 清单新增文件时也要同步更新。热榜 `hotlist.json` 走 network-first 不受影响。
 - **Web Crypto 不支持 MD5**：`crypto.subtle` 仅有 SHA 系列，MD5 由 `js/filehash.js` 内联实现（RFC 1321，函数 `md5()`，输入 `Uint8Array`）。修改该实现时需用 Node `crypto` 对照测试向量验证。
 
 ## 数据获取注意
