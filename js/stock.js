@@ -227,6 +227,48 @@ function renderStock(name, symbol, qt, klines, closes, ind, sig) {
   html += '<div style="margin-top:10px;font-size:0.75rem;color:var(--text-faint)">基于均线、RSI、MACD、KDJ 等简单技术规则打分（' + fmt(sig.score, 1) + ' 分），仅供参考，不构成投资建议。</div>';
   html += '</div></div>';
 
+  var tradeBuyLo = high20;
+  var tradeBuyHi = high60;
+  var tradeSellLo = Math.min(low20, ind.ma20);
+  var tradeSellHi = Math.max(low20, ind.ma20);
+
+  var posText, posCls;
+  if (price > tradeBuyHi) { posText = '已放量突破近 60 日高点，强势，回踩不破 ' + fmt(tradeBuyLo) + ' 可续持'; posCls = 'bull'; }
+  else if (price > tradeBuyLo) { posText = '已突破近 20 日高点，属右侧买点，上方看 ' + fmt(tradeBuyHi) + '，跌破 ' + fmt(tradeBuyLo) + ' 则失效'; posCls = 'bull'; }
+  else if (price >= tradeSellHi) { posText = '站上 MA20 但未突破前高，持有观察，放量突破 ' + fmt(tradeBuyLo) + ' 再加仓'; posCls = 'neutral'; }
+  else if (price > tradeSellLo) { posText = '跌破 MA20 转弱，反弹至 ' + fmt(tradeSellHi) + ' 受阻可减仓，失守 ' + fmt(tradeSellLo) + ' 则离场'; posCls = 'bear'; }
+  else { posText = '已跌破近 20 日低点，右侧破位离场，等待企稳再考虑'; posCls = 'bear'; }
+
+  html += '<div class="stock-section">';
+  html += '<div class="ts-card"><div class="ts-card-title"><i class="fas fa-balance-scale" style="margin-right:6px"></i> 买卖参考</div>';
+  html += '<div class="stock-trade-pos ' + posCls + '">当前价 <b>' + fmt(price) + '</b>：' + posText + '</div>';
+  html += '<div class="stock-trade-grid">';
+  html += '<div class="stock-trade buy"><div class="stock-trade-tag">突破买入区</div>' +
+    '<div class="stock-trade-range">' + fmt(tradeBuyLo) + ' ~ ' + fmt(tradeBuyHi) + '</div>' +
+    '<div class="stock-trade-note">放量突破近 20 日高点（' + fmt(high20) + '）且站稳时可右侧跟进买入，上方看近 60 日高点（' + fmt(high60) + '）；缩量假突破则放弃。</div></div>';
+  html += '<div class="stock-trade sell"><div class="stock-trade-tag">破位卖出区</div>' +
+    '<div class="stock-trade-range">' + fmt(tradeSellLo) + ' ~ ' + fmt(tradeSellHi) + '</div>' +
+    '<div class="stock-trade-note">跌破 MA20（' + fmt(ind.ma20) + '）短线转弱应减仓，失守近 20 日低点（' + fmt(low20) + '）视为破位离场信号。</div></div>';
+  if (ind.boll.upper != null || ind.boll.lower != null) {
+    html += '<div class="stock-trade"><div class="stock-trade-tag">布林极端位</div>' +
+      '<div class="stock-trade-note">触及布林上轨（' + fmt(ind.boll.upper) + '）偏超买，追高谨慎；触及布林下轨（' + fmt(ind.boll.lower) + '）偏超卖，留意跌深反弹。</div></div>';
+  }
+  html += '</div>';
+  html += '<div style="margin-top:10px;font-size:0.75rem;color:var(--text-faint)">区间基于 A 股右侧突破/破位策略，由近 20/60 日高低点与 MA20 估算，仅供参考，不构成投资建议。</div>';
+  html += '</div></div>';
+
+  html += '<div class="stock-section">';
+  html += '<div class="ts-card"><div class="ts-card-title"><i class="fas fa-shield-alt" style="margin-right:6px"></i> 止损与支撑压力</div>';
+  html += '<div class="stock-risk-grid">';
+  html += '<div class="stock-risk"><span class="k">ATR 止损（现价−2×ATR）</span><span class="v">' + fmt(atrStop) + '</span></div>';
+  html += '<div class="stock-risk"><span class="k">建议止损（取 ATR 与 20 日低点较高者）</span><span class="v">' + fmt(recStop) + '</span></div>';
+  html += '<div class="stock-risk"><span class="k">MA20 动态止损参考</span><span class="v">' + fmt(ind.ma20) + '</span></div>';
+  html += '<div class="stock-risk"><span class="k">支撑位 · 近20日低点</span><span class="v">' + fmt(low20) + '</span></div>';
+  html += '<div class="stock-risk"><span class="k">支撑位 · 近60日低点</span><span class="v">' + fmt(low60) + '</span></div>';
+  html += '<div class="stock-risk"><span class="k">压力位 · 近20日高点</span><span class="v">' + fmt(high20) + '</span></div>';
+  html += '<div class="stock-risk"><span class="k">压力位 · 近60日高点</span><span class="v">' + fmt(high60) + '</span></div>';
+  html += '</div></div></div>';
+
   html += '<div class="stock-section">';
   html += '<div class="ts-card"><div class="ts-card-title"><i class="fas fa-chart-line" style="margin-right:6px"></i> 技术指标</div>';
   html += '<div class="stock-ind-grid">';
@@ -245,18 +287,6 @@ function renderStock(name, symbol, qt, klines, closes, ind, sig) {
   html += '<div class="stock-ind"><span class="k">布林上轨</span><span class="v">' + fmt(ind.boll.upper) + '</span></div>';
   html += '<div class="stock-ind"><span class="k">布林中轨</span><span class="v">' + fmt(ind.boll.mid) + '</span></div>';
   html += '<div class="stock-ind"><span class="k">布林下轨</span><span class="v">' + fmt(ind.boll.lower) + '</span></div>';
-  html += '</div></div></div>';
-
-  html += '<div class="stock-section">';
-  html += '<div class="ts-card"><div class="ts-card-title"><i class="fas fa-shield-alt" style="margin-right:6px"></i> 止损与支撑压力</div>';
-  html += '<div class="stock-risk-grid">';
-  html += '<div class="stock-risk"><span class="k">ATR 止损（现价−2×ATR）</span><span class="v">' + fmt(atrStop) + '</span></div>';
-  html += '<div class="stock-risk"><span class="k">建议止损（取 ATR 与 20 日低点较高者）</span><span class="v">' + fmt(recStop) + '</span></div>';
-  html += '<div class="stock-risk"><span class="k">MA20 动态止损参考</span><span class="v">' + fmt(ind.ma20) + '</span></div>';
-  html += '<div class="stock-risk"><span class="k">支撑位 · 近20日低点</span><span class="v">' + fmt(low20) + '</span></div>';
-  html += '<div class="stock-risk"><span class="k">支撑位 · 近60日低点</span><span class="v">' + fmt(low60) + '</span></div>';
-  html += '<div class="stock-risk"><span class="k">压力位 · 近20日高点</span><span class="v">' + fmt(high20) + '</span></div>';
-  html += '<div class="stock-risk"><span class="k">压力位 · 近60日高点</span><span class="v">' + fmt(high60) + '</span></div>';
   html += '</div></div></div>';
 
   return html;

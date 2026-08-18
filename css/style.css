@@ -826,6 +826,25 @@ body.pixel-mode .pixel-scanline {
 }
 .stock-risk .k { font-size: 0.75rem; color: var(--text-soft); }
 .stock-risk .v { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-weight: 700; color: var(--text); font-size: 1.05rem; }
+/* 买卖参考 */
+.stock-trade-pos {
+  text-align: center; font-size: 0.9rem; font-weight: 600; padding: 8px 12px; border-radius: 8px; margin-bottom: 10px;
+}
+.stock-trade-pos.bull { background: rgba(var(--error-rgb), 0.12); color: var(--up); }
+.stock-trade-pos.bear { background: rgba(var(--green-rgb), 0.12); color: var(--down); }
+.stock-trade-pos.neutral { background: rgba(var(--green-rgb), 0.08); color: var(--text-mid); }
+.stock-trade-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px;
+}
+.stock-trade {
+  background: var(--input-bg); border: 1px solid rgba(var(--green-rgb), 0.1); border-radius: 6px;
+  padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;
+}
+.stock-trade-tag { font-size: 0.75rem; font-weight: 700; color: var(--text-soft); }
+.stock-trade.buy .stock-trade-tag { color: var(--up); }
+.stock-trade.sell .stock-trade-tag { color: var(--down); }
+.stock-trade-range { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-weight: 700; color: var(--text); font-size: 1.05rem; }
+.stock-trade-note { font-size: 0.75rem; color: var(--text-soft); line-height: 1.5; }
 
 /* 量化回测 */
 .bt-num {
