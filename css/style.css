@@ -845,6 +845,47 @@ body.pixel-mode .pixel-scanline {
 .stock-trade.sell .stock-trade-tag { color: var(--down); }
 .stock-trade-range { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-weight: 700; color: var(--text); font-size: 1.05rem; }
 .stock-trade-note { font-size: 0.75rem; color: var(--text-soft); line-height: 1.5; }
+/* 行动结论横幅 */
+.stock-action {
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 14px;
+  border: 1px solid rgba(var(--green-rgb), 0.15);
+}
+.stock-action.bull { background: rgba(var(--error-rgb), 0.1); border-color: rgba(var(--error-rgb), 0.25); }
+.stock-action.bear { background: rgba(var(--green-rgb), 0.1); border-color: rgba(var(--green-rgb), 0.25); }
+.stock-action.neutral { background: rgba(var(--green-rgb), 0.06); border-color: rgba(var(--green-rgb), 0.15); }
+.stock-action-title { font-size: 1.25rem; font-weight: 700; }
+.stock-action.bull .stock-action-title { color: var(--up); }
+.stock-action.bear .stock-action-title { color: var(--down); }
+.stock-action.neutral .stock-action-title { color: var(--text-mid); }
+.stock-action-pos { font-size: 0.85rem; font-weight: 600; color: var(--text-mid); margin-top: 4px; }
+.stock-action-reasons { margin: 8px 0 0; padding-left: 20px; font-size: 0.8rem; color: var(--text-soft); line-height: 1.6; }
+/* 术语小问号提示 */
+.term-tip {
+  position: relative; display: inline-flex; align-items: center; gap: 2px;
+  cursor: help; outline: none; white-space: nowrap;
+}
+.term-tip i { font-size: 0.7em; color: var(--primary); opacity: 0.8; }
+.term-tip .term-tip-box {
+  display: none; position: absolute; left: 0; top: calc(100% + 6px); z-index: 30;
+  width: 260px; padding: 8px 10px; border-radius: 6px;
+  background: var(--card); border: 1px solid rgba(var(--green-rgb), 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.78rem; font-weight: 400; color: var(--text); line-height: 1.5;
+  white-space: normal; text-align: left;
+}
+.term-tip:hover .term-tip-box, .term-tip:focus .term-tip-box { display: block; }
+/* 新手折叠区 */
+.stock-help .ts-card { padding: 4px; }
+.stock-help details {
+  border: 1px solid rgba(var(--green-rgb), 0.12); border-radius: 8px; margin: 4px;
+}
+.stock-help summary {
+  cursor: pointer; padding: 10px 14px; font-size: 0.86rem; font-weight: 600; color: var(--text);
+  user-select: none;
+}
+.stock-help summary:hover { background: rgba(var(--green-rgb), 0.04); border-radius: 8px; }
+.stock-help-body { padding: 2px 16px 12px; font-size: 0.82rem; color: var(--text-soft); line-height: 1.7; }
+.stock-help-body p { margin: 6px 0; }
 
 /* 量化回测 */
 .bt-num {
