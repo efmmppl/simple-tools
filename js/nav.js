@@ -3,17 +3,38 @@ function escapeHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// showNav - 显示导航主页，隐藏所有工具视图
-function showNav() {
-  document.getElementById('navView').style.display = 'grid';
-  document.querySelectorAll('.tool-view.active').forEach(v => v.classList.remove('active'));
+// parseToolFromHash - 解析当前 hash 中的工具名，无匹配返回 null
+function parseToolFromHash() {
+  var m = (location.hash || '').match(/^#\/tool\/([\w-]+)$/);
+  return m ? m[1] : null;
 }
 
-// showTool - 切换到指定工具视图
+// renderView - 根据当前 hash 渲染导航页或对应工具视图，并滚动到顶部
+function renderView() {
+  var name = parseToolFromHash();
+  var view = name && document.getElementById('tool-' + name);
+  if (!view) {
+    document.getElementById('navView').style.display = 'grid';
+    document.querySelectorAll('.tool-view.active').forEach(v => v.classList.remove('active'));
+  } else {
+    document.getElementById('navView').style.display = 'none';
+    document.querySelectorAll('.tool-view.active').forEach(v => v.classList.remove('active'));
+    view.classList.add('active');
+  }
+  window.scrollTo(0, 0);
+}
+
+// showNav - 显示导航主页（更新 hash，触发渲染）
+function showNav() {
+  if (location.hash && location.hash !== '#/') location.hash = '#/';
+  else renderView();
+}
+
+// showTool - 切换到指定工具视图（更新 hash，触发渲染）
 function showTool(name) {
-  document.getElementById('navView').style.display = 'none';
-  document.querySelectorAll('.tool-view').forEach(v => v.classList.remove('active'));
-  document.getElementById('tool-' + name).classList.add('active');
+  var target = '#/tool/' + name;
+  if (location.hash !== target) location.hash = target;
+  else renderView();
 }
 
 // 导航卡片点击事件 - 进入对应工具
@@ -121,3 +142,8 @@ document.querySelectorAll('.nav-card').forEach(function (card) {
 });
 
 loadNavOrder();
+
+// hash 变化时重新渲染视图（后退/前进、直接改 URL 均触发）
+window.addEventListener('hashchange', renderView);
+// 首次加载按当前 hash 渲染；延迟到 DOMContentLoaded 等工具脚本就绪，确保数据工具的 MutationObserver 已挂载
+document.addEventListener('DOMContentLoaded', renderView);
