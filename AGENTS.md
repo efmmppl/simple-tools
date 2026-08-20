@@ -49,10 +49,10 @@
 - **外部 JS 必须带 `charset="UTF-8"`**：无 BOM 的 UTF-8 脚本在 `python -m http.server` 下可能被浏览器误判为 GBK，导致中文乱码或脚本异常。
 - **无虚拟 DOM**：HTML 用字符串拼接，所有函数在全局作用域，命名驼峰且动词在前（如 `fetchIpInfo`、`parseQuartzCron`）。
 - **事件绑定**：每个工具在 `<script>` 末尾用 `addEventListener` 集中绑定。
-- **视图激活加载**：数据型工具（`gold.js`、`exchange.js`、`hotlist.js`）用 `MutationObserver` 监听 `#tool-xxx` 的 `class` 属性（`showTool()` 切换 `.active`），进入视图时拉取数据、离开时停止（金价/汇率分别在激活期间每 60s/120s 定时刷新）。新数据工具沿用此模式。
+- **视图激活加载**：导航走 hash 路由（`#/tool/xxx` 进入工具、`#/` 回导航页，`nav.js` 的 `renderView()` 按 hash 切换 `.active`，支持浏览器后退/刷新保持/深链）。数据型工具（`gold.js`、`exchange.js`、`ip.js`、`hotlist.js`）用 `MutationObserver` 监听 `#tool-xxx` 的 `class` 属性，进入视图时拉取数据、离开时停止（金价/汇率分别在激活期间每 60s/120s 定时刷新）。新数据工具沿用此模式。注意初始渲染延迟到 `DOMContentLoaded`，保证 observer 先挂载，刷新时才能触发拉取。
 - **共享函数**：`nav.js` 定义全局 `escapeHtml()` 用于 HTML 转义（被 `backtest.js`、`base64.js`、`convert.js`、`filehash.js`、`hotlist.js`、`imgtool.js`、`monitor.js`、`regex.js`、`stock.js` 使用），新增工具可直接调用。
 - **非导航卡片工具**：`admin.js`（后台数据面板）无 `.nav-card`，经 header 的 `#adminToggle` 按钮进入；`easter-egg.js`（彩蛋）无卡片，由点击 header 标题 `#eggTitle` 或 footer 时钟 `#footerClock` 触发。
-- **PWA 缓存更新**：`sw.js` 里有 `CACHE_VERSION`（当前 `'v13'`），修改任何前端文件（HTML/CSS/JS/图标）后**必须递增它**，否则已安装用户的浏览器不会拉到新版本（Service Worker 缓存优先）。`sw.js` 的 `PRECACHE_URLS` 清单新增文件时也要同步更新。热榜 `hotlist.json` 走 network-first 不受影响。
+- **PWA 缓存更新**：`sw.js` 里有 `CACHE_VERSION`（当前 `'v20'`），修改任何前端文件（HTML/CSS/JS/图标）后**必须递增它**，否则已安装用户的浏览器不会拉到新版本（Service Worker 缓存优先）。`sw.js` 的 `PRECACHE_URLS` 清单新增文件时也要同步更新。热榜 `hotlist.json` 走 network-first 不受影响。
 - **Web Crypto 不支持 MD5**：`crypto.subtle` 仅有 SHA 系列，MD5 由 `js/filehash.js` 内联实现（RFC 1321，函数 `md5()`，输入 `Uint8Array`）。修改该实现时需用 Node `crypto` 对照测试向量验证。
 
 ## 数据获取注意
