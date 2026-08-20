@@ -13,15 +13,15 @@
   # 或
   npx serve
   ```
-- 无 lint / typecheck 命令。Markdown 工具有测试：`node --test tests/markdown.test.js`（Node 18+ 内置 test runner，需先启动本地服务器再跑，脚本从 `js/markdown.js` 读源码，勿改动该文件里 `renderMarkdown` / `toggleMarkdownFullscreen` 的全局导出）。其他工具无自动化测试，验证方式：用浏览器实际打开对应功能页面。
+- 无 lint / typecheck 命令。Markdown 工具有测试：`node --test tests/markdown.test.js`（Node 18+ 内置 test runner，在仓库根目录运行；测试用 `vm` 从 `js/markdown.js` 读源码，勿改动该文件里 `renderMarkdown` / `toggleMarkdownFullscreen` 的全局导出）。其他工具无自动化测试，验证方式：用浏览器实际打开对应功能页面。
 - 本地验证热榜抓取：`node scripts/fetch-hotlist.js`（Node 18+，依赖内置 `fetch`），输出 `hotlist.json`，格式为 `{ updated: ISO时间戳, data: { biliHot: [...], tieba: [...] } }`。
 
 ## 文件约定
 
 - `index.html` — 页面骨架，导航卡片与工具视图均在此；底部 `<script>` 列表决定 JS 加载顺序。
 - `css/style.css` — 全部样式，直接 `<link>` 引入；颜色走 CSS 变量（见“主题”）。
-- `js/theme.js` — 主题切换（亮/暗/自动，`localStorage['theme']`），**必须最先加载**，加载即应用 `data-theme`。
-- `js/nav.js` — 导航路由、footer 时钟、复制按钮等通用逻辑，定义全局 `escapeHtml()`，**必须排在各工具脚本之前**。
+- `js/theme.js` — 主题切换（亮/暗/自动，`localStorage['theme']`），**必须最先加载**，加载即应用 `data-theme`。注意 `index.html` `<head>` 里还有一个内联脚本预置 `data-theme` 防闪变（theme.js 加载前生效），二者逻辑需保持一致。
+- `js/nav.js` — 导航路由、footer 时钟、复制按钮、**导航卡片拖拽排序**等通用逻辑，定义全局 `escapeHtml()`，**必须排在各工具脚本之前**。卡片顺序存 `localStorage['toolbox_nav_order']`。
 - `js/*.js` — 每个工具一个文件，按职责拆分。
 - `scripts/fetch-hotlist.js` — 热榜抓取脚本，Node.js 18+，无外部依赖。
 - `hotlist.json` — 热榜缓存，由 GitHub Actions 生成。
@@ -52,6 +52,7 @@
 - **视图激活加载**：导航走 hash 路由（`#/tool/xxx` 进入工具、`#/` 回导航页，`nav.js` 的 `renderView()` 按 hash 切换 `.active`，支持浏览器后退/刷新保持/深链）。数据型工具（`gold.js`、`exchange.js`、`ip.js`、`hotlist.js`）用 `MutationObserver` 监听 `#tool-xxx` 的 `class` 属性，进入视图时拉取数据、离开时停止（金价/汇率分别在激活期间每 60s/120s 定时刷新）。新数据工具沿用此模式。注意初始渲染延迟到 `DOMContentLoaded`，保证 observer 先挂载，刷新时才能触发拉取。
 - **共享函数**：`nav.js` 定义全局 `escapeHtml()` 用于 HTML 转义（被 `backtest.js`、`base64.js`、`convert.js`、`filehash.js`、`hotlist.js`、`imgtool.js`、`monitor.js`、`regex.js`、`stock.js` 使用），新增工具可直接调用。
 - **非导航卡片工具**：`admin.js`（后台数据面板）无 `.nav-card`，经 header 的 `#adminToggle` 按钮进入；`easter-egg.js`（彩蛋）无卡片，由点击 header 标题 `#eggTitle` 或 footer 时钟 `#footerClock` 触发。
+- **后台登录是纯前端校验**：`admin.js` 用 SHA-256 哈希比对 `ADMIN_PASSWORD_HASH`（`crypto.subtle` 仅在 https/localhost 可用），登录态存 `localStorage['toolbox_admin_auth']`（2 小时过期）。仅防君子，非真实安全边界。
 - **PWA 缓存更新**：`sw.js` 里有 `CACHE_VERSION`（当前 `'v20'`），修改任何前端文件（HTML/CSS/JS/图标）后**必须递增它**，否则已安装用户的浏览器不会拉到新版本（Service Worker 缓存优先）。`sw.js` 的 `PRECACHE_URLS` 清单新增文件时也要同步更新。热榜 `hotlist.json` 走 network-first 不受影响。
 - **Web Crypto 不支持 MD5**：`crypto.subtle` 仅有 SHA 系列，MD5 由 `js/filehash.js` 内联实现（RFC 1321，函数 `md5()`，输入 `Uint8Array`）。修改该实现时需用 Node `crypto` 对照测试向量验证。
 
