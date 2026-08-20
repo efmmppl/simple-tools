@@ -13,7 +13,7 @@
   # 或
   npx serve
   ```
-- 无 lint / typecheck 命令。Markdown 工具有测试：`node --test tests/markdown.test.js`（Node 18+ 内置 test runner，在仓库根目录运行；测试用 `vm` 从 `js/markdown.js` 读源码，勿改动该文件里 `renderMarkdown` / `toggleMarkdownFullscreen` 的全局导出）。其他工具无自动化测试，验证方式：用浏览器实际打开对应功能页面。
+- 无 lint / typecheck 命令。测试命令：`node --test tests/markdown.test.js tests/nav.test.js`（Node 18+ 内置 test runner，在仓库根目录运行；测试用 `vm` 从源码读取函数，勿移除 `js/markdown.js` 的 `renderMarkdown` / `toggleMarkdownFullscreen` 全局导出）。其他工具无自动化测试，验证方式：用浏览器实际打开对应功能页面。
 - 本地验证热榜抓取：`node scripts/fetch-hotlist.js`（Node 18+，依赖内置 `fetch`），输出 `hotlist.json`，格式为 `{ updated: ISO时间戳, data: { biliHot: [...], tieba: [...] } }`。
 
 ## 文件约定
