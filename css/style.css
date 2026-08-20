@@ -69,11 +69,7 @@
 /* 页面基础样式 */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
-  background-color: var(--bg);
-  background-image: radial-gradient(ellipse 70% 50% at 0% 0%, rgba(var(--green-rgb), 0.08), transparent 70%),
-                    radial-gradient(ellipse 60% 45% at 100% 35%, rgba(var(--gold-rgb), 0.06), transparent 72%);
-  background-attachment: fixed;
-  color: var(--text); line-height: 1.6;
+  background: var(--bg); color: var(--text); line-height: 1.6;
 }
 /* 页面头部 */
 .header {
@@ -115,6 +111,26 @@ body {
 
 /* 页面容器 */
 .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+.nav-tools-bar { display: flex; justify-content: center; margin-bottom: 18px; }
+.nav-search-wrap { display: flex; align-items: center; width: min(100%, 560px); min-height: 42px; padding: 0 12px; color: var(--text-soft); background: var(--card); border: 1px solid rgba(var(--green-rgb), 0.18); border-radius: 10px; box-shadow: 0 4px 14px rgba(var(--green-rgb), 0.06); }
+.nav-search-wrap:focus-within { border-color: var(--primary); box-shadow: 0 4px 16px rgba(var(--green-rgb), 0.14); }
+.nav-search-wrap > i { margin-right: 9px; color: var(--primary); }
+.nav-search-wrap input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); font: inherit; }
+.nav-search-wrap input::placeholder { color: var(--text-faint); }
+.nav-search-wrap kbd { padding: 1px 6px; border: 1px solid rgba(var(--green-rgb), 0.18); border-radius: 4px; color: var(--text-soft); font-size: 0.72rem; }
+.nav-search-clear { display: none; margin-left: 8px; border: 0; background: transparent; color: var(--text-soft); cursor: pointer; }
+.nav-search-wrap input:not(:placeholder-shown) + kbd + .nav-search-clear { display: block; }
+.nav-layout { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start; }
+.nav-layout.has-recent { display: block; }
+.nav-results { min-width: 0; }
+.recent-tools { position: fixed; top: 112px; left: 0; z-index: 10; width: 180px; max-height: calc(100vh - 132px); overflow-y: auto; margin-bottom: 20px; padding: 16px 14px; border: 1px solid rgba(var(--green-rgb), 0.12); border-left: 0; border-radius: 0 12px 12px 0; background: var(--card); box-shadow: 4px 8px 20px rgba(0, 0, 0, 0.08); }
+.recent-tools-title { margin-bottom: 12px; font-size: 0.95rem; }
+.recent-tools-list { display: flex; flex-direction: column; gap: 8px; }
+.recent-tool { display: flex; align-items: center; width: 100%; gap: 7px; padding: 8px 10px; border: 1px solid rgba(var(--green-rgb), 0.16); border-radius: 8px; background: var(--card); color: var(--text-mid); cursor: pointer; font: inherit; text-align: left; }
+.recent-tool:hover { border-color: var(--primary); color: var(--primary); }
+.recent-tool i { color: var(--primary); }
+.nav-no-results { padding: 32px 16px; text-align: center; color: var(--text-soft); }
+.nav-no-results i { margin-right: 6px; color: var(--primary); }
 /* 区块标题 */
 .section-title { font-size: 1.15rem; margin-bottom: 16px; color: var(--primary); font-weight: 600; }
 
@@ -130,6 +146,9 @@ body {
   transition: all 0.25s; text-align: center;
   position: relative; overflow: hidden;
 }
+.nav-card .nav-favorite { position: absolute; top: 10px; right: 10px; z-index: 1; width: 30px; height: 30px; border: 0; border-radius: 50%; background: transparent; color: var(--text-faint); cursor: pointer; }
+.nav-card .nav-favorite:hover, .nav-card .nav-favorite.active { background: rgba(var(--gold-rgb), 0.14); color: var(--gold-rgb); }
+.nav-card[hidden] { display: none; }
 /* 导航卡片顶部高光线 */
 .nav-card::before {
   content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 2px;
@@ -153,6 +172,24 @@ body {
 .nav-card .nav-name { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
 /* 导航卡片描述 */
 .nav-card .nav-desc { font-size: 0.85rem; color: var(--text-soft); line-height: 1.5; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .nav-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.app-toast { position: fixed; left: 50%; bottom: 24px; z-index: 1100; max-width: min(90vw, 420px); padding: 10px 16px; border: 1px solid rgba(var(--green-rgb), 0.2); border-radius: 8px; background: var(--card); color: var(--text); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14); opacity: 0; pointer-events: none; transform: translate(-50%, 12px); transition: opacity 0.2s, transform 0.2s; }
+.app-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.app-toast.success { border-color: rgba(var(--green-rgb), 0.4); }
+.app-toast.error { border-color: rgba(var(--error-rgb), 0.45); color: var(--up); }
+@media (max-width: 600px) {
+  .container { padding: 18px 14px; }
+  .nav-layout, .nav-layout.has-recent { display: block; }
+  .nav-search-wrap { min-height: 46px; }
+  .nav-search-wrap kbd { display: none; }
+  .nav-card { padding: 26px 18px; }
+  .nav-card .nav-favorite { width: 36px; height: 36px; }
+  .recent-tools { position: static; width: auto; max-height: none; overflow: visible; margin-bottom: 18px; padding: 0; border: 0; background: transparent; box-shadow: none; }
+  .recent-tools-title { margin-bottom: 10px; }
+  .recent-tools-list { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .recent-tool { flex: 0 0 auto; width: auto; min-height: 38px; }
+  .app-toast { bottom: 16px; }
+}
 
 /* 工具视图切换 */
 .tool-view { display: none; }
