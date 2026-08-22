@@ -5,6 +5,7 @@ function escapeHtml(str) {
 
 var RECENT_TOOLS_KEY = 'toolbox_recent_tools';
 var FAVORITE_TOOLS_KEY = 'toolbox_favorite_tools';
+var navCategory = 'all';
 
 function readToolList(key) {
   try {
@@ -29,7 +30,8 @@ function filterNavCards(query) {
   var normalized = (query || '').trim().toLowerCase();
   var visible = 0;
   getNavCards().forEach(function (card) {
-    var match = !normalized || getNavCardText(card).indexOf(normalized) !== -1;
+    var categoryMatch = navCategory === 'all' || card.dataset.category === navCategory;
+    var match = categoryMatch && (!normalized || getNavCardText(card).indexOf(normalized) !== -1);
     card.hidden = !match;
     if (match) visible++;
   });
@@ -37,6 +39,19 @@ function filterNavCards(query) {
   if (noResults) noResults.hidden = visible !== 0;
   var recent = document.getElementById('recentTools');
   if (recent) recent.hidden = !!normalized || !readToolList(RECENT_TOOLS_KEY).length;
+  var favorites = document.getElementById('favoriteTools');
+  if (favorites) favorites.hidden = !!normalized || !readToolList(FAVORITE_TOOLS_KEY).length;
+}
+
+function filterNavCategory(category) {
+  navCategory = category || 'all';
+  document.querySelectorAll('.nav-category').forEach(function (button) {
+    var active = button.dataset.category === navCategory;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  var search = document.getElementById('navSearch');
+  filterNavCards(search ? search.value : '');
 }
 
 function recordRecentTool(name) {
@@ -69,6 +84,30 @@ function renderRecentTools() {
   });
 }
 
+function renderFavoriteTools() {
+  var section = document.getElementById('favoriteTools');
+  var list = document.getElementById('favoriteToolsList');
+  if (!section || !list) return;
+  var cards = getNavCards();
+  var byTool = {};
+  cards.forEach(function (card) { byTool[card.dataset.tool] = card; });
+  var favorites = readToolList(FAVORITE_TOOLS_KEY).filter(function (name) { return byTool[name]; });
+  var search = document.getElementById('navSearch');
+  section.hidden = !favorites.length || !!(search && search.value);
+  var layout = document.querySelector ? document.querySelector('.nav-layout') : null;
+  if (layout) layout.classList.toggle('has-favorites', !section.hidden);
+  list.innerHTML = favorites.map(function (name) {
+    var card = byTool[name];
+    var icon = card.querySelector('.nav-icon');
+    var title = card.querySelector('.nav-name');
+    return '<button class="favorite-tool" type="button" data-tool="' + escapeHtml(name) + '">' +
+      (icon ? icon.innerHTML : '') + '<span>' + escapeHtml(title ? title.textContent : name) + '</span></button>';
+  }).join('');
+  list.querySelectorAll('.favorite-tool').forEach(function (button) {
+    button.addEventListener('click', function () { showTool(button.dataset.tool); });
+  });
+}
+
 function toggleNavFavorite(name) {
   var favorites = readToolList(FAVORITE_TOOLS_KEY);
   var index = favorites.indexOf(name);
@@ -76,7 +115,7 @@ function toggleNavFavorite(name) {
   else favorites.splice(index, 1);
   try { localStorage.setItem(FAVORITE_TOOLS_KEY, JSON.stringify(favorites)); } catch (e) {}
   updateNavFavoriteButtons();
-  applyFavoriteOrder();
+  renderFavoriteTools();
 }
 
 function updateNavFavoriteButtons() {
@@ -89,14 +128,6 @@ function updateNavFavoriteButtons() {
     button.setAttribute('aria-label', active ? '取消常用' : '设为常用');
     button.innerHTML = '<i class="fas fa-star"></i>';
   });
-}
-
-function applyFavoriteOrder() {
-  if (!navGridEl) return;
-  var favorites = readToolList(FAVORITE_TOOLS_KEY);
-  var cards = getNavCards();
-  cards.sort(function (a, b) { return favorites.indexOf(b.dataset.tool) - favorites.indexOf(a.dataset.tool); });
-  cards.forEach(function (card) { navGridEl.appendChild(card); });
 }
 
 function showToast(message, type) {
@@ -192,37 +223,6 @@ document.querySelectorAll('.ts-copy').forEach(btn => {
   });
 });
 
-// 导航卡片拖拽排序 - 长按拖动调整顺序，保存到 localStorage
-var NAV_ORDER_KEY = 'toolbox_nav_order';
-var navGridEl = document.getElementById('navView');
-var navDragCard = null;
-
-// saveNavOrder - 把当前卡片顺序写入 localStorage
-function saveNavOrder() {
-  var order = [];
-  document.querySelectorAll('.nav-card').forEach(function (c) { order.push(c.dataset.tool); });
-  try { localStorage.setItem(NAV_ORDER_KEY, JSON.stringify(order)); } catch (e) {}
-}
-
-// loadNavOrder - 按保存的顺序重排卡片，新工具追加在末尾
-function loadNavOrder() {
-  var saved = null;
-  try { saved = JSON.parse(localStorage.getItem(NAV_ORDER_KEY)); } catch (e) {}
-  if (!Array.isArray(saved) || !saved.length) return;
-  var cards = Array.prototype.slice.call(document.querySelectorAll('.nav-card'));
-  var byTool = {};
-  cards.forEach(function (c) { byTool[c.dataset.tool] = c; });
-  var ordered = [];
-  var known = {};
-  saved.forEach(function (tool) {
-    if (byTool[tool] && !known[tool]) { ordered.push(byTool[tool]); known[tool] = true; }
-  });
-  cards.forEach(function (c) {
-    if (!known[c.dataset.tool]) ordered.push(c);
-  });
-  ordered.forEach(function (c) { navGridEl.appendChild(c); });
-}
-
 document.querySelectorAll('.nav-card').forEach(function (card) {
   card.tabIndex = 0;
   card.setAttribute('role', 'button');
@@ -237,36 +237,11 @@ document.querySelectorAll('.nav-card').forEach(function (card) {
       showTool(card.dataset.tool);
     }
   });
-  card.draggable = true;
-  card.addEventListener('dragstart', function (e) {
-    navDragCard = card;
-    card.classList.add('nav-dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    try { e.dataTransfer.setData('text/plain', card.dataset.tool); } catch (err) {}
-  });
-  card.addEventListener('dragend', function () {
-    card.classList.remove('nav-dragging');
-    navDragCard = null;
-    saveNavOrder();
-  });
-  card.addEventListener('dragover', function (e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (!navDragCard || navDragCard === card) return;
-    var rect = card.getBoundingClientRect();
-    var dx = e.clientX - (rect.left + rect.width / 2);
-    var dy = e.clientY - (rect.top + rect.height / 2);
-    var before = Math.abs(dx) > Math.abs(dy) ? dx < 0 : dy < 0;
-    if (before) navGridEl.insertBefore(navDragCard, card);
-    else navGridEl.insertBefore(navDragCard, card.nextSibling);
-  });
-  card.addEventListener('drop', function (e) { e.preventDefault(); });
 });
 
-loadNavOrder();
 updateNavFavoriteButtons();
-applyFavoriteOrder();
 renderRecentTools();
+renderFavoriteTools();
 
 var navSearch = document.getElementById('navSearch');
 if (navSearch) {
@@ -281,6 +256,10 @@ if (navSearchClear) {
     navSearch.focus();
   });
 }
+document.querySelectorAll('.nav-category').forEach(function (button) {
+  button.addEventListener('click', function () { filterNavCategory(button.dataset.category); });
+});
+filterNavCategory('all');
 
 document.addEventListener('keydown', function (e) {
   var target = e.target;

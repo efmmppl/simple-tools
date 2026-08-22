@@ -21,7 +21,7 @@
 - `index.html` — 页面骨架，导航卡片与工具视图均在此；底部 `<script>` 列表决定 JS 加载顺序。
 - `css/style.css` — 全部样式，直接 `<link>` 引入；颜色走 CSS 变量（见“主题”）。
 - `js/theme.js` — 主题切换（亮/暗/自动，`localStorage['theme']`），**必须最先加载**，加载即应用 `data-theme`。注意 `index.html` `<head>` 里还有一个内联脚本预置 `data-theme` 防闪变（theme.js 加载前生效），二者逻辑需保持一致。
-- `js/nav.js` — 导航路由、footer 时钟、复制按钮、**导航卡片拖拽排序**等通用逻辑，定义全局 `escapeHtml()`，**必须排在各工具脚本之前**。卡片顺序存 `localStorage['toolbox_nav_order']`。
+- `js/nav.js` — 导航路由、footer 时钟、复制按钮、**导航卡片分类过滤与常用收藏**等通用逻辑，定义全局 `escapeHtml()`，**必须排在各工具脚本之前**。常用工具存 `localStorage['toolbox_favorite_tools']`。
 - `js/*.js` — 每个工具一个文件，按职责拆分。
 - `scripts/fetch-hotlist.js` — 热榜抓取脚本，Node.js 18+，无外部依赖。
 - `hotlist.json` — 热榜缓存，由 GitHub Actions 生成。

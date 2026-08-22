@@ -47,6 +47,15 @@
       <button id="navSearchClear" class="nav-search-clear" type="button" aria-label="清除搜索" title="清除搜索"><i class="fas fa-times"></i></button>
     </label>
   </div>
+  <div class="nav-categories" role="group" aria-label="工具分类">
+    <button class="nav-category active" type="button" data-category="all" aria-pressed="true">全部</button>
+    <button class="nav-category" type="button" data-category="market" aria-pressed="false">数据行情</button>
+    <button class="nav-category" type="button" data-category="dev" aria-pressed="false">开发效率</button>
+    <button class="nav-category" type="button" data-category="encode" aria-pressed="false">文本编码</button>
+    <button class="nav-category" type="button" data-category="file" aria-pressed="false">文件图片</button>
+    <button class="nav-category" type="button" data-category="life" aria-pressed="false">生活娱乐</button>
+    <button class="nav-category" type="button" data-category="quant" aria-pressed="false">量化策略</button>
+  </div>
   <div class="nav-layout">
     <aside id="recentTools" class="recent-tools" hidden>
       <div class="section-title recent-tools-title"><i class="fas fa-history"></i> 最近使用</div>
@@ -55,103 +64,122 @@
     <div class="nav-results">
       <div id="navNoResults" class="nav-no-results" hidden><i class="fas fa-search"></i> 没有找到匹配的工具</div>
       <div id="navView" class="nav-grid">
-        <div class="nav-card" data-tool="stock">
+        <div class="nav-card" data-tool="stock" data-category="market">
       <div class="nav-icon"><i class="fas fa-chart-line"></i></div>
       <div class="nav-name">股票分析</div>
       <div class="nav-desc">行情与技术指标<br>买卖信号·止损参考</div>
         </div>
-        <div class="nav-card" data-tool="exchange">
+        <div class="nav-card" data-tool="exchange" data-category="market">
       <div class="nav-icon"><i class="fas fa-money-bill-wave"></i></div>
       <div class="nav-name">汇率转换</div>
       <div class="nav-desc">外币兑人民币汇率<br>实时汇率转换器</div>
         </div>
-        <div class="nav-card" data-tool="gold">
+        <div class="nav-card" data-tool="gold" data-category="market">
       <div class="nav-icon"><i class="fas fa-coins"></i></div>
       <div class="nav-name">金价查询</div>
       <div class="nav-desc">国内国际实时金价<br>定时自动刷新</div>
         </div>
-    <div class="nav-card" data-tool="ip">
+    <div class="nav-card" data-tool="ip" data-category="life">
       <div class="nav-icon"><i class="fas fa-globe"></i></div>
       <div class="nav-name">IP 信息</div>
       <div class="nav-desc">查询本机 IP 地址<br>网络位置信息</div>
     </div>
-    <div class="nav-card" data-tool="cron">
+    <div class="nav-card" data-tool="cron" data-category="dev">
       <div class="nav-icon"><i class="far fa-clock"></i></div>
       <div class="nav-name">Cron 解析器</div>
       <div class="nav-desc">解析 Quartz Cron 表达式<br>预览未来执行时间</div>
     </div>
-    <div class="nav-card" data-tool="timestamp">
+    <div class="nav-card" data-tool="timestamp" data-category="dev">
       <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
       <div class="nav-name">时间戳工具</div>
       <div class="nav-desc">获取当前时间戳<br>时间戳与日期互转</div>
     </div>
-    <div class="nav-card" data-tool="regex">
+    <div class="nav-card" data-tool="regex" data-category="dev">
       <div class="nav-icon"><i class="fas fa-code"></i></div>
       <div class="nav-name">正则测试器</div>
       <div class="nav-desc">测试正则表达式<br>实时匹配与高亮</div>
     </div>
-    <div class="nav-card" data-tool="base64">
+    <div class="nav-card" data-tool="base64" data-category="encode">
       <div class="nav-icon"><i class="fas fa-shield-alt"></i></div>
       <div class="nav-name">Base64 编解码</div>
       <div class="nav-desc">文本与 Base64 互转<br>支持文件编码</div>
     </div>
-    <div class="nav-card" data-tool="filehash">
+    <div class="nav-card" data-tool="filehash" data-category="encode">
       <div class="nav-icon"><i class="fas fa-fingerprint"></i></div>
       <div class="nav-name">文件校验</div>
       <div class="nav-desc">MD5 与 SHA-256<br>校验文件一致性</div>
     </div>
-    <div class="nav-card" data-tool="hash">
+    <div class="nav-card" data-tool="hash" data-category="encode">
       <div class="nav-icon"><i class="fas fa-hashtag"></i></div>
       <div class="nav-name">Hash 工具</div>
       <div class="nav-desc">MD5/SHA 系列<br>多种摘要算法</div>
     </div>
-    <div class="nav-card" data-tool="imgtool">
+    <div class="nav-card" data-tool="imgtool" data-category="file">
       <div class="nav-icon"><i class="fas fa-image"></i></div>
       <div class="nav-name">图片压缩</div>
       <div class="nav-desc">调整尺寸/质量<br>压缩后显示大小</div>
     </div>
-    <div class="nav-card" data-tool="convert">
+    <div class="nav-card" data-tool="convert" data-category="file">
       <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
       <div class="nav-name">格式转换</div>
       <div class="nav-desc">图片互转/音频转WAV<br>常用文件格式</div>
     </div>
-    <div class="nav-card" data-tool="sudoku">
+    <div class="nav-card" data-tool="sudoku" data-category="life">
       <div class="nav-icon"><i class="fas fa-border-all"></i></div>
       <div class="nav-name">数独</div>
       <div class="nav-desc">九宫格逻辑推理<br>多难度自动出题</div>
     </div>
-    <div class="nav-card" data-tool="diff">
+    <div class="nav-card" data-tool="diff" data-category="dev">
       <div class="nav-icon"><i class="fas fa-code-branch"></i></div>
       <div class="nav-name">文本差异对比</div>
       <div class="nav-desc">左右对照文本差异<br>字符级高亮显示</div>
     </div>
-    <div class="nav-card" data-tool="markdown">
+    <div class="nav-card" data-tool="markdown" data-category="dev">
       <div class="nav-icon"><i class="fab fa-markdown"></i></div>
       <div class="nav-name">Markdown 编辑器</div>
       <div class="nav-desc">编辑与实时预览<br>导入和下载文档</div>
     </div>
-    <div class="nav-card" data-tool="hotlist">
+    <div class="nav-card" data-tool="hotlist" data-category="market">
       <div class="nav-icon"><i class="fas fa-fire"></i></div>
       <div class="nav-name">今日热榜</div>
       <div class="nav-desc">B站/贴吧<br>实时热搜榜单</div>
     </div>
-    <div class="nav-card" data-tool="asciiart">
+    <div class="nav-card" data-tool="asciiart" data-category="file">
       <div class="nav-icon"><i class="fas fa-terminal"></i></div>
       <div class="nav-name">ASCII 艺术</div>
       <div class="nav-desc">文字或图片<br>生成字符画</div>
     </div>
-    <div class="nav-card" data-tool="backtest">
+    <div class="nav-card" data-tool="backtest" data-category="quant">
       <div class="nav-icon"><i class="fas fa-flask"></i></div>
       <div class="nav-name">量化回测</div>
       <div class="nav-desc">多策略历史模拟<br>收益·回撤·胜率</div>
     </div>
-    <div class="nav-card" data-tool="monitor">
+    <div class="nav-card" data-tool="monitor" data-category="quant">
       <div class="nav-icon"><i class="fas fa-bell"></i></div>
       <div class="nav-name">信号监控</div>
       <div class="nav-desc">策略买卖信号提醒<br>触发记录·声音·通知</div>
     </div>
+    <div class="nav-card" data-tool="log-analyzer" data-category="dev">
+      <div class="nav-icon"><i class="fas fa-file-lines"></i></div>
+      <div class="nav-name">日志分析器</div>
+      <div class="nav-desc">错误警告提取<br>重复日志聚合统计</div>
+    </div>
+    <div class="nav-card" data-tool="api-workbench" data-category="dev">
+      <div class="nav-icon"><i class="fas fa-plug"></i></div>
+      <div class="nav-name">API 请求工作台</div>
+      <div class="nav-desc">构造请求并查看响应<br>生成 curl 与代码</div>
+    </div>
+    <div class="nav-card" data-tool="env-compare" data-category="dev">
+      <div class="nav-icon"><i class="fas fa-list-check"></i></div>
+      <div class="nav-name">环境变量对比</div>
+      <div class="nav-desc">对比 .env 配置<br>检查缺失与空值变量</div>
+    </div>
       </div>
     </div>
+    <aside id="favoriteTools" class="favorite-tools" hidden>
+      <div class="section-title favorite-tools-title"><i class="fas fa-star"></i> 收藏工具</div>
+      <div id="favoriteToolsList" class="favorite-tools-list"></div>
+    </aside>
   </div>
 
   <!-- ======== 工具：Cron 解析器 ======== -->
@@ -974,6 +1002,52 @@
     </div>
   </div>
 
+  <div id="tool-log-analyzer" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="log-analyzer"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-file-lines" style="margin-right:6px;color:var(--primary)"></i> 日志分析器</span>
+    </div>
+    <div class="dev-tool-card">
+      <div class="dev-tool-actions"><button class="btn btn-primary" id="logAnalyzeBtn"><i class="fas fa-magnifying-glass-chart"></i> 分析日志</button><button class="btn btn-outline" id="logClearBtn"><i class="fas fa-eraser"></i> 清空</button></div>
+      <textarea id="logInput" class="dev-textarea log-input" spellcheck="false" placeholder="粘贴应用日志、构建日志或 Nginx 日志..."></textarea>
+    </div>
+    <div id="logAnalysisSummary" class="log-analysis-summary"></div>
+    <div id="logAnalysisGroups" class="log-analysis-groups"><div class="empty-state">粘贴日志后点击“分析日志”</div></div>
+  </div>
+
+  <div id="tool-api-workbench" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="api-workbench"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-plug" style="margin-right:6px;color:var(--primary)"></i> API 请求工作台</span>
+    </div>
+    <div class="dev-tool-card api-workbench-grid">
+      <div class="api-request-form">
+        <div class="api-url-row"><select id="apiMethod"><option>GET</option><option selected>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select><input id="apiUrl" type="url" value="https://jsonplaceholder.typicode.com/posts" placeholder="https://example.com/api"></div>
+        <label>Query 参数 <span>每行一个参数，格式：名称=值</span><textarea id="apiQuery" class="dev-textarea api-query" spellcheck="false" placeholder="名称=值"></textarea></label>
+        <label>Headers <span>随请求方法自动调整，手动编辑后停止自动覆盖</span><textarea id="apiHeaders" class="dev-textarea" spellcheck="false">Accept: application/json</textarea></label>
+        <label>JSON Body <textarea id="apiBody" class="dev-textarea api-body" spellcheck="false" placeholder="{\n  &quot;hello&quot;: &quot;world&quot;\n}"></textarea></label>
+        <div class="api-replace-row"><input id="apiSearchInput" type="search" placeholder="查找文本"><input id="apiReplaceInput" type="text" placeholder="替换为"><button class="btn btn-outline btn-sm" id="apiFindBtn" type="button">查找</button><button class="btn btn-outline btn-sm" id="apiReplaceBtn" type="button">替换</button><button class="btn btn-outline btn-sm" id="apiReplaceAllBtn" type="button">全部替换</button><span id="apiReplaceStatus"></span></div>
+        <div class="dev-tool-actions"><button class="btn btn-primary" id="apiSendBtn"><i class="fas fa-paper-plane"></i> 发送请求</button><button class="btn btn-outline" id="apiGenerateBtn"><i class="fas fa-code"></i> 生成代码</button></div>
+        <div class="dev-tip"><i class="fas fa-circle-info"></i> 请求由浏览器直接发出，跨域接口可能受 CORS 限制。</div>
+      </div>
+      <div class="api-result-panel"><div class="dev-panel-title">响应结果</div><pre id="apiResult" class="api-result">填写 URL 后发送请求</pre></div>
+    </div>
+    <div class="dev-tool-card"><div class="dev-panel-title">代码示例</div><div class="api-code-grid"><pre id="apiCodeCurl">点击“生成代码”</pre><pre id="apiCodeFetch">点击“生成代码”</pre><pre id="apiCodePython">点击“生成代码”</pre></div></div>
+  </div>
+
+  <div id="tool-env-compare" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="env-compare"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-list-check" style="margin-right:6px;color:var(--primary)"></i> 环境变量对比</span>
+    </div>
+    <div class="dev-tool-card env-input-grid">
+      <label>基准配置（.env.example）<textarea id="envExample" class="dev-textarea env-input" spellcheck="false" placeholder="PORT=3000\nDATABASE_URL=\nOPTIONAL_FEATURE=true"></textarea></label>
+      <label>当前配置（.env）<textarea id="envActual" class="dev-textarea env-input" spellcheck="false" placeholder="PORT=3000\nDATABASE_URL=postgres://..."></textarea></label>
+      <div class="dev-tool-actions env-actions"><button class="btn btn-primary" id="envCompareBtn"><i class="fas fa-code-compare"></i> 开始对比</button><button class="btn btn-outline" id="envClearBtn"><i class="fas fa-eraser"></i> 清空</button></div>
+    </div>
+    <div id="envCompareResult" class="dev-tool-card"><div class="empty-state">输入两份配置后点击“开始对比”</div></div>
+  </div>
+
 </div>
 
 <!-- 页面底部：显示实时时钟 -->
@@ -1006,6 +1080,9 @@
 <script src="js/stock.js" charset="UTF-8"></script>
 <script src="js/backtest.js" charset="UTF-8"></script>
 <script src="js/monitor.js" charset="UTF-8"></script>
+<script src="js/log-analyzer.js" charset="UTF-8"></script>
+<script src="js/api-workbench.js" charset="UTF-8"></script>
+<script src="js/env-compare.js" charset="UTF-8"></script>
 <!-- PWA Service Worker 注册：仅在 https 或 localhost 下生效（file:// 不适用） -->
 <script>
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {

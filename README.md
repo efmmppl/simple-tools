@@ -30,6 +30,9 @@
 | **股票分析** | 输入 A 股代码，展示实时行情与 MA/RSI/MACD/KDJ/ATR/布林等技术指标，给出买卖信号、止损位与支撑压力参考。 |
 | **量化回测** | 拉取历史前复权日K，按双均线/RSI/布林带/MACD 策略模拟买卖（参数可调），统计收益、年化、最大回撤、胜率并对比买入持有。 |
 | **信号监控** | 定时轮询行情，按策略实时检测买卖信号，触发时页内提示+声音+浏览器通知并记录到本地（可多股、可清空）。 |
+| **日志分析器** | 提取错误与警告，聚合重复日志并统计出现次数。 |
+| **API 请求工作台** | 构造 HTTP 请求，查看响应并生成 curl、fetch、Python requests 示例。 |
+| **环境变量对比** | 对比 `.env.example` 与 `.env`，检查缺失、多余和空值变量。 |
 
 ## 技术特点
 
@@ -71,6 +74,9 @@
 │   ├── stock.js             # 股票分析（行情/技术指标/买卖信号/止损）
 │   ├── backtest.js          # 量化回测（多策略历史模拟/收益回撤胜率）
 │   ├── monitor.js           # 信号监控（策略买卖信号提醒/记录）
+│   ├── log-analyzer.js       # 日志分析器
+│   ├── api-workbench.js      # API 请求工作台
+│   ├── env-compare.js        # 环境变量对比
 ├── scripts/fetch-hotlist.js # 热榜抓取脚本（Node.js 18+，无外部依赖）
 ├── hotlist.json             # 热榜缓存数据
 ├── .github/workflows/hotlist.yml # 定时抓取热榜的 GitHub Actions 工作流
