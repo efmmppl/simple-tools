@@ -106,6 +106,41 @@ function signalsMACD(closes, fast, slow, signal) {
   return sig;
 }
 
+function signalsUnified(klines, isEtf) {
+  var closes = klines.map(function (k) { return k[2]; });
+  var sig = [];
+  if (isEtf) {
+    var rsi = rsiSeries(closes, 14);
+    var boll = bollSeries(closes, 20, 2);
+    for (var i = 0; i < closes.length; i++) {
+      sig.push(0);
+      if (rsi[i] == null && boll.lower[i] == null) continue;
+      var buy = (rsi[i] != null && rsi[i] < 30 || boll.lower[i] != null && closes[i] <= boll.lower[i]) && getMarketPositionScale(closes.slice(0, i + 1)) >= 1;
+      var sell = rsi[i] != null && rsi[i] > 70 || boll.upper[i] != null && closes[i] >= boll.upper[i];
+      var prevBuy = i > 0 && (rsi[i - 1] != null && rsi[i - 1] < 30 || boll.lower[i - 1] != null && closes[i - 1] <= boll.lower[i - 1]);
+      var prevSell = i > 0 && (rsi[i - 1] != null && rsi[i - 1] > 70 || boll.upper[i - 1] != null && closes[i - 1] >= boll.upper[i - 1]);
+      if (buy && !prevBuy) sig[i] = 1;
+      else if (sell && !prevSell) sig[i] = -1;
+    }
+    return sig;
+  }
+  for (var j = 0; j < klines.length; j++) {
+    sig.push(0);
+    if (j < 20) continue;
+    var range = { high: -Infinity, low: Infinity };
+    for (var k = j - 20; k < j; k++) {
+      if (klines[k][3] > range.high) range.high = klines[k][3];
+      if (klines[k][4] < range.low) range.low = klines[k][4];
+    }
+    var volumeTotal = 0;
+    for (var v = j - 20; v < j; v++) volumeTotal += klines[v][5] || 0;
+    var volumeConfirmed = volumeTotal > 0 && (klines[j][5] || 0) >= volumeTotal / 20 * 1.2;
+    if (closes[j] > range.high && volumeConfirmed) sig[j] = 1;
+    else if (closes[j] < range.low) sig[j] = -1;
+  }
+  return sig;
+}
+
 // runBacktest - 回测引擎：逐日遍历，信号次日开盘成交，按金额全仓（非整手）
 function runBacktest(klines, signals, cfg) {
   var cash = cfg.capital;
@@ -118,13 +153,19 @@ function runBacktest(klines, signals, cfg) {
     var date = klines[i][0];
     if (i > 0) {
       var sig = signals[i - 1];
-      if (sig === 1 && shares === 0) {
-        shares = cash / (open * (1 + cfg.commission));
-        trades.push({ type: 'buy', date: date, price: open, shares: shares, amount: cash });
-        cash = 0;
-      } else if (sig === -1 && shares > 0) {
+      var prevClose = klines[i - 1][2];
+      var tradable = open > 0 && close > 0;
+      var limitRate = cfg.limitRate == null ? 0.1 : cfg.limitRate;
+      var maxGap = cfg.maxGap == null ? 0.03 : cfg.maxGap;
+      if (sig === 1 && shares === 0 && tradable && open < prevClose * (1 + limitRate) && open <= prevClose * (1 + maxGap)) {
+        var marketScale = getMarketPositionScale(klines.slice(0, i));
+        var invest = cash * (cfg.position == null ? 1 : cfg.position) * marketScale;
+        shares = invest / (open * (1 + cfg.commission));
+        cash -= invest;
+        trades.push({ type: 'buy', date: date, price: open, shares: shares, amount: invest });
+      } else if (sig === -1 && shares > 0 && tradable && open > prevClose * (1 - limitRate)) {
         var proceeds = shares * open * (1 - cfg.commission - cfg.stamp);
-        cash = proceeds;
+        cash += proceeds;
         trades.push({ type: 'sell', date: date, price: open, shares: shares, amount: shares * open, proceeds: proceeds });
         shares = 0;
       }
@@ -135,11 +176,17 @@ function runBacktest(klines, signals, cfg) {
   return { finalValue: finalValue, trades: trades, equity: equity };
 }
 
+function annualizedReturn(totalReturn, tradingDays) {
+  if (tradingDays <= 0) return null;
+  if (totalReturn <= -1) return -1;
+  return Math.pow(1 + totalReturn, 252 / tradingDays) - 1;
+}
+
 // computeStats - 计算绩效指标与已完成交易明细
 function computeStats(klines, result, cfg) {
   var capital = cfg.capital;
   var totalReturn = (result.finalValue - capital) / capital;
-  var annual = Math.pow(1 + totalReturn, 365 / klines.length) - 1;
+  var annual = annualizedReturn(totalReturn, klines.length);
 
   var maxDD = 0, peak = -Infinity;
   for (var i = 0; i < result.equity.length; i++) {
@@ -232,7 +279,7 @@ function renderBacktest(symbol, klines, results) {
     html += '</div>';
   });
   html += '</div>';
-  html += '<div class="bt-note"><i class="fas fa-info-circle" style="margin-right:4px"></i>简化回测：信号次日开盘成交、按金额全仓（非整手）买卖、含佣金与印花税，未考虑涨跌停与停牌，仅供参考、不构成投资建议。</div>';
+  html += '<div class="bt-note"><i class="fas fa-info-circle" style="margin-right:4px"></i>回测按信号次日开盘成交，支持最大仓位、佣金和印花税，并跳过涨跌停/停牌无法成交情形；仍未考虑滑点，仅供参考、不构成投资建议。</div>';
   return html;
 }
 
@@ -262,9 +309,11 @@ function runBacktestTool() {
     capital: btNum('btCapital', 100000),
     commission: btNum('btCommission', 0.03) / 100,
     stamp: btNum('btStamp', 0.1) / 100,
+    position: btNum('btPosition', 100) / 100,
     klines: btInt('btKlines', 400)
   };
   if (cfg.capital <= 0) { showBtError('初始资金需大于 0'); return; }
+  if (cfg.position <= 0 || cfg.position > 1) { showBtError('最大仓位需在 1%~100% 之间'); return; }
   if (cfg.klines < 60 || cfg.klines > 800) { showBtError('K线数量需在 60~800 之间'); return; }
 
   statusEl.textContent = '加载历史数据…';
@@ -280,8 +329,15 @@ function runBacktestTool() {
         return [k[0], parseFloat(k[1]), parseFloat(k[2]), parseFloat(k[3]), parseFloat(k[4]), parseFloat(k[5])];
       });
       var closes = klines.map(function (k) { return k[2]; });
+      var quote = data.qt && data.qt[symbol];
+      var name = quote && quote[1] ? quote[1] : symbol;
+      var isEtf = /ETF/i.test(name);
 
       var results = [];
+      if (btChecked('btUnifiedEnable')) {
+        var unified = runBacktest(klines, signalsUnified(klines, isEtf), cfg);
+        results.push({ name: isEtf ? 'ETF 主策略' : '个股主策略', param: isEtf ? 'RSI14 + BOLL20×2' : '突破/破位 20 日', stats: computeStats(klines, unified, cfg) });
+      }
       if (btChecked('btMaEnable')) {
         var p = { short: btInt('btMaShort', 5), long: btInt('btMaLong', 20) };
         if (p.short > 0 && p.long > p.short) {

@@ -272,9 +272,13 @@
     </div>
     <div class="ts-section">
       <div class="ts-card">
-        <div class="ts-card-title"><i class="fas fa-calculator" style="margin-right:6px"></i> 外币 → 人民币</div>
+        <div class="ts-card-title"><i class="fas fa-calculator" style="margin-right:6px"></i> 货币换算</div>
+        <div class="ts-row" style="gap:8px;margin-bottom:10px">
+          <button class="exchange-dir active" id="exchangeDirToCny" type="button" aria-pressed="true">外币 → 人民币</button>
+          <button class="exchange-dir" id="exchangeDirFromCny" type="button" aria-pressed="false">人民币 → 外币</button>
+        </div>
         <div class="ts-row">
-          <label>金额</label>
+          <label id="exchangeAmountLabel">外币金额</label>
           <input type="number" id="exchangeAmount" value="1" min="0" step="any">
           <select id="exchangeCurrency" style="flex:0 0 120px;padding:8px 12px;border:1px solid rgba(var(--green-rgb),0.2);border-radius:6px;background:var(--input-bg);color:var(--text);font-size:0.88rem;outline:none"></select>
           <span style="font-size:0.85rem;color:var(--text-mid);padding:0 4px">=</span>
@@ -819,6 +823,8 @@
           <input type="number" class="bt-num" id="btCommission" value="0.03" min="0" step="0.01">
           <label>印花税 %</label>
           <input type="number" class="bt-num" id="btStamp" value="0.1" min="0" step="0.01">
+          <label>最大仓位 %</label>
+          <input type="number" class="bt-num" id="btPosition" value="100" min="1" max="100" step="1">
           <button class="btn btn-primary" id="btRun"><i class="fas fa-flask"></i> 回测</button>
         </div>
         <div class="error-msg" id="btError" style="display:none"></div>
@@ -827,6 +833,8 @@
     <div class="ts-section">
       <div class="ts-card">
         <div class="ts-card-title"><i class="fas fa-chess" style="margin-right:6px"></i> 策略与参数（勾选启用，参数可自定义）</div>
+        <label class="bt-enable"><input type="checkbox" id="btUnifiedEnable" checked> 自动主策略（ETF/个股）</label>
+        <div class="bt-strat-desc">ETF 使用 RSI+布林均值回归，个股使用排除当日数据的 20 日突破/破位</div>
         <div class="bt-strat-grid">
           <div class="bt-strat">
             <label class="bt-enable"><input type="checkbox" id="btMaEnable" checked> 双均线</label>

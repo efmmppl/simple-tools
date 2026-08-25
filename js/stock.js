@@ -120,6 +120,34 @@ function calcBoll(closes, n) {
   return { upper: mid + 2 * std, mid: mid, lower: mid - 2 * std };
 }
 
+function getPriorRange(klines, lookback) {
+  var end = klines.length - 1;
+  var start = Math.max(0, end - lookback);
+  if (end <= start) return { high: null, low: null };
+  var high = -Infinity, low = Infinity;
+  for (var i = start; i < end; i++) {
+    if (klines[i][3] > high) high = klines[i][3];
+    if (klines[i][4] < low) low = klines[i][4];
+  }
+  return { high: high, low: low };
+}
+
+function getMarketPositionScale(closes) {
+  if (closes.length < 61) return 1;
+  var ma60 = calcMA(closes, 60);
+  var current = ma60[ma60.length - 1];
+  var previous = ma60[ma60.length - 2];
+  return closes[closes.length - 1] < current && current <= previous ? 0.5 : 1;
+}
+
+function getVolumeRatio(klines, lookback) {
+  if (klines.length <= lookback) return null;
+  var total = 0;
+  for (var i = klines.length - lookback - 1; i < klines.length - 1; i++) total += klines[i][5] || 0;
+  var average = total / lookback;
+  return average > 0 ? (klines[klines.length - 1][5] || 0) / average : null;
+}
+
 // buildSignal - 基于各指标打分，返回结论与明细
 function buildSignal(closes, klines, ind) {
   var price = closes[closes.length - 1];
@@ -198,13 +226,21 @@ function termTip(label, key) {
 }
 
 // buildAction - 综合价格位置与信号分数，生成大白话行动建议（标题+仓位+理由），同时产出买卖参考卡内的定位句
-function buildAction(price, tradeBuyLo, tradeBuyHi, tradeSellLo, tradeSellHi, ind, low20, high20, high60, sig, isEtf) {
+function buildAction(price, tradeBuyLo, tradeBuyHi, tradeSellLo, tradeSellHi, ind, low20, high20, high60, sig, isEtf, volumeRatio, marketScale) {
   var score = sig.score;
   var act = { cls: 'neutral', title: '', pos: '', reasons: [], posText: '' };
 
   if (isEtf) {
     var rsi = ind.rsi;
     var boll = ind.boll;
+    if (ind.ma60 != null && price < ind.ma60) {
+      act.cls = 'neutral';
+      act.title = '下跌趋势，暂缓低吸';
+      act.pos = '轻仓观望（≤10% 资金）';
+      act.posText = '价格低于 MA60，先等待趋势止跌后再考虑均值回归';
+      act.reasons.push('当前价低于 MA60（' + fmt(ind.ma60) + '），下跌趋势中抄底风险较高');
+      return act;
+    }
     if (rsi != null && rsi < 30) {
       act.cls = 'bull';
       act.title = '超卖区，可分批低吸';
@@ -251,7 +287,13 @@ function buildAction(price, tradeBuyLo, tradeBuyHi, tradeSellLo, tradeSellHi, in
     return act;
   }
 
-  if (price > tradeBuyHi) {
+  if (price > tradeBuyLo && volumeRatio != null && volumeRatio < 1.2) {
+    act.cls = 'neutral';
+    act.title = '突破量能不足，暂不追高';
+    act.pos = '空仓观望，等待放量确认';
+    act.posText = '价格突破但成交量只有近 20 日均量的 ' + fmt(volumeRatio * 100, 0) + '%，先观察';
+    act.reasons.push('突破未达到近 20 日均量 1.2 倍，假突破风险较高');
+  } else if (price > tradeBuyHi) {
     act.cls = 'bull';
     act.title = '可持有，别追高';
     act.pos = '已持有可继续持有；空仓者等回踩';
@@ -287,6 +329,7 @@ function buildAction(price, tradeBuyLo, tradeBuyHi, tradeSellLo, tradeSellHi, in
     act.reasons.push('价格已跌破近 20 日低点 ' + fmt(low20) + '，破位信号明确');
     act.reasons.push('等重新站上 ' + fmt(tradeSellLo) + ' 并企稳再考虑');
   }
+  if (!isEtf && marketScale < 1 && act.cls === 'bull') act.pos = '轻仓试错（≤15% 资金，弱势市场降仓）';
   return act;
 }
 
@@ -298,16 +341,10 @@ function renderStock(name, symbol, qt, klines, closes, ind, sig, isEtf) {
   var diffSign = diff >= 0 ? '+' : '';
   var time = formatStockTime(qt[30]);
 
-  var i;
-  var low20 = Infinity, high20 = -Infinity, low60 = Infinity, high60 = -Infinity;
-  for (i = klines.length - 20; i < klines.length; i++) {
-    if (klines[i][4] < low20) low20 = klines[i][4];
-    if (klines[i][3] > high20) high20 = klines[i][3];
-  }
-  for (i = klines.length - 60; i < klines.length; i++) {
-    if (klines[i][4] < low60) low60 = klines[i][4];
-    if (klines[i][3] > high60) high60 = klines[i][3];
-  }
+  var range20 = getPriorRange(klines, 20);
+  var range60 = getPriorRange(klines, 60);
+  var low20 = range20.low, high20 = range20.high;
+  var low60 = range60.low, high60 = range60.high;
 
   var atrStop = ind.atr != null ? price - 2 * ind.atr : null;
   var recStop = atrStop != null ? Math.max(atrStop, low20) : null;
@@ -326,7 +363,9 @@ function renderStock(name, symbol, qt, klines, closes, ind, sig, isEtf) {
   var tradeBuyHi = high60;
   var tradeSellLo = Math.min(low20, ind.ma20);
   var tradeSellHi = Math.max(low20, ind.ma20);
-  var action = buildAction(price, tradeBuyLo, tradeBuyHi, tradeSellLo, tradeSellHi, ind, low20, high20, high60, sig, isEtf);
+  var volumeRatio = getVolumeRatio(klines, 20);
+  var marketScale = getMarketPositionScale(closes);
+  var action = buildAction(price, tradeBuyLo, tradeBuyHi, tradeSellLo, tradeSellHi, ind, low20, high20, high60, sig, isEtf, volumeRatio, marketScale);
 
   html += '<div class="stock-action ' + action.cls + '">';
   html += '<div class="stock-action-title">' + action.title + '</div>';
