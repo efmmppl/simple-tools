@@ -95,8 +95,11 @@ async function refreshQuotes(symbols, fetchImpl) {
     var json;
     try {
       json = await response.json();
-    } catch (_error) {
-      return { quotes: [], error: { type: 'response', message: '行情数据格式错误' } };
+    } catch (error) {
+      if (error && error.name === 'SyntaxError') {
+        return { quotes: [], error: { type: 'response', message: '行情数据格式错误' } };
+      }
+      throw error;
     }
     if (!json || !json.data || typeof json.data !== 'object') {
       return { quotes: [], error: { type: 'response', message: '行情数据格式错误' } };

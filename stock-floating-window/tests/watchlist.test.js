@@ -79,6 +79,16 @@ test('classifies malformed JSON in a successful response as a response error', a
   assert.deepEqual(result.quotes, []);
 });
 
+test('classifies an AbortError while reading a response as a network timeout', async () => {
+  const result = await refreshQuotes(['sh600519'], async () => ({
+    ok: true,
+    async json() { throw Object.assign(new Error('aborted'), { name: 'AbortError' }); }
+  }));
+  assert.equal(result.error.type, 'network');
+  assert.match(result.error.message, /超时/);
+  assert.deepEqual(result.quotes, []);
+});
+
 test('watchlist state preserves valid cached quotes when refresh fails', () => {
   const state = createWatchlistState({ symbols: ['sh600519'] });
   state.quotes.sh600519 = quote('sh600519');
