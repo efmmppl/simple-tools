@@ -76,6 +76,29 @@ test('atomically replaces an existing configuration', () => {
   assert.equal(fs.readdirSync(directory).filter((name) => name.includes('.bak')).length, 0);
 });
 
+test('reports replacement success when backup cleanup fails', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'stock-config-'));
+  const filePath = path.join(directory, 'config.json');
+  const remove = fs.rmSync;
+  saveConfig(filePath, { symbols: ['600519'] });
+  fs.rmSync = (target, options) => {
+    if (target.endsWith('.bak')) {
+      const error = new Error('backup cleanup failed');
+      error.code = 'EACCES';
+      throw error;
+    }
+    return remove(target, options);
+  };
+
+  try {
+    assert.doesNotThrow(() => saveConfig(filePath, { symbols: ['000858'] }));
+  } finally {
+    fs.rmSync = remove;
+  }
+
+  assert.deepEqual(loadConfig(filePath), sanitizeConfig({ symbols: ['000858'] }));
+});
+
 test('preserves the existing file when atomic replacement cannot complete', () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'stock-config-'));
   const filePath = path.join(directory, 'config.json');

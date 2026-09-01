@@ -79,7 +79,7 @@ function saveConfig(filePath, config) {
     fs.writeFileSync(temporaryPath, JSON.stringify(sanitizeConfig(config), null, 2) + '\n', 'utf8');
     if (process.platform === 'win32' && fs.existsSync(filePath)) {
       replaceWindowsFile(temporaryPath, filePath, backupPath);
-      fs.rmSync(backupPath, { force: true });
+      try { fs.rmSync(backupPath, { force: true }); } catch (_cleanupError) {}
     } else {
       fs.renameSync(temporaryPath, filePath);
     }
