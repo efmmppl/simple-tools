@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>股票行情</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="card">
+    <header class="title-bar">
+      <div>
+        <h1>股票行情</h1>
+        <p id="statusText" role="status">等待添加自选股</p>
+      </div>
+      <div class="window-actions" aria-label="窗口操作">
+        <button id="settingsButton" class="icon-button no-drag" type="button" aria-label="打开设置">设置</button>
+        <button id="hideButton" class="icon-button no-drag" type="button" aria-label="隐藏窗口">隐藏</button>
+        <button id="closeButton" class="icon-button close-button no-drag" type="button" aria-label="关闭窗口">关闭</button>
+      </div>
+    </header>
+
+    <section id="settingsPanel" class="settings-panel" hidden aria-label="窗口设置">
+      <label>置顶 <input id="alwaysOnTop" type="checkbox" checked></label>
+      <label>透明度 <input id="opacity" type="range" min="0.35" max="1" step="0.05" value="0.92"><output id="opacityValue">92%</output></label>
+      <label>刷新 <select id="refreshInterval"><option value="3">3 秒</option><option value="5">5 秒</option><option value="10">10 秒</option><option value="30">30 秒</option><option value="60">60 秒</option></select></label>
+      <button id="settingsCloseButton" class="icon-button no-drag" type="button">完成</button>
+    </section>
+
+    <form id="addSymbolForm" class="add-symbol-form">
+      <label for="symbolInput">添加股票代码</label>
+      <div class="form-row">
+        <input id="symbolInput" name="symbol" type="text" placeholder="如 600519" autocomplete="off" required>
+        <button class="primary-button no-drag" type="submit">添加</button>
+      </div>
+    </form>
+
+    <section id="watchlist" class="watchlist" aria-label="自选股列表">
+      <div id="emptyState" class="state empty-state">暂无自选股</div>
+      <div id="errorState" class="state error-state" hidden role="alert"></div>
+    </section>
+  </main>
+  <script src="quote.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
