@@ -106,6 +106,7 @@ async function refreshQuotes(symbols, fetchImpl) {
     }
     var quotes = parseQuoteResponse(json, list);
     if (!quotes.length) return { quotes: [], error: { type: 'response', message: '行情数据为空' } };
+    if (quotes.length !== list.length) return { quotes: quotes, error: { type: 'response', message: '行情数据不完整' } };
     return { quotes: quotes, error: null };
   } catch (error) {
     return { quotes: [], error: { type: 'network', message: error && error.name === 'AbortError' ? '行情请求超时' : '行情连接失败' } };
@@ -160,6 +161,21 @@ function removeSymbol(symbol, state) {
   delete state.quotes[symbol];
 }
 
+async function removeSymbolPersisted(symbol, state, persistSymbols) {
+  var index = state.symbols.indexOf(symbol);
+  var cachedQuote = state.quotes[symbol];
+  removeSymbol(symbol, state);
+  try {
+    await persistSymbols(state.symbols.slice());
+  } catch (error) {
+    if (index >= 0) state.symbols.splice(index, 0, symbol);
+    if (cachedQuote !== undefined) state.quotes[symbol] = cachedQuote;
+    var persistenceError = new Error(error && error.message ? error.message : 'symbol persistence failed');
+    persistenceError.code = 'persistence';
+    throw persistenceError;
+  }
+}
+
 var quoteApi = {
   normalizeSymbol: normalizeSymbol,
   buildQuoteUrl: buildQuoteUrl,
@@ -170,7 +186,8 @@ var quoteApi = {
   refreshQuotes: refreshQuotes,
   formatQuoteRow: formatQuoteRow,
   addSymbol: addSymbol,
-  removeSymbol: removeSymbol
+  removeSymbol: removeSymbol,
+  removeSymbolPersisted: removeSymbolPersisted
 };
 
 if (typeof module !== 'undefined' && module.exports) module.exports = quoteApi;

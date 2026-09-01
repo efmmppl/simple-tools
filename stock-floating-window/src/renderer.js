@@ -1,4 +1,25 @@
-(function () {
+function createLatestRefresh(refreshQuotesImpl, getState, commit) {
+  let sequence = 0;
+  return async function () {
+    const request = ++sequence;
+    const currentState = getState();
+    if (!currentState || !currentState.symbols.length) return false;
+    const result = await refreshQuotesImpl(currentState.symbols.slice());
+    if (request !== sequence) return false;
+    commit(currentState, result);
+    return true;
+  };
+}
+
+function applyRefreshResult(state, result, successAt) {
+  result.quotes.forEach((quote) => { state.quotes[quote.symbol] = quote; });
+  state.error = result.error;
+  if (!result.error) state.lastSuccessAt = successAt;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { createLatestRefresh: createLatestRefresh, applyRefreshResult: applyRefreshResult };
+} else (function () {
   const bridge = window.stockWidget.window;
   const configBridge = window.stockWidget;
   const settingsPanel = document.getElementById('settingsPanel');
@@ -14,6 +35,11 @@
   let state;
   let config;
   let timer;
+  const refreshLatest = createLatestRefresh(refreshQuotes, () => state, (currentState, result) => {
+    applyRefreshResult(currentState, result, new Date());
+    render();
+    updateStatus();
+  });
 
   function saveCurrentConfig() {
     return configBridge.saveConfig({ ...config, symbols: state.symbols });
@@ -62,12 +88,7 @@
       render();
       return;
     }
-    const result = await refreshQuotes(state.symbols);
-    result.quotes.forEach((quote) => { state.quotes[quote.symbol] = quote; });
-    state.error = result.error;
-    if (!result.error) state.lastSuccessAt = new Date();
-    render();
-    updateStatus();
+    await refreshLatest();
   }
 
   function rebuildTimer() {
@@ -149,8 +170,11 @@
   watchlist.addEventListener('click', async (event) => {
     const button = event.target.closest('.remove-symbol');
     if (!button) return;
-    removeSymbol(button.dataset.symbol, state);
-    await saveCurrentConfig();
+    try {
+      await removeSymbolPersisted(button.dataset.symbol, state, (symbols) => configBridge.saveConfig({ ...config, symbols }));
+    } catch (_error) {
+      state.error = { type: 'persistence', message: '保存设置失败，请重试' };
+    }
     render();
     updateStatus();
   });
