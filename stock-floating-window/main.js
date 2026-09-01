@@ -19,6 +19,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: saved.width || 360,
     height: saved.height || 300,
+    minWidth: 280,
     x: saved.x,
     y: saved.y,
     frame: false,
