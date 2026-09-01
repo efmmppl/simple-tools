@@ -14,6 +14,21 @@ const { createLatestRefresh, applyRefreshResult } = require('../src/renderer');
 function response(text, ok = true) {
   return {
     ok,
+    headers: { get() { return null; } },
+    async arrayBuffer() { return Buffer.from(text); },
+    async text() { return text; }
+  };
+}
+
+function gbkResponse(text) {
+  const prefix = Buffer.from('v_sh600519="1~');
+  const name = Buffer.from([0xb9, 0xf3, 0xd6, 0xdd, 0xc3, 0xa9, 0xcc, 0xa8]);
+  const suffix = Buffer.from('~600519~1301.35~1300.00~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~20260901103045~1.35";');
+  const bytes = Buffer.concat([prefix, name, suffix]);
+  return {
+    ok: true,
+    headers: { get(name) { return name.toLowerCase() === 'content-type' ? 'text/html; charset=GBK' : null; } },
+    async arrayBuffer() { return bytes; },
     async text() { return text; }
   };
 }
@@ -55,6 +70,13 @@ test('returns parsed quote updates on a successful refresh', async () => {
   assert.equal(result.error, null);
   assert.equal(result.quotes[0].price, 10);
   assert.equal(result.quotes[0].changePercent, 100 / 9);
+});
+
+test('decodes GBK Tencent bytes before parsing the quote name', async () => {
+  const result = await refreshQuotes(['sh600519'], async () => gbkResponse(''));
+
+  assert.equal(result.error, null);
+  assert.equal(result.quotes[0].name, '贵州茅台');
 });
 
 test('returns valid rows with a typed response error for partial batches', async () => {
@@ -130,7 +152,7 @@ test('rejects successful responses with missing or invalid quote data', async ()
 test('classifies a response read syntax error as a response error', async () => {
   const result = await refreshQuotes(['sh600519'], async () => ({
     ok: true,
-    async text() { throw new SyntaxError('Unexpected token'); }
+    async arrayBuffer() { throw new SyntaxError('Unexpected token'); }
   }));
   assert.equal(result.error.type, 'response');
   assert.deepEqual(result.quotes, []);
@@ -139,7 +161,7 @@ test('classifies a response read syntax error as a response error', async () => 
 test('classifies an AbortError while reading a response as a network timeout', async () => {
   const result = await refreshQuotes(['sh600519'], async () => ({
     ok: true,
-    async text() { throw Object.assign(new Error('aborted'), { name: 'AbortError' }); }
+    async arrayBuffer() { throw Object.assign(new Error('aborted'), { name: 'AbortError' }); }
   }));
   assert.equal(result.error.type, 'network');
   assert.match(result.error.message, /超时/);

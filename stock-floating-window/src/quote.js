@@ -111,7 +111,15 @@ async function refreshQuotes(symbols, fetchImpl) {
     if (!response || !response.ok) return { quotes: [], error: { type: 'response', message: '行情服务返回错误' } };
     var text;
     try {
-      text = await response.text();
+      var bytes = await response.arrayBuffer();
+      var contentType = response.headers && typeof response.headers.get === 'function' ? response.headers.get('content-type') : '';
+      var charsetMatch = typeof contentType === 'string' ? contentType.match(/charset\s*=\s*["']?([^;\s"']+)/i) : null;
+      var charset = charsetMatch ? charsetMatch[1] : 'utf-8';
+      try {
+        text = new TextDecoder(charset).decode(bytes);
+      } catch (error) {
+        text = new TextDecoder('utf-8').decode(bytes);
+      }
     } catch (error) {
       if (error && error.name === 'SyntaxError') {
         return { quotes: [], error: { type: 'response', message: '行情数据格式错误' } };

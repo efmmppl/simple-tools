@@ -7,7 +7,12 @@ const { sanitizeConfig, loadConfig, saveConfig } = require('../src/config');
 const { refreshQuotes, formatQuoteRow } = require('../src/quote');
 
 function response(text) {
-  return { ok: true, async text() { return text; } };
+  return {
+    ok: true,
+    headers: { get() { return null; } },
+    async arrayBuffer() { return Buffer.from(text); },
+    async text() { return text; }
+  };
 }
 
 function quoteRow(name, price, previousClose, change, time) {
