@@ -9,6 +9,33 @@
     "dist": "electron-builder --win",
     "pack": "electron-builder --win portable"
   },
+  "build": {
+    "appId": "com.kuak.stockfloatingwindow",
+    "productName": "Stock Floating Window",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "assets/**/*",
+      "!tests{,/**/*}",
+      "!*.md",
+      "!package-lock.json"
+    ],
+    "win": {
+      "icon": "assets/tray.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
   "devDependencies": {
     "electron": "^38.0.0",
     "electron-builder": "^26.0.12"
