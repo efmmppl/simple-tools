@@ -7,12 +7,26 @@
   const watchlist = document.getElementById('watchlist');
   const statusText = document.getElementById('statusText');
   const refreshInterval = document.getElementById('refreshInterval');
+  const alwaysOnTop = document.getElementById('alwaysOnTop');
+  const opacity = document.getElementById('opacity');
+  const opacityValue = document.getElementById('opacityValue');
+  let saveErrorTimer;
   let state;
   let config;
   let timer;
 
   function saveCurrentConfig() {
     return configBridge.saveConfig({ ...config, symbols: state.symbols });
+  }
+
+  function showSaveError() {
+    clearTimeout(saveErrorTimer);
+    statusText.textContent = '保存设置失败，请重试';
+    saveErrorTimer = setTimeout(updateStatus, 3000);
+  }
+
+  function updateOpacityValue() {
+    opacityValue.textContent = Math.round(Number(opacity.value) * 100) + '%';
   }
 
   function render() {
@@ -67,19 +81,51 @@
 
   document.getElementById('hideButton').addEventListener('click', () => bridge.hide());
   document.getElementById('closeButton').addEventListener('click', () => bridge.close());
-  document.getElementById('alwaysOnTop').addEventListener('change', (event) => {
+  alwaysOnTop.addEventListener('change', async (event) => {
+    const previous = config.alwaysOnTop;
     config.alwaysOnTop = event.target.checked;
-    bridge.setAlwaysOnTop(event.target.checked);
+    try {
+      await bridge.setAlwaysOnTop(config.alwaysOnTop);
+      await saveCurrentConfig();
+    } catch (_error) {
+      config.alwaysOnTop = previous;
+      alwaysOnTop.checked = previous;
+      showSaveError();
+    }
   });
-  document.getElementById('opacity').addEventListener('input', (event) => {
-    config.opacity = Number(event.target.value);
-    bridge.setOpacity(event.target.value);
+  opacity.addEventListener('input', async (event) => {
+    const value = Number(event.target.value);
+    if (!Number.isFinite(value) || value < 0.35 || value > 1) return;
+    const previous = config.opacity;
+    config.opacity = value;
+    updateOpacityValue();
+    try {
+      await bridge.setOpacity(value);
+      await saveCurrentConfig();
+    } catch (_error) {
+      config.opacity = previous;
+      opacity.value = String(previous);
+      updateOpacityValue();
+      showSaveError();
+    }
   });
   refreshInterval.addEventListener('change', async (event) => {
-    config.refreshInterval = Number(event.target.value);
-    await saveCurrentConfig();
-    rebuildTimer();
+    const previous = config.refreshInterval;
+    const value = Number(event.target.value);
+    if (!Number.isInteger(value) || value < 3 || value > 60) return;
+    config.refreshInterval = value;
+    try {
+      await saveCurrentConfig();
+      rebuildTimer();
+    } catch (_error) {
+      config.refreshInterval = previous;
+      refreshInterval.value = String(previous);
+      showSaveError();
+    }
   });
+  document.getElementById('settingsCloseButton').addEventListener('click', () => { settingsPanel.hidden = true; });
+
+  bridge.onRefresh(refresh);
 
   document.getElementById('addSymbolForm').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -117,8 +163,9 @@
   (async function load() {
     config = await configBridge.getConfig();
     state = createWatchlistState(config);
-    document.getElementById('alwaysOnTop').checked = config.alwaysOnTop;
-    document.getElementById('opacity').value = config.opacity;
+    alwaysOnTop.checked = config.alwaysOnTop;
+    opacity.value = config.opacity;
+    updateOpacityValue();
     refreshInterval.value = String(config.refreshInterval);
     render();
     updateStatus();

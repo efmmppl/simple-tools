@@ -1,10 +1,12 @@
-const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, Tray, Menu, nativeImage } = require('electron');
 const path = require('node:path');
 const { defaultConfig, sanitizeConfig, loadConfig, saveConfig } = require('./src/config');
 
 let mainWindow;
 let currentConfig = defaultConfig();
 let configPath;
+let tray;
+let isQuitting = false;
 
 function intersectsDisplay(bounds) {
   return screen.getAllDisplays().some((display) => {
@@ -43,7 +45,39 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'src', 'index.html'));
-  mainWindow.on('close', () => persistConfig());
+  mainWindow.on('close', (event) => {
+    if (!isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+      return;
+    }
+    persistConfig();
+  });
+}
+
+function createTray() {
+  const iconPath = path.join(__dirname, 'assets', 'tray.ico');
+  const fallbackPath = path.join(__dirname, '..', 'icons', 'brain-192.png');
+  const icon = nativeImage.createFromPath(iconPath);
+  tray = new Tray(icon.isEmpty() ? nativeImage.createFromPath(fallbackPath) : icon);
+  tray.setToolTip('股票行情');
+  tray.on('click', () => mainWindow.show());
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: '显示窗口', click: () => mainWindow.show() },
+    { label: '立即刷新', click: () => mainWindow.webContents.send('window:refresh') },
+    {
+      label: '始终置顶',
+      type: 'checkbox',
+      checked: currentConfig.alwaysOnTop,
+      click: (item) => {
+        currentConfig.alwaysOnTop = item.checked;
+        if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setAlwaysOnTop(item.checked);
+        persistConfig();
+      }
+    },
+    { type: 'separator' },
+    { label: '退出', click: () => { isQuitting = true; app.quit(); } }
+  ]));
 }
 
 ipcMain.handle('config:get', () => currentConfig);
@@ -79,6 +113,7 @@ app.whenReady().then(() => {
   configPath = path.join(app.getPath('userData'), 'config.json');
   currentConfig = loadConfig(configPath);
   createWindow();
+  createTray();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

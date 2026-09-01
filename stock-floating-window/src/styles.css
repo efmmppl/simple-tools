@@ -37,9 +37,11 @@ button { border: 0; cursor: pointer; font: inherit; }
 .close-button { color: #ff8f9c; }
 .icon-button:hover, .icon-button:focus-visible { color: #fff; background: rgba(255, 255, 255, 0.1); border-radius: 5px; }
 
-.settings-panel { display: flex; gap: 12px; align-items: center; padding: 8px 0; color: #c3cad2; font-size: 11px; }
+.settings-panel { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 8px 0; color: #c3cad2; font-size: 11px; }
 .settings-panel label { display: flex; align-items: center; gap: 5px; }
 select { color: #c3cad2; background: #252b33; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; }
+input[type="range"] { width: 76px; accent-color: #8bd3ff; }
+.settings-panel output { min-width: 30px; color: #aeb6c0; }
 
 .add-symbol-form { display: block; margin: 6px 0 12px; }
 .add-symbol-form > label { display: block; margin-bottom: 5px; color: #c3cad2; font-size: 11px; }
