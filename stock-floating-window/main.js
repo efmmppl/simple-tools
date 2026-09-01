@@ -1,11 +1,13 @@
 const { app, BrowserWindow, ipcMain, screen, Tray, Menu, nativeImage } = require('electron');
 const path = require('node:path');
 const { defaultConfig, sanitizeConfig, loadConfig, saveConfig } = require('./src/config');
+const { syncTrayMenuItem } = require('./src/tray');
 
 let mainWindow;
 let currentConfig = defaultConfig();
 let configPath;
 let tray;
+let trayAlwaysOnTopItem;
 let isQuitting = false;
 
 function intersectsDisplay(bounds) {
@@ -62,28 +64,33 @@ function createTray() {
   tray = new Tray(icon.isEmpty() ? nativeImage.createFromPath(fallbackPath) : icon);
   tray.setToolTip('股票行情');
   tray.on('click', () => mainWindow.show());
-  tray.setContextMenu(Menu.buildFromTemplate([
+  const menu = Menu.buildFromTemplate([
     { label: '显示窗口', click: () => mainWindow.show() },
     { label: '立即刷新', click: () => mainWindow.webContents.send('window:refresh') },
     {
       label: '始终置顶',
+      id: 'always-on-top',
       type: 'checkbox',
       checked: currentConfig.alwaysOnTop,
       click: (item) => {
         currentConfig.alwaysOnTop = item.checked;
+        syncTrayMenuItem(trayAlwaysOnTopItem, currentConfig.alwaysOnTop);
         if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setAlwaysOnTop(item.checked);
         persistConfig();
       }
     },
     { type: 'separator' },
     { label: '退出', click: () => { isQuitting = true; app.quit(); } }
-  ]));
+  ]);
+  trayAlwaysOnTopItem = menu.getMenuItemById('always-on-top');
+  tray.setContextMenu(menu);
 }
 
 ipcMain.handle('config:get', () => currentConfig);
 
 ipcMain.handle('config:save', (_event, value) => {
   currentConfig = sanitizeConfig(value);
+  syncTrayMenuItem(trayAlwaysOnTopItem, currentConfig.alwaysOnTop);
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.setAlwaysOnTop(currentConfig.alwaysOnTop);
     mainWindow.setOpacity(currentConfig.opacity);
@@ -95,6 +102,7 @@ ipcMain.handle('config:save', (_event, value) => {
 
 ipcMain.handle('window:set-always-on-top', (_event, value) => {
   currentConfig.alwaysOnTop = sanitizeConfig({ alwaysOnTop: value }).alwaysOnTop;
+  syncTrayMenuItem(trayAlwaysOnTopItem, currentConfig.alwaysOnTop);
   if (mainWindow) mainWindow.setAlwaysOnTop(currentConfig.alwaysOnTop);
   persistConfig();
 });
