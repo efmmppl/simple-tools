@@ -1,0 +1,72 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const { normalizeSymbol } = require('./quote');
+
+function defaultConfig() {
+  return {
+    symbols: [],
+    refreshInterval: 5,
+    opacity: 0.92,
+    alwaysOnTop: true,
+    bounds: null
+  };
+}
+
+function clampNumber(value, fallback, minimum, maximum) {
+  const number = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.min(maximum, Math.max(minimum, number));
+}
+
+function validBounds(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const keys = ['x', 'y', 'width', 'height'];
+  if (Object.keys(value).some((key) => !keys.includes(key))) return null;
+  if (!keys.every((key) => Number.isInteger(value[key]) && Number.isFinite(value[key]))) return null;
+  if (value.width <= 0 || value.height <= 0) return null;
+  return { x: value.x, y: value.y, width: value.width, height: value.height };
+}
+
+function sanitizeConfig(value) {
+  const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  const symbols = [];
+  for (const input of Array.isArray(source.symbols) ? source.symbols : []) {
+    const symbol = normalizeSymbol(input);
+    if (symbol && !symbols.includes(symbol)) symbols.push(symbol);
+  }
+  return {
+    symbols,
+    refreshInterval: Math.round(clampNumber(source.refreshInterval, 5, 3, 60)),
+    opacity: clampNumber(source.opacity, 0.92, 0.35, 1),
+    alwaysOnTop: typeof source.alwaysOnTop === 'boolean' ? source.alwaysOnTop : true,
+    bounds: validBounds(source.bounds)
+  };
+}
+
+function loadConfig(filePath) {
+  try {
+    return sanitizeConfig(JSON.parse(fs.readFileSync(filePath, 'utf8')));
+  } catch (_error) {
+    return defaultConfig();
+  }
+}
+
+function saveConfig(filePath, config) {
+  const temporaryPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(temporaryPath, JSON.stringify(sanitizeConfig(config), null, 2) + '\n', 'utf8');
+    try {
+      fs.renameSync(temporaryPath, filePath);
+    } catch (error) {
+      if (error.code !== 'EEXIST' && error.code !== 'EPERM') throw error;
+      fs.rmSync(filePath, { force: true });
+      fs.renameSync(temporaryPath, filePath);
+    }
+  } catch (error) {
+    try { fs.rmSync(temporaryPath, { force: true }); } catch (_cleanupError) {}
+    throw error;
+  }
+}
+
+module.exports = { defaultConfig, sanitizeConfig, loadConfig, saveConfig };
