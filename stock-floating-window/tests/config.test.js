@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const childProcess = require('node:child_process');
 const os = require('node:os');
 const path = require('node:path');
 const vm = require('node:vm');
@@ -64,6 +65,17 @@ test('saves atomically and reads back a sanitized configuration', () => {
   assert.equal(fs.readdirSync(directory).filter((name) => name.includes('.tmp')).length, 0);
 });
 
+test('atomically replaces an existing configuration', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'stock-config-'));
+  const filePath = path.join(directory, 'config.json');
+
+  saveConfig(filePath, { symbols: ['600519'] });
+  saveConfig(filePath, { symbols: ['000858'], opacity: 0.5 });
+
+  assert.deepEqual(loadConfig(filePath), sanitizeConfig({ symbols: ['000858'], opacity: 0.5 }));
+  assert.equal(fs.readdirSync(directory).filter((name) => name.includes('.bak')).length, 0);
+});
+
 test('preserves the existing file when atomic replacement cannot complete', () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'stock-config-'));
   const filePath = path.join(directory, 'config.json');
@@ -72,6 +84,7 @@ test('preserves the existing file when atomic replacement cannot complete', () =
   const rename = fs.renameSync;
   const removed = [];
   const remove = fs.rmSync;
+  const execute = childProcess.execFileSync;
   fs.renameSync = (source, destination) => {
     if (destination === filePath) {
       const error = new Error('destination exists');
@@ -84,12 +97,18 @@ test('preserves the existing file when atomic replacement cannot complete', () =
     removed.push(target);
     return remove(target, options);
   };
+  childProcess.execFileSync = () => {
+    const error = new Error('replacement failed');
+    error.code = 'EACCES';
+    throw error;
+  };
 
   try {
-    assert.throws(() => saveConfig(filePath, { symbols: ['000858'] }), { code: 'EEXIST' });
+    assert.throws(() => saveConfig(filePath, { symbols: ['000858'] }), { code: 'EACCES' });
   } finally {
     fs.renameSync = rename;
     fs.rmSync = remove;
+    childProcess.execFileSync = execute;
   }
 
   assert.equal(fs.readFileSync(filePath, 'utf8'), original);

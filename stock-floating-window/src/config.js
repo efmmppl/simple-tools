@@ -51,14 +51,41 @@ function loadConfig(filePath) {
   }
 }
 
+function replaceWindowsFile(temporaryPath, filePath, backupPath) {
+  const script = "$ErrorActionPreference = 'Stop'; [System.IO.File]::Replace($env:STOCK_CONFIG_TEMP, $env:STOCK_CONFIG_DEST, $env:STOCK_CONFIG_BACKUP, $false);";
+  const { execFileSync } = require('node:child_process');
+  execFileSync('powershell.exe', [
+    '-NoLogo',
+    '-NoProfile',
+    '-NonInteractive',
+    '-Command',
+    script
+  ], {
+    env: {
+      ...process.env,
+      STOCK_CONFIG_TEMP: temporaryPath,
+      STOCK_CONFIG_DEST: filePath,
+      STOCK_CONFIG_BACKUP: backupPath
+    },
+    stdio: 'ignore'
+  });
+}
+
 function saveConfig(filePath, config) {
   const temporaryPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  const backupPath = `${filePath}.${process.pid}.${Date.now()}.bak`;
   try {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(temporaryPath, JSON.stringify(sanitizeConfig(config), null, 2) + '\n', 'utf8');
-    fs.renameSync(temporaryPath, filePath);
+    if (process.platform === 'win32' && fs.existsSync(filePath)) {
+      replaceWindowsFile(temporaryPath, filePath, backupPath);
+      fs.rmSync(backupPath, { force: true });
+    } else {
+      fs.renameSync(temporaryPath, filePath);
+    }
   } catch (error) {
     try { fs.rmSync(temporaryPath, { force: true }); } catch (_cleanupError) {}
+    try { fs.rmSync(backupPath, { force: true }); } catch (_cleanupError) {}
     throw error;
   }
 }
