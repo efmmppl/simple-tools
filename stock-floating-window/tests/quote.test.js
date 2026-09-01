@@ -3,7 +3,9 @@ const assert = require('node:assert/strict');
 const {
   normalizeSymbol,
   buildQuoteUrl,
+  parseTencentQuoteText,
   parseQuoteResponse,
+  addSymbol,
   isMarketClosed
 } = require('../src/quote');
 
@@ -39,6 +41,32 @@ test('builds one encoded Tencent batch quote URL', () => {
     buildQuoteUrl(['sh600519', 'sz000858']),
     'https://qt.gtimg.cn/q=sh600519%2Csz000858'
   );
+});
+
+test('parses a successful Tencent text response and accepts the quote in the add-symbol flow', async () => {
+  const fields = [];
+  fields[0] = '1';
+  fields[1] = '贵州茅台';
+  fields[3] = '1301.35';
+  fields[4] = '1300.00';
+  fields[30] = '20260901103045';
+  fields[31] = '1.35';
+  const quote = parseTencentQuoteText('v_sh600519="' + fields.join('~') + '";', ['sh600519'])[0];
+  const state = { symbols: [], quotes: {} };
+
+  assert.deepEqual(quote, {
+    symbol: 'sh600519',
+    name: '贵州茅台',
+    price: 1301.35,
+    previousClose: 1300,
+    change: 1.35,
+    changePercent: 1.35 / 1300 * 100,
+    time: '2026-09-01 10:30:45'
+  });
+
+  await addSymbol('600519', state, async () => quote);
+  assert.deepEqual(state.symbols, ['sh600519']);
+  assert.equal(state.quotes.sh600519.price, 1301.35);
 });
 
 function quoteRow(name, price, previousClose, change, time) {

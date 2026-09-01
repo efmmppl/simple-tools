@@ -43,20 +43,37 @@ function parseQuoteResponse(json, symbols) {
   return list.map(function (symbol) {
     var entry = data[symbol];
     var row = entry && entry.qt && entry.qt[symbol];
-    if (!Array.isArray(row)) return null;
-    var price = numericValue(row[3]);
-    if (price == null) return null;
-    var previousClose = numericValue(row[4]);
-    var change = numericValue(row[31]);
-    return {
-      symbol: symbol,
-      name: typeof row[1] === 'string' ? row[1] : '',
-      price: price,
-      previousClose: previousClose,
-      change: change,
-      changePercent: previousClose != null && previousClose !== 0 && change != null ? change / previousClose * 100 : null,
-      time: formatQuoteTime(row[30])
-    };
+    return parseQuoteRow(row, symbol);
+  }).filter(function (row) { return row !== null; });
+}
+
+function parseQuoteRow(row, symbol) {
+  if (!Array.isArray(row)) return null;
+  var price = numericValue(row[3]);
+  if (price == null) return null;
+  var previousClose = numericValue(row[4]);
+  var change = numericValue(row[31]);
+  return {
+    symbol: symbol,
+    name: typeof row[1] === 'string' ? row[1] : '',
+    price: price,
+    previousClose: previousClose,
+    change: change,
+    changePercent: previousClose != null && previousClose !== 0 && change != null ? change / previousClose * 100 : null,
+    time: formatQuoteTime(row[30])
+  };
+}
+
+function parseTencentQuoteText(text, symbols) {
+  if (typeof text !== 'string') return [];
+  var entries = {};
+  text.split(/\r?\n/).forEach(function (line) {
+    var match = line.trim().match(/^v_([a-z0-9]+)="([^"]*)";?$/i);
+    if (match) entries[match[1].toLowerCase()] = match[2].split('~');
+  });
+  var list = Array.isArray(symbols) ? symbols : [symbols];
+  return list.map(function (symbol) {
+    return parseQuoteRow(entries[String(symbol).toLowerCase()], symbol);
   }).filter(function (row) { return row !== null; });
 }
 
@@ -92,20 +109,19 @@ async function refreshQuotes(symbols, fetchImpl) {
     var fetcher = fetchImpl || fetch;
     var response = await fetcher(buildQuoteUrl(list), { signal: controller.signal });
     if (!response || !response.ok) return { quotes: [], error: { type: 'response', message: '行情服务返回错误' } };
-    var json;
+    var text;
     try {
-      json = await response.json();
+      text = await response.text();
     } catch (error) {
       if (error && error.name === 'SyntaxError') {
         return { quotes: [], error: { type: 'response', message: '行情数据格式错误' } };
       }
       throw error;
     }
-    if (!json || !json.data || typeof json.data !== 'object') {
-      return { quotes: [], error: { type: 'response', message: '行情数据格式错误' } };
+    var quotes = parseTencentQuoteText(text, list);
+    if (!quotes.length) {
+      return { quotes: [], error: { type: 'response', message: text && text.trim() ? '行情数据格式错误' : '行情数据为空' } };
     }
-    var quotes = parseQuoteResponse(json, list);
-    if (!quotes.length) return { quotes: [], error: { type: 'response', message: '行情数据为空' } };
     if (quotes.length !== list.length) return { quotes: quotes, error: { type: 'response', message: '行情数据不完整' } };
     return { quotes: quotes, error: null };
   } catch (error) {
@@ -180,6 +196,7 @@ var quoteApi = {
   normalizeSymbol: normalizeSymbol,
   buildQuoteUrl: buildQuoteUrl,
   parseQuoteResponse: parseQuoteResponse,
+  parseTencentQuoteText: parseTencentQuoteText,
   isMarketClosed: isMarketClosed,
   refreshIntervalMs: refreshIntervalMs,
   createWatchlistState: createWatchlistState,

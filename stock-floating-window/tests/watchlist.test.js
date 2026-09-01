@@ -11,11 +11,15 @@ const {
 } = require('../src/quote');
 const { createLatestRefresh, applyRefreshResult } = require('../src/renderer');
 
-function response(json, ok = true) {
+function response(text, ok = true) {
   return {
     ok,
-    async json() { return json; }
+    async text() { return text; }
   };
+}
+
+function tencentResponse(rows) {
+  return Object.entries(rows).map(([symbol, row]) => 'v_' + symbol + '="' + row.join('~') + '";').join('\n');
 }
 
 function quote(symbol, name = '贵州茅台', change = 10) {
@@ -33,7 +37,7 @@ test('refreshes multiple symbols with one batch request', async () => {
   const calls = [];
   const result = await refreshQuotes(['sh600519', 'sz000858'], async (url, options) => {
     calls.push([url, options]);
-    return response({ data: {} });
+    return response('');
   });
 
   assert.equal(calls.length, 1);
@@ -46,9 +50,7 @@ test('refreshes multiple symbols with one batch request', async () => {
 test('returns parsed quote updates on a successful refresh', async () => {
   const row = [];
   row[1] = '测试'; row[3] = '10'; row[4] = '9'; row[30] = '20260901103045'; row[31] = '1';
-  const result = await refreshQuotes(['sh600519'], async () => response({
-    data: { sh600519: { qt: { sh600519: row } } }
-  }));
+  const result = await refreshQuotes(['sh600519'], async () => response(tencentResponse({ sh600519: row })));
 
   assert.equal(result.error, null);
   assert.equal(result.quotes[0].price, 10);
@@ -58,9 +60,7 @@ test('returns parsed quote updates on a successful refresh', async () => {
 test('returns valid rows with a typed response error for partial batches', async () => {
   const row = [];
   row[1] = '测试'; row[3] = '10'; row[4] = '9'; row[30] = '20260901103045'; row[31] = '1';
-  const result = await refreshQuotes(['sh600519', 'sz000858'], async () => response({
-    data: { sh600519: { qt: { sh600519: row } } }
-  }));
+  const result = await refreshQuotes(['sh600519', 'sz000858'], async () => response(tencentResponse({ sh600519: row })));
 
   assert.equal(result.quotes.length, 1);
   assert.equal(result.quotes[0].symbol, 'sh600519');
@@ -114,23 +114,23 @@ test('returns typed network and response errors', async () => {
   const network = await refreshQuotes(['sh600519'], async () => { throw new Error('offline'); });
   assert.equal(network.error.type, 'network');
 
-  const responseError = await refreshQuotes(['sh600519'], async () => response({}, false));
+  const responseError = await refreshQuotes(['sh600519'], async () => response('', false));
   assert.equal(responseError.error.type, 'response');
 });
 
 test('rejects successful responses with missing or invalid quote data', async () => {
-  const missing = await refreshQuotes(['sh600519'], async () => response({}));
+  const missing = await refreshQuotes(['sh600519'], async () => response('not a Tencent response'));
   assert.equal(missing.error.type, 'response');
 
-  const invalid = await refreshQuotes(['sh600519'], async () => response({ data: { sh600519: { qt: {} } } }));
+  const invalid = await refreshQuotes(['sh600519'], async () => response('v_sh600519="1~测试~600519~not-a-number";'));
   assert.equal(invalid.error.type, 'response');
   assert.deepEqual(invalid.quotes, []);
 });
 
-test('classifies malformed JSON in a successful response as a response error', async () => {
+test('classifies a response read syntax error as a response error', async () => {
   const result = await refreshQuotes(['sh600519'], async () => ({
     ok: true,
-    async json() { throw new SyntaxError('Unexpected token'); }
+    async text() { throw new SyntaxError('Unexpected token'); }
   }));
   assert.equal(result.error.type, 'response');
   assert.deepEqual(result.quotes, []);
@@ -139,7 +139,7 @@ test('classifies malformed JSON in a successful response as a response error', a
 test('classifies an AbortError while reading a response as a network timeout', async () => {
   const result = await refreshQuotes(['sh600519'], async () => ({
     ok: true,
-    async json() { throw Object.assign(new Error('aborted'), { name: 'AbortError' }); }
+    async text() { throw Object.assign(new Error('aborted'), { name: 'AbortError' }); }
   }));
   assert.equal(result.error.type, 'network');
   assert.match(result.error.message, /超时/);
