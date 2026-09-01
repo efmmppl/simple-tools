@@ -23,6 +23,7 @@
     <section id="settingsPanel" class="settings-panel" hidden aria-label="窗口设置">
       <label>置顶 <input id="alwaysOnTop" type="checkbox" checked></label>
       <label>透明度 <input id="opacity" type="range" min="0.2" max="1" step="0.05" value="1"></label>
+      <label>刷新 <select id="refreshInterval"><option value="3">3 分钟</option><option value="5">5 分钟</option><option value="10">10 分钟</option><option value="30">30 分钟</option><option value="60">60 分钟</option></select></label>
     </section>
 
     <form id="addSymbolForm" class="add-symbol-form">
@@ -38,6 +39,7 @@
       <div id="errorState" class="state error-state" hidden role="alert"></div>
     </section>
   </main>
+  <script src="quote.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

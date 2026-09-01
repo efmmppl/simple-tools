@@ -68,9 +68,82 @@ function isMarketClosed(date) {
   return !((minutes >= 570 && minutes < 690) || (minutes >= 780 && minutes < 900));
 }
 
-module.exports = {
+function createWatchlistState(config) {
+  var symbols = [];
+  var inputs = config && Array.isArray(config.symbols) ? config.symbols : [];
+  inputs.forEach(function (input) {
+    var symbol = normalizeSymbol(input);
+    if (symbol && !symbols.includes(symbol)) symbols.push(symbol);
+  });
+  return { symbols: symbols, quotes: {}, lastSuccessAt: null, error: null };
+}
+
+async function refreshQuotes(symbols, fetchImpl) {
+  var list = Array.isArray(symbols) ? symbols.slice() : [symbols];
+  list = list.filter(function (symbol) { return typeof symbol === 'string' && symbol; });
+  if (!list.length) return { quotes: [], error: null };
+  var controller = new AbortController();
+  var timeout = setTimeout(function () { controller.abort(); }, 4000);
+  try {
+    var fetcher = fetchImpl || fetch;
+    var response = await fetcher(buildQuoteUrl(list), { signal: controller.signal });
+    if (!response || !response.ok) return { quotes: [], error: { type: 'response', message: '行情服务返回错误' } };
+    var json = await response.json();
+    return { quotes: parseQuoteResponse(json, list), error: null };
+  } catch (error) {
+    return { quotes: [], error: { type: 'network', message: error && error.name === 'AbortError' ? '行情请求超时' : '行情连接失败' } };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function escapeQuoteText(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+  });
+}
+
+function formatQuoteRow(quote) {
+  var change = numericValue(quote.change);
+  var percent = numericValue(quote.changePercent);
+  var direction = change > 0 ? 'quote-up' : change < 0 ? 'quote-down' : '';
+  var sign = function (value) { return value > 0 ? '+' : ''; };
+  var displaySymbol = String(quote.symbol || '').replace(/^(sh|sz)/i, '').toUpperCase();
+  return '<article class="quote-row ' + direction + '" data-symbol="' + escapeQuoteText(quote.symbol) + '">' +
+    '<div class="quote-heading"><strong>' + escapeQuoteText(quote.name) + '</strong><span>' + escapeQuoteText(displaySymbol) + '</span></div>' +
+    '<div class="quote-values"><span class="quote-price">' + escapeQuoteText(quote.price) + '</span>' +
+    '<span>' + escapeQuoteText(change == null ? '--' : sign(change) + change.toFixed(2)) + '</span>' +
+    '<span>' + escapeQuoteText(percent == null ? '--' : sign(percent) + percent.toFixed(2) + '%') + '</span></div>' +
+    '<time>' + escapeQuoteText(quote.time || '--') + '</time>' +
+    '<button type="button" class="remove-symbol" data-symbol="' + escapeQuoteText(quote.symbol) + '">移除</button></article>';
+}
+
+async function addSymbol(input, state, resolveSymbol) {
+  var symbol = normalizeSymbol(input);
+  if (!symbol) throw new Error('unsupported symbol');
+  if (state.symbols.includes(symbol)) throw new Error('duplicate symbol');
+  var quote = await resolveSymbol(symbol);
+  if (!quote) throw new Error('symbol not found');
+  state.symbols.push(symbol);
+  if (Array.isArray(quote)) quote.forEach(function (item) { state.quotes[item.symbol] = item; });
+  else state.quotes[symbol] = quote;
+}
+
+function removeSymbol(symbol, state) {
+  state.symbols = state.symbols.filter(function (item) { return item !== symbol; });
+  delete state.quotes[symbol];
+}
+
+var quoteApi = {
   normalizeSymbol: normalizeSymbol,
   buildQuoteUrl: buildQuoteUrl,
   parseQuoteResponse: parseQuoteResponse,
-  isMarketClosed: isMarketClosed
+  isMarketClosed: isMarketClosed,
+  createWatchlistState: createWatchlistState,
+  refreshQuotes: refreshQuotes,
+  formatQuoteRow: formatQuoteRow,
+  addSymbol: addSymbol,
+  removeSymbol: removeSymbol
 };
+
+if (typeof module !== 'undefined' && module.exports) module.exports = quoteApi;
