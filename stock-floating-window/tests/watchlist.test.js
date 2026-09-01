@@ -5,7 +5,8 @@ const {
   refreshQuotes,
   formatQuoteRow,
   addSymbol,
-  removeSymbol
+  removeSymbol,
+  refreshIntervalMs
 } = require('../src/quote');
 
 function response(json, ok = true) {
@@ -36,7 +37,8 @@ test('refreshes multiple symbols with one batch request', async () => {
   assert.equal(calls.length, 1);
   assert.match(calls[0][0], /sh600519%2Csz000858/);
   assert.equal(calls[0][1].signal instanceof AbortSignal, true);
-  assert.deepEqual(result, { quotes: [], error: null });
+  assert.equal(result.quotes.length, 0);
+  assert.equal(result.error.type, 'response');
 });
 
 test('returns parsed quote updates on a successful refresh', async () => {
@@ -59,6 +61,15 @@ test('returns typed network and response errors', async () => {
   assert.equal(responseError.error.type, 'response');
 });
 
+test('rejects successful responses with missing or invalid quote data', async () => {
+  const missing = await refreshQuotes(['sh600519'], async () => response({}));
+  assert.equal(missing.error.type, 'response');
+
+  const invalid = await refreshQuotes(['sh600519'], async () => response({ data: { sh600519: { qt: {} } } }));
+  assert.equal(invalid.error.type, 'response');
+  assert.deepEqual(invalid.quotes, []);
+});
+
 test('watchlist state preserves valid cached quotes when refresh fails', () => {
   const state = createWatchlistState({ symbols: ['sh600519'] });
   state.quotes.sh600519 = quote('sh600519');
@@ -74,6 +85,24 @@ test('adds normalized symbols and rejects duplicates or unsupported input', asyn
   await assert.rejects(() => addSymbol('600519', state, async () => quote('sh600519')), /duplicate/i);
   await assert.rejects(() => addSymbol('830001', state, async () => quote('bj830001')), /unsupported/i);
   await assert.rejects(() => addSymbol('000001', state, async () => null), /not found/i);
+});
+
+test('does not mutate state when symbol persistence fails', async () => {
+  const state = createWatchlistState({ symbols: ['sh600519'] });
+  await assert.rejects(
+    () => addSymbol('000858', state, async (symbol) => quote(symbol), async () => {
+      throw new Error('disk full');
+    }),
+    (error) => error.code === 'persistence'
+  );
+  assert.deepEqual(state.symbols, ['sh600519']);
+  assert.equal(state.quotes.sz000858, undefined);
+});
+
+test('converts configured refresh intervals from seconds to milliseconds', () => {
+  assert.equal(refreshIntervalMs(), 5000);
+  assert.equal(refreshIntervalMs(3), 3000);
+  assert.equal(refreshIntervalMs(60), 60000);
 });
 
 test('removes a symbol and its cached quote', () => {

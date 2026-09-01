@@ -68,6 +68,10 @@ function isMarketClosed(date) {
   return !((minutes >= 570 && minutes < 690) || (minutes >= 780 && minutes < 900));
 }
 
+function refreshIntervalMs(value) {
+  return Number(value || 5) * 1000;
+}
+
 function createWatchlistState(config) {
   var symbols = [];
   var inputs = config && Array.isArray(config.symbols) ? config.symbols : [];
@@ -89,7 +93,12 @@ async function refreshQuotes(symbols, fetchImpl) {
     var response = await fetcher(buildQuoteUrl(list), { signal: controller.signal });
     if (!response || !response.ok) return { quotes: [], error: { type: 'response', message: '行情服务返回错误' } };
     var json = await response.json();
-    return { quotes: parseQuoteResponse(json, list), error: null };
+    if (!json || !json.data || typeof json.data !== 'object') {
+      return { quotes: [], error: { type: 'response', message: '行情数据格式错误' } };
+    }
+    var quotes = parseQuoteResponse(json, list);
+    if (!quotes.length) return { quotes: [], error: { type: 'response', message: '行情数据为空' } };
+    return { quotes: quotes, error: null };
   } catch (error) {
     return { quotes: [], error: { type: 'network', message: error && error.name === 'AbortError' ? '行情请求超时' : '行情连接失败' } };
   } finally {
@@ -118,12 +127,21 @@ function formatQuoteRow(quote) {
     '<button type="button" class="remove-symbol" data-symbol="' + escapeQuoteText(quote.symbol) + '">移除</button></article>';
 }
 
-async function addSymbol(input, state, resolveSymbol) {
+async function addSymbol(input, state, resolveSymbol, persistSymbols) {
   var symbol = normalizeSymbol(input);
   if (!symbol) throw new Error('unsupported symbol');
   if (state.symbols.includes(symbol)) throw new Error('duplicate symbol');
   var quote = await resolveSymbol(symbol);
   if (!quote) throw new Error('symbol not found');
+  if (persistSymbols) {
+    try {
+      await persistSymbols(state.symbols.concat(symbol));
+    } catch (error) {
+      var persistenceError = new Error(error && error.message ? error.message : 'symbol persistence failed');
+      persistenceError.code = 'persistence';
+      throw persistenceError;
+    }
+  }
   state.symbols.push(symbol);
   if (Array.isArray(quote)) quote.forEach(function (item) { state.quotes[item.symbol] = item; });
   else state.quotes[symbol] = quote;
@@ -139,6 +157,7 @@ var quoteApi = {
   buildQuoteUrl: buildQuoteUrl,
   parseQuoteResponse: parseQuoteResponse,
   isMarketClosed: isMarketClosed,
+  refreshIntervalMs: refreshIntervalMs,
   createWatchlistState: createWatchlistState,
   refreshQuotes: refreshQuotes,
   formatQuoteRow: formatQuoteRow,

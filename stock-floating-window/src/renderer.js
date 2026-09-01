@@ -29,8 +29,10 @@
   function updateStatus() {
     if (!state.symbols.length) {
       statusText.textContent = '等待添加自选股';
-    } else if (state.error) {
+    } else if (state.error && (state.error.type === 'network' || state.error.type === 'response')) {
       statusText.textContent = '连接失败';
+    } else if (state.error) {
+      statusText.textContent = state.error.message;
     } else if (isMarketClosed(new Date())) {
       statusText.textContent = '非交易时段';
     } else if (state.lastSuccessAt) {
@@ -56,7 +58,7 @@
 
   function rebuildTimer() {
     clearInterval(timer);
-    timer = setInterval(refresh, Number(config.refreshInterval || 5) * 60000);
+    timer = setInterval(refresh, refreshIntervalMs(config.refreshInterval));
   }
 
   document.getElementById('settingsButton').addEventListener('click', () => {
@@ -87,12 +89,11 @@
       await addSymbol(symbol, state, async (resolvedSymbol) => {
         const result = await refreshQuotes([resolvedSymbol]);
         return result.error ? null : result.quotes[0];
-      });
-      await saveCurrentConfig();
+      }, (symbols) => configBridge.saveConfig({ ...config, symbols }));
       statusText.textContent = '已添加 ' + symbol + '，等待行情数据';
       await refresh();
     } catch (error) {
-      state.error = { type: 'input', message: error.message === 'symbol not found' ? '未找到该股票' : error.message === 'duplicate symbol' ? '股票已存在' : '请输入有效股票代码' };
+      state.error = { type: error.code === 'persistence' ? 'persistence' : 'input', message: error.code === 'persistence' ? '保存失败，请重试' : error.message === 'symbol not found' ? '未找到该股票' : error.message === 'duplicate symbol' ? '股票已存在' : '请输入有效股票代码' };
       render();
       updateStatus();
     }
