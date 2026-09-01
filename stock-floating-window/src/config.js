@@ -56,13 +56,7 @@ function saveConfig(filePath, config) {
   try {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(temporaryPath, JSON.stringify(sanitizeConfig(config), null, 2) + '\n', 'utf8');
-    try {
-      fs.renameSync(temporaryPath, filePath);
-    } catch (error) {
-      if (error.code !== 'EEXIST' && error.code !== 'EPERM') throw error;
-      fs.rmSync(filePath, { force: true });
-      fs.renameSync(temporaryPath, filePath);
-    }
+    fs.renameSync(temporaryPath, filePath);
   } catch (error) {
     try { fs.rmSync(temporaryPath, { force: true }); } catch (_cleanupError) {}
     throw error;

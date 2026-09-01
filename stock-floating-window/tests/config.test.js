@@ -64,6 +64,39 @@ test('saves atomically and reads back a sanitized configuration', () => {
   assert.equal(fs.readdirSync(directory).filter((name) => name.includes('.tmp')).length, 0);
 });
 
+test('preserves the existing file when atomic replacement cannot complete', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'stock-config-'));
+  const filePath = path.join(directory, 'config.json');
+  fs.writeFileSync(filePath, JSON.stringify({ symbols: ['600519'] }));
+  const original = fs.readFileSync(filePath, 'utf8');
+  const rename = fs.renameSync;
+  const removed = [];
+  const remove = fs.rmSync;
+  fs.renameSync = (source, destination) => {
+    if (destination === filePath) {
+      const error = new Error('destination exists');
+      error.code = 'EEXIST';
+      throw error;
+    }
+    return rename(source, destination);
+  };
+  fs.rmSync = (target, options) => {
+    removed.push(target);
+    return remove(target, options);
+  };
+
+  try {
+    assert.throws(() => saveConfig(filePath, { symbols: ['000858'] }), { code: 'EEXIST' });
+  } finally {
+    fs.renameSync = rename;
+    fs.rmSync = remove;
+  }
+
+  assert.equal(fs.readFileSync(filePath, 'utf8'), original);
+  assert.equal(removed.includes(filePath), false);
+  assert.equal(fs.readdirSync(directory).filter((name) => name.includes('.tmp')).length, 0);
+});
+
 test('preload exposes only fixed configuration and window IPC methods', () => {
   const calls = [];
   const context = {
