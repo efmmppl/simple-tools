@@ -94,6 +94,28 @@ test('returns null for malformed numeric fields in an otherwise valid row', () =
   assert.equal(result.changePercent, null);
 });
 
+test('rejects coercive numeric values instead of converting them', () => {
+  const row = quoteRow('测试', '100', '   ', true, '20260901103045');
+  const [result] = parseQuoteResponse({ data: { sh600519: { qt: { sh600519: row } } } }, ['sh600519']);
+  assert.equal(result.previousClose, null);
+  assert.equal(result.change, null);
+  assert.equal(result.changePercent, null);
+
+  row[4] = [];
+  row[31] = [2];
+  const [arrayResult] = parseQuoteResponse({ data: { sh600519: { qt: { sh600519: row } } } }, ['sh600519']);
+  assert.equal(arrayResult.previousClose, null);
+  assert.equal(arrayResult.change, null);
+});
+
+test('rejects timestamps with invalid calendar or clock components', () => {
+  for (const timestamp of ['20260230093000', '20261301093000', '20260101306000']) {
+    const row = quoteRow('测试', '100', '99', '1', timestamp);
+    const [result] = parseQuoteResponse({ data: { sh600519: { qt: { sh600519: row } } } }, ['sh600519']);
+    assert.equal(result.time, null, timestamp);
+  }
+});
+
 test('identifies local A-share market sessions', () => {
   assert.equal(isMarketClosed(new Date(2026, 8, 1, 9, 30)), false);
   assert.equal(isMarketClosed(new Date(2026, 8, 1, 11, 30)), true);
