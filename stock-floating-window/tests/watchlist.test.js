@@ -70,6 +70,15 @@ test('rejects successful responses with missing or invalid quote data', async ()
   assert.deepEqual(invalid.quotes, []);
 });
 
+test('classifies malformed JSON in a successful response as a response error', async () => {
+  const result = await refreshQuotes(['sh600519'], async () => ({
+    ok: true,
+    async json() { throw new SyntaxError('Unexpected token'); }
+  }));
+  assert.equal(result.error.type, 'response');
+  assert.deepEqual(result.quotes, []);
+});
+
 test('watchlist state preserves valid cached quotes when refresh fails', () => {
   const state = createWatchlistState({ symbols: ['sh600519'] });
   state.quotes.sh600519 = quote('sh600519');

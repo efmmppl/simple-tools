@@ -92,7 +92,12 @@ async function refreshQuotes(symbols, fetchImpl) {
     var fetcher = fetchImpl || fetch;
     var response = await fetcher(buildQuoteUrl(list), { signal: controller.signal });
     if (!response || !response.ok) return { quotes: [], error: { type: 'response', message: '行情服务返回错误' } };
-    var json = await response.json();
+    var json;
+    try {
+      json = await response.json();
+    } catch (_error) {
+      return { quotes: [], error: { type: 'response', message: '行情数据格式错误' } };
+    }
     if (!json || !json.data || typeof json.data !== 'object') {
       return { quotes: [], error: { type: 'response', message: '行情数据格式错误' } };
     }
