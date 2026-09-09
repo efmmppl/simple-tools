@@ -513,6 +513,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .gold-details b { font-weight: 600; color: var(--text); }
 
+/* 汇率换算方向切换 */
+.exchange-dir { padding: 7px 14px; border: 1px solid rgba(var(--green-rgb), 0.16); border-radius: 999px; background: var(--card); color: var(--text-soft); cursor: pointer; font: inherit; font-size: 0.82rem; transition: all 0.2s; }
+.exchange-dir:hover, .exchange-dir.active { border-color: var(--primary); background: rgba(var(--green-rgb), 0.1); color: var(--primary-deep); }
+
 /* 汇率网格 */
 .exchange-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));

@@ -77,6 +77,7 @@ function renderExchangeRateGrid(rates) {
       '<div class="exchange-rate-val">' + cnyPerUnit.toFixed(4) + '</div>' +
       '<div class="exchange-rate-label">人民币</div>';
     card.addEventListener('click', function () {
+      setExchangeDirection(true);
       document.getElementById('exchangeCurrency').value = code;
       document.getElementById('exchangeAmount').value = 1;
       doExchangeConvert(rates);
@@ -85,17 +86,41 @@ function renderExchangeRateGrid(rates) {
   }
 }
 
+function setExchangeDirection(toCny) {
+  const toCnyBtn = document.getElementById('exchangeDirToCny');
+  const fromCnyBtn = document.getElementById('exchangeDirFromCny');
+  const label = document.getElementById('exchangeAmountLabel');
+  if (toCnyBtn) {
+    toCnyBtn.classList.toggle('active', toCny);
+    toCnyBtn.setAttribute('aria-pressed', toCny ? 'true' : 'false');
+  }
+  if (fromCnyBtn) {
+    fromCnyBtn.classList.toggle('active', !toCny);
+    fromCnyBtn.setAttribute('aria-pressed', toCny ? 'false' : 'true');
+  }
+  if (label) label.textContent = toCny ? '外币金额' : '人民币金额';
+  if (exchangeData) doExchangeConvert(exchangeData.rates);
+}
+
 function doExchangeConvert(rates) {
   const amount = parseFloat(document.getElementById('exchangeAmount').value);
   const currency = document.getElementById('exchangeCurrency').value;
   const rate = rates[currency];
+  const toCny = document.getElementById('exchangeDirToCny').classList.contains('active');
   if (!amount || !rate || isNaN(amount)) {
     document.getElementById('exchangeResult').innerHTML = '<span class="hint">输入金额</span>';
     return;
   }
-  const cny = amount / rate;
-  document.getElementById('exchangeResult').textContent =
-    '¥ ' + cny.toFixed(2);
+  if (toCny) {
+    const cny = amount / rate;
+    document.getElementById('exchangeResult').textContent =
+      '¥ ' + cny.toFixed(2);
+  } else {
+    const foreign = amount * rate;
+    const info = EXCHANGE_CURRENCIES[currency] || {};
+    document.getElementById('exchangeResult').textContent =
+      (info.symbol || currency) + ' ' + foreign.toFixed(2);
+  }
 }
 
 const exchangeObserver = new MutationObserver(function () {
@@ -117,3 +142,5 @@ document.getElementById('exchangeAmount').addEventListener('input', function () 
 document.getElementById('exchangeCurrency').addEventListener('change', function () {
   if (exchangeData) doExchangeConvert(exchangeData.rates);
 });
+document.getElementById('exchangeDirToCny').addEventListener('click', function () { setExchangeDirection(true); });
+document.getElementById('exchangeDirFromCny').addEventListener('click', function () { setExchangeDirection(false); });
