@@ -6,6 +6,16 @@ const ipObserver = new MutationObserver(() => {
 });
 ipObserver.observe(document.getElementById('tool-ip'), { attributes: true, attributeFilter: ['class'] });
 
+// formatUtcOffset - 将秒数偏移格式化为 UTC±HH:MM
+function formatUtcOffset(sec) {
+  if (sec === undefined || sec === null || isNaN(sec)) return '';
+  const sign = sec < 0 ? '-' : '+';
+  const abs = Math.abs(sec);
+  const h = String(Math.floor(abs / 3600)).padStart(2, '0');
+  const m = String(Math.floor((abs % 3600) / 60)).padStart(2, '0');
+  return 'UTC' + sign + h + ':' + m;
+}
+
 // fetchIpInfo - 通过 api.ip.sb 获取公网 IP 及地理位置信息
 function fetchIpInfo() {
   document.getElementById('ipUpdateTime').textContent = '查询中...';
@@ -16,10 +26,16 @@ function fetchIpInfo() {
     .then(d => {
       document.getElementById('ipAddress').textContent = d.ip;
       document.getElementById('ipCountry').textContent = d.country || '--';
+      document.getElementById('ipCountryCode').textContent = d.country_code || '--';
+      document.getElementById('ipContinent').textContent = d.continent_code || '--';
       document.getElementById('ipRegion').textContent = d.region || '--';
       document.getElementById('ipCity').textContent = d.city || '--';
-      document.getElementById('ipIsp').textContent = d.isp || d.organization || '--';
+      document.getElementById('ipPostal').textContent = d.postal_code || '--';
       document.getElementById('ipLoc').textContent = (d.latitude && d.longitude) ? d.latitude + ', ' + d.longitude : '--';
+      const tz = d.timezone ? d.timezone + (formatUtcOffset(d.offset) ? '（' + formatUtcOffset(d.offset) + '）' : '') : '--';
+      document.getElementById('ipTimezone').textContent = tz;
+      document.getElementById('ipIsp').textContent = d.isp || d.organization || '--';
+      document.getElementById('ipAsn').textContent = d.asn ? ('AS' + d.asn + (d.asn_organization ? ' ' + d.asn_organization : '')) : '--';
       document.getElementById('ipUpdateTime').textContent = new Date().toLocaleString('zh-CN');
     })
     .catch(() => {
