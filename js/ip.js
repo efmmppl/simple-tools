@@ -1,8 +1,7 @@
 // MutationObserver - 监听 IP 视图切换，进入时加载
 const ipObserver = new MutationObserver(() => {
   if (document.getElementById('tool-ip').classList.contains('active')) {
-    fetchIpInfo();
-    fetchLocalIp();
+    fetchIpAll();
   }
 });
 ipObserver.observe(document.getElementById('tool-ip'), { attributes: true, attributeFilter: ['class'] });
@@ -27,6 +26,27 @@ function fetchIpInfo() {
       document.getElementById('ipUpdateTime').textContent = '查询失败，请重试';
     })
     .finally(() => clearTimeout(timer));
+}
+
+// fetchIpVersion - 按协议族获取公网 IP（host 为 api-ipv4.ip.sb / api-ipv6.ip.sb）
+function fetchIpVersion(host, elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 10000);
+  fetch('https://' + host + '/geoip', { signal: ctrl.signal })
+    .then(r => r.json())
+    .then(d => { el.textContent = d.ip || '未分配'; })
+    .catch(() => { el.textContent = '不可用'; })
+    .finally(() => clearTimeout(timer));
+}
+
+// fetchIpAll - 刷新公网 IP、IPv4、IPv6 与内网 IP
+function fetchIpAll() {
+  fetchIpInfo();
+  fetchIpVersion('api-ipv4.ip.sb', 'ipV4');
+  fetchIpVersion('api-ipv6.ip.sb', 'ipV6');
+  fetchLocalIp();
 }
 
 // fetchLocalIp - 通过 WebRTC ICE 候选者检测内网 IP 地址
@@ -79,8 +99,22 @@ function fetchLocalIp() {
   }
 }
 
-// 刷新按钮 - 重新查询公网 IP
-document.getElementById('ipRefreshBtn').addEventListener('click', fetchIpInfo);
+// 刷新按钮 - 重新查询公网 IP、IPv4、IPv6
+document.getElementById('ipRefreshBtn').addEventListener('click', fetchIpAll);
+
+// 双击复制 - IPv4 / IPv6 地址
+['ipV4', 'ipV6'].forEach(id => {
+  document.getElementById(id).addEventListener('dblclick', () => {
+    const ip = document.getElementById(id).textContent;
+    if (ip && ip !== '--' && ip !== '不可用' && ip !== '未分配') {
+      navigator.clipboard.writeText(ip).then(() => {
+        const tip = document.getElementById('ipCopyTip');
+        tip.textContent = '已复制 ' + ip;
+        setTimeout(() => { tip.textContent = ''; }, 2000);
+      });
+    }
+  });
+});
 
 // 复制按钮 - 将公网 IP 复制到剪贴板
 document.getElementById('ipCopyBtn').addEventListener('click', () => {

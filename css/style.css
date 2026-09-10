@@ -591,9 +591,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .ip-row:last-child { border-bottom: none; }
 /* IP 键名 */
-.ip-key { color: var(--text-soft); }
+.ip-key { color: var(--text-soft); flex-shrink: 0; }
 /* IP 键值 */
 .ip-val { color: var(--text); font-weight: 500; }
+/* 长 IP（IPv6）换行显示 */
+.ip-val-wrap { overflow-wrap: anywhere; text-align: right; margin-left: 16px; cursor: copy; }
 
 /* 热榜列表 */
 .hot-item {
