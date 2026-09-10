@@ -513,9 +513,25 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .gold-details b { font-weight: 600; color: var(--text); }
 
-/* 汇率换算方向切换 */
-.exchange-dir { padding: 7px 14px; border: 1px solid rgba(var(--green-rgb), 0.16); border-radius: 999px; background: var(--card); color: var(--text-soft); cursor: pointer; font: inherit; font-size: 0.82rem; transition: all 0.2s; }
-.exchange-dir:hover, .exchange-dir.active { border-color: var(--primary); background: rgba(var(--green-rgb), 0.1); color: var(--primary-deep); }
+/* 汇率换算结果 */
+.exchange-res-primary { font-size: 1.02rem; color: var(--text); line-height: 1.5; }
+.exchange-res-secondary { font-size: 0.8rem; color: var(--text-soft); font-weight: 400; line-height: 1.4; }
+
+/* 汇率换算器 */
+.exchange-convert { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 4px 0; }
+.exchange-amount, .exchange-select {
+  padding: 8px 12px; border: 1px solid rgba(var(--green-rgb), 0.2); border-radius: 6px;
+  background: var(--input-bg); color: var(--text); font-size: 0.88rem; outline: none;
+}
+.exchange-amount {
+  flex: 1 1 120px; min-width: 0;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+.exchange-select { flex: 1 1 160px; min-width: 0; }
+.exchange-amount:focus, .exchange-select:focus { border-color: var(--primary); }
+.exchange-swap { flex: 0 0 auto; padding: 8px 14px; }
+.exchange-swap i { transition: transform 0.25s ease; }
+.exchange-swap:hover i { transform: rotate(180deg); }
 
 /* 汇率网格 */
 .exchange-grid {

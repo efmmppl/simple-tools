@@ -2,6 +2,7 @@ let exchangeData = null;
 let exchangeTimer = null;
 
 const EXCHANGE_CURRENCIES = {
+  CNY: { name: '人民币', symbol: '¥' },
   USD: { name: '美元', symbol: '$' },
   EUR: { name: '欧元', symbol: '€' },
   GBP: { name: '英镑', symbol: '£' },
@@ -26,6 +27,15 @@ const EXCHANGE_CURRENCIES = {
   NOK: { name: '挪威克朗', symbol: 'kr' },
 };
 
+function exchangeRateOf(rates, code) {
+  if (code === 'CNY') return 1;
+  return rates[code];
+}
+
+function formatExchangeAmount(n) {
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 async function fetchExchangeRates() {
   document.getElementById('exchangeRefreshStatus').textContent = '加载中...';
   try {
@@ -48,24 +58,39 @@ async function fetchExchangeRates() {
   }
 }
 
+function setSelectValue(sel, code, fallback) {
+  sel.value = code;
+  if (!sel.value) sel.value = fallback;
+}
+
 function populateExchangeCurrencySelect(rates) {
-  const sel = document.getElementById('exchangeCurrency');
-  sel.innerHTML = '';
+  const fromSel = document.getElementById('exchangeFrom');
+  const toSel = document.getElementById('exchangeTo');
+  const prevFrom = fromSel.value;
+  const prevTo = toSel.value;
+  fromSel.innerHTML = '';
+  toSel.innerHTML = '';
   for (const [code, info] of Object.entries(EXCHANGE_CURRENCIES)) {
-    if (rates[code]) {
-      const opt = document.createElement('option');
-      opt.value = code;
-      opt.textContent = info.symbol + ' ' + code + ' - ' + info.name;
-      sel.appendChild(opt);
-    }
+    if (code !== 'CNY' && !rates[code]) continue;
+    const label = info.symbol + ' ' + code + ' - ' + info.name;
+    const optFrom = document.createElement('option');
+    optFrom.value = code;
+    optFrom.textContent = label;
+    fromSel.appendChild(optFrom);
+    const optTo = document.createElement('option');
+    optTo.value = code;
+    optTo.textContent = label;
+    toSel.appendChild(optTo);
   }
-  sel.value = 'THB';
+  setSelectValue(fromSel, prevFrom, 'THB');
+  setSelectValue(toSel, prevTo, 'CNY');
 }
 
 function renderExchangeRateGrid(rates) {
   const grid = document.getElementById('exchangeRateGrid');
   grid.innerHTML = '';
   for (const [code, info] of Object.entries(EXCHANGE_CURRENCIES)) {
+    if (code === 'CNY') continue;
     const rate = rates[code];
     if (!rate) continue;
     const cnyPerUnit = 1 / rate;
@@ -77,8 +102,8 @@ function renderExchangeRateGrid(rates) {
       '<div class="exchange-rate-val">' + cnyPerUnit.toFixed(4) + '</div>' +
       '<div class="exchange-rate-label">人民币</div>';
     card.addEventListener('click', function () {
-      setExchangeDirection(true);
-      document.getElementById('exchangeCurrency').value = code;
+      document.getElementById('exchangeFrom').value = code;
+      document.getElementById('exchangeTo').value = 'CNY';
       document.getElementById('exchangeAmount').value = 1;
       doExchangeConvert(rates);
     });
@@ -86,41 +111,26 @@ function renderExchangeRateGrid(rates) {
   }
 }
 
-function setExchangeDirection(toCny) {
-  const toCnyBtn = document.getElementById('exchangeDirToCny');
-  const fromCnyBtn = document.getElementById('exchangeDirFromCny');
-  const label = document.getElementById('exchangeAmountLabel');
-  if (toCnyBtn) {
-    toCnyBtn.classList.toggle('active', toCny);
-    toCnyBtn.setAttribute('aria-pressed', toCny ? 'true' : 'false');
-  }
-  if (fromCnyBtn) {
-    fromCnyBtn.classList.toggle('active', !toCny);
-    fromCnyBtn.setAttribute('aria-pressed', toCny ? 'false' : 'true');
-  }
-  if (label) label.textContent = toCny ? '外币金额' : '人民币金额';
-  if (exchangeData) doExchangeConvert(exchangeData.rates);
-}
-
 function doExchangeConvert(rates) {
   const amount = parseFloat(document.getElementById('exchangeAmount').value);
-  const currency = document.getElementById('exchangeCurrency').value;
-  const rate = rates[currency];
-  const toCny = document.getElementById('exchangeDirToCny').classList.contains('active');
-  if (!amount || !rate || isNaN(amount)) {
+  const from = document.getElementById('exchangeFrom').value;
+  const to = document.getElementById('exchangeTo').value;
+  const rateFrom = exchangeRateOf(rates, from);
+  const rateTo = exchangeRateOf(rates, to);
+  if (!amount || isNaN(amount) || !rateFrom || !rateTo) {
     document.getElementById('exchangeResult').innerHTML = '<span class="hint">输入金额</span>';
     return;
   }
-  if (toCny) {
-    const cny = amount / rate;
-    document.getElementById('exchangeResult').textContent =
-      '¥ ' + cny.toFixed(2);
-  } else {
-    const foreign = amount * rate;
-    const info = EXCHANGE_CURRENCIES[currency] || {};
-    document.getElementById('exchangeResult').textContent =
-      (info.symbol || currency) + ' ' + foreign.toFixed(2);
-  }
+  const result = amount / rateFrom * rateTo;
+  const toInfo = EXCHANGE_CURRENCIES[to] || {};
+  const toSymbol = toInfo.symbol || to;
+  const unitTo = rateTo / rateFrom;
+  const unitFrom = rateFrom / rateTo;
+  document.getElementById('exchangeResult').innerHTML =
+    '<div class="exchange-res-primary">' + formatExchangeAmount(amount) + ' ' + from + ' = ' +
+    toSymbol + ' ' + formatExchangeAmount(result) + ' ' + to + '</div>' +
+    '<div class="exchange-res-secondary">1 ' + from + ' = ' + unitTo.toFixed(4) + ' ' + to +
+    ' · 1 ' + to + ' = ' + unitFrom.toFixed(4) + ' ' + from + '</div>';
 }
 
 const exchangeObserver = new MutationObserver(function () {
@@ -139,8 +149,17 @@ document.getElementById('exchangeRefreshBtn').addEventListener('click', fetchExc
 document.getElementById('exchangeAmount').addEventListener('input', function () {
   if (exchangeData) doExchangeConvert(exchangeData.rates);
 });
-document.getElementById('exchangeCurrency').addEventListener('change', function () {
+document.getElementById('exchangeFrom').addEventListener('change', function () {
   if (exchangeData) doExchangeConvert(exchangeData.rates);
 });
-document.getElementById('exchangeDirToCny').addEventListener('click', function () { setExchangeDirection(true); });
-document.getElementById('exchangeDirFromCny').addEventListener('click', function () { setExchangeDirection(false); });
+document.getElementById('exchangeTo').addEventListener('change', function () {
+  if (exchangeData) doExchangeConvert(exchangeData.rates);
+});
+document.getElementById('exchangeSwapBtn').addEventListener('click', function () {
+  const fromSel = document.getElementById('exchangeFrom');
+  const toSel = document.getElementById('exchangeTo');
+  const tmp = fromSel.value;
+  fromSel.value = toSel.value;
+  toSel.value = tmp;
+  if (exchangeData) doExchangeConvert(exchangeData.rates);
+});

@@ -72,7 +72,7 @@
         <div class="nav-card" data-tool="exchange" data-category="market">
       <div class="nav-icon"><i class="fas fa-money-bill-wave"></i></div>
       <div class="nav-name">汇率转换</div>
-      <div class="nav-desc">外币兑人民币汇率<br>实时汇率转换器</div>
+      <div class="nav-desc">任意两币种互转<br>实时汇率转换器</div>
         </div>
         <div class="nav-card" data-tool="gold" data-category="market">
       <div class="nav-icon"><i class="fas fa-coins"></i></div>
@@ -262,7 +262,7 @@
   </div>
 
   <!-- ======== 工具：汇率转换 ======== -->
-  <!-- 从免费 API 获取实时汇率，支持外币兑人民币双向转换 -->
+  <!-- 从免费 API 获取实时汇率，支持任意两币种双向转换 -->
   <div id="tool-exchange" class="tool-view">
     <div class="back-bar">
       <button class="back-btn" data-tool="exchange"><i class="fas fa-arrow-left"></i> 返回</button>
@@ -273,17 +273,13 @@
     <div class="ts-section">
       <div class="ts-card">
         <div class="ts-card-title"><i class="fas fa-calculator" style="margin-right:6px"></i> 货币换算</div>
-        <div class="ts-row" style="gap:8px;margin-bottom:10px">
-          <button class="exchange-dir active" id="exchangeDirToCny" type="button" aria-pressed="true">外币 → 人民币</button>
-          <button class="exchange-dir" id="exchangeDirFromCny" type="button" aria-pressed="false">人民币 → 外币</button>
+        <div class="exchange-convert">
+          <input type="number" id="exchangeAmount" class="exchange-amount" value="1" min="0" step="any" placeholder="金额">
+          <select id="exchangeFrom" class="exchange-select"></select>
+          <button class="btn btn-outline exchange-swap" id="exchangeSwapBtn" title="互换币种"><i class="fas fa-right-left"></i></button>
+          <select id="exchangeTo" class="exchange-select"></select>
         </div>
-        <div class="ts-row">
-          <label id="exchangeAmountLabel">外币金额</label>
-          <input type="number" id="exchangeAmount" value="1" min="0" step="any">
-          <select id="exchangeCurrency" style="flex:0 0 120px;padding:8px 12px;border:1px solid rgba(var(--green-rgb),0.2);border-radius:6px;background:var(--input-bg);color:var(--text);font-size:0.88rem;outline:none"></select>
-          <span style="font-size:0.85rem;color:var(--text-mid);padding:0 4px">=</span>
-          <div class="ts-result" id="exchangeResult" style="flex:0 0 auto;min-width:140px;text-align:center;font-weight:600"><span class="hint">输入金额</span></div>
-        </div>
+        <div class="ts-result exchange-result" id="exchangeResult" style="text-align:center;font-weight:600;margin-top:14px"><span class="hint">输入金额</span></div>
       </div>
     </div>
     <div class="ts-section">
