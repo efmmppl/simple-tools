@@ -5,7 +5,7 @@
 <!-- 字符编码与视口设置，确保移动端正确缩放 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="实用离线工具集：金价查询、汇率转换、IP信息、Cron解析、时间戳、正则测试、Base64、热榜、文字冒险、数独">
+<meta name="description" content="实用离线工具集：金价查询、汇率转换、IP信息、Cron解析、时间戳、正则测试、Base64、热榜、文字冒险、数独、五子棋">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠</text></svg>">
 <title>工具箱</title>
 <!-- PWA：应用清单与图标 -->
@@ -128,6 +128,11 @@
       <div class="nav-icon"><i class="fas fa-border-all"></i></div>
       <div class="nav-name">数独</div>
       <div class="nav-desc">九宫格逻辑推理<br>多难度自动出题</div>
+    </div>
+    <div class="nav-card" data-tool="gomoku" data-category="life">
+      <div class="nav-icon"><i class="fas fa-circle"></i></div>
+      <div class="nav-name">五子棋</div>
+      <div class="nav-desc">15×15 人机对战<br>双人对弈·悔棋</div>
     </div>
     <div class="nav-card" data-tool="diff" data-category="dev">
       <div class="nav-icon"><i class="fas fa-code-branch"></i></div>
@@ -662,6 +667,39 @@
     </div>
   </div>
 
+  <!-- ======== 工具：五子棋 ======== -->
+  <!-- 15×15 五子棋，支持人机对战（简单/中等/困难）与双人对战，含悔棋与战绩记录 -->
+  <div id="tool-gomoku" class="tool-view">
+    <div class="back-bar">
+      <button class="back-btn" data-tool="gomoku"><i class="fas fa-arrow-left"></i> 返回</button>
+      <span class="tool-title"><i class="fas fa-circle" style="margin-right:6px;color:var(--primary)"></i>五子棋</span>
+      <button class="btn btn-outline btn-sm" id="gomokuNewBtn" style="margin-left:auto"><i class="fas fa-redo"></i> 重新开局</button>
+    </div>
+    <div class="options-row" style="justify-content:space-between">
+      <div>
+        <label>模式：</label>
+        <select id="gomokuMode">
+          <option value="ai" selected>人机对战</option>
+          <option value="pvp">双人对战</option>
+        </select>
+      </div>
+      <div>
+        <label id="gomokuDiffLabel">难度：</label>
+        <select id="gomokuDifficulty">
+          <option value="easy">简单</option>
+          <option value="medium" selected>中等</option>
+          <option value="hard">困难</option>
+        </select>
+        <button class="btn btn-outline btn-sm" id="gomokuUndoBtn" style="margin-left:10px"><i class="fas fa-reply"></i> 悔棋</button>
+      </div>
+    </div>
+    <div id="gomokuStatus" class="sudoku-status"></div>
+    <div class="gomoku-board-wrap">
+      <canvas id="gomokuCanvas"></canvas>
+    </div>
+    <div id="gomokuRecord" class="gomoku-record"></div>
+  </div>
+
   <!-- ======== 工具：今日热榜 ======== -->
   <!-- 展示 B 站热门和贴吧热榜，数据来自本地 hotlist.json 缓存 -->
   <div id="tool-hotlist" class="tool-view">
@@ -1083,6 +1121,7 @@
 <script src="js/imgtool.js" charset="UTF-8"></script>
 <script src="js/convert.js" charset="UTF-8"></script>
 <script src="js/sudoku.js" charset="UTF-8"></script>
+<script src="js/gomoku.js" charset="UTF-8"></script>
 <script src="js/diff.js" charset="UTF-8"></script>
 <script src="js/markdown.js" charset="UTF-8"></script>
 <script src="js/admin.js" charset="UTF-8"></script>

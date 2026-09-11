@@ -671,6 +671,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 /* 数独数字按钮点击 */
 .sudoku-num-btn:active { transform: scale(0.97); }
 
+/* 五子棋棋盘容器 */
+.gomoku-board-wrap {
+  display: flex; justify-content: center; padding: 4px 0 10px;
+}
+/* 五子棋画布 */
+#gomokuCanvas {
+  border: 1px solid rgba(var(--green-rgb), 0.2); border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(var(--green-rgb), 0.08);
+  cursor: pointer; touch-action: manipulation; max-width: 100%;
+}
+/* 五子棋战绩 */
+.gomoku-record {
+  text-align: center; font-size: 0.82rem; color: var(--text-soft);
+}
+
 /* 响应式断点 */
 @media (max-width: 600px) {
   .nav-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
