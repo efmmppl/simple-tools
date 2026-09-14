@@ -1,26 +1,45 @@
-// 动画背景开关键：localStorage 存 'on' | 'off'，默认关闭（原始纯色背景）
+// 动画背景：localStorage 存 'off' | 'pelican' | 'ninja'，默认关闭（原始纯色背景）
 const BG_STORAGE_KEY = 'toolbox_bg';
+const BG_ORDER = ['off', 'pelican', 'ninja'];
+const BG_SCENES = { pelican: 'bg-pelican.html', ninja: 'bg-ninja.html' };
 
-// isBgOn - 读取动画背景开关状态
-function isBgOn() {
-  return localStorage.getItem(BG_STORAGE_KEY) === 'on';
+// getBgState - 读取并规范化背景状态（旧值 'on' 视为鹈鹕）
+function getBgState() {
+  const v = localStorage.getItem(BG_STORAGE_KEY);
+  if (v === 'on') return 'pelican';
+  return BG_ORDER.includes(v) ? v : 'off';
 }
 
-// applyBg - 按状态显示/隐藏动画背景层并更新按钮标题
+// applyBg - 按状态显示/隐藏背景层，设置 iframe 源与按钮状态
 function applyBg() {
   const layer = document.getElementById('bgPelican');
-  if (!layer) return;
-  const on = isBgOn();
-  layer.hidden = !on;
+  const state = getBgState();
+  if (layer) {
+    layer.hidden = state === 'off';
+    if (state !== 'off') {
+      const ifr = layer.querySelector('iframe');
+      const src = BG_SCENES[state];
+      if (ifr && ifr.getAttribute('src') !== src) ifr.setAttribute('src', src);
+    }
+  }
   const btn = document.getElementById('bgToggle');
   if (!btn) return;
-  btn.classList.toggle('active', on);
-  btn.title = on ? '动画背景已开启（点击切换）' : '切换动画背景';
+  btn.classList.toggle('active', state !== 'off');
+  const icon = btn.querySelector('i');
+  const titles = {
+    off: '切换动画背景：鹈鹕骑车',
+    pelican: '切换动画背景：忍者跑',
+    ninja: '关闭动画背景'
+  };
+  const icons = { off: 'fa-bicycle', pelican: 'fa-bicycle', ninja: 'fa-user-ninja' };
+  if (icon) icon.className = 'fas ' + icons[state];
+  btn.title = titles[state];
 }
 
-// 切换按钮点击：on ↔ off
+// 切换按钮点击：off → pelican → ninja → off
 document.getElementById('bgToggle').addEventListener('click', () => {
-  localStorage.setItem(BG_STORAGE_KEY, isBgOn() ? 'off' : 'on');
+  const next = BG_ORDER[(BG_ORDER.indexOf(getBgState()) + 1) % BG_ORDER.length];
+  localStorage.setItem(BG_STORAGE_KEY, next);
   applyBg();
 });
 

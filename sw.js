@@ -1,7 +1,7 @@
 // sw.js - 工具箱 Service Worker：离线缓存 + 网络兜底
 // 版本号：修改缓存策略或文件清单后必须递增 CACHE_VERSION，否则不更新
 
-var CACHE_VERSION = 'v57';
+var CACHE_VERSION = 'v58';
 var CACHE_NAME = 'toolbox-' + CACHE_VERSION;
 
 var PRECACHE_URLS = [
@@ -39,7 +39,8 @@ var PRECACHE_URLS = [
   './js/log-analyzer.js',
   './js/api-workbench.js',
   './js/env-compare.js',
-  './bg-pelican.html'
+  './bg-pelican.html',
+  './bg-ninja.html'
 ];
 
 self.addEventListener('install', function (event) {

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>忍者跑 · 页面背景动画</title>
+<style>
+  html, body {
+    margin: 0; height: 100%;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 30%, #1b2130 0%, #07090d 75%);
+  }
+  svg { display: block; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+
+<svg id="scene" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#1c3a5a"/>
+      <stop offset="32%"  stop-color="#69678d"/>
+      <stop offset="60%"  stop-color="#df8a5b"/>
+      <stop offset="84%"  stop-color="#f6c07a"/>
+      <stop offset="100%" stop-color="#ffe3af"/>
+    </linearGradient>
+
+    <linearGradient id="groundG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#4c6d40"/>
+      <stop offset="45%"  stop-color="#2c4227"/>
+      <stop offset="100%" stop-color="#141d12"/>
+    </linearGradient>
+
+    <radialGradient id="sunG" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%"   stop-color="#fff6cc" stop-opacity=".95"/>
+      <stop offset="38%"  stop-color="#ffce78" stop-opacity=".34"/>
+      <stop offset="100%" stop-color="#ffce78" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="hazeG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#ffd9a0" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffd9a0" stop-opacity=".38"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ============ 天空 ============ -->
+  <rect width="900" height="500" fill="url(#skyG)"/>
+
+  <!-- 太阳 -->
+  <circle cx="736" cy="214" r="138" fill="url(#sunG)"/>
+  <circle cx="736" cy="214" r="45" fill="#ffeaad" opacity=".95"/>
+
+  <!-- 云 -->
+  <g id="clouds" opacity=".5"></g>
+
+  <!-- ============ 火影岩 ============ -->
+  <g id="rock">
+    <path d="M 26 400 L 26 230 Q 108 194 200 205 Q 300 185 402 209
+             Q 482 225 534 262 L 550 400 Z" fill="#3d4e5d"/>
+    <path d="M 26 230 Q 108 194 200 205 Q 300 185 402 209
+             Q 482 225 534 262 L 538 269 Q 482 232 402 216
+             Q 300 192 200 212 Q 108 202 26 238 Z" fill="#5a6e7f"/>
+    <g fill="#33424f">
+      <circle cx="118" cy="228" r="28"/>
+      <circle cx="204" cy="220" r="28"/>
+      <circle cx="292" cy="224" r="28"/>
+      <circle cx="379" cy="235" r="28"/>
+    </g>
+    <g fill="#27343f">
+      <path d="M 118 228 l 10 8 l -6 6"/>
+      <path d="M 204 220 l 10 8 l -6 6"/>
+      <path d="M 292 224 l 10 8 l -6 6"/>
+      <path d="M 379 235 l 10 8 l -6 6"/>
+    </g>
+  </g>
+
+  <!-- 远景雾霭 -->
+  <rect x="0" y="330" width="900" height="80" fill="url(#hazeG)"/>
+
+  <!-- ============ 滚动树林 ============ -->
+  <g id="trees"></g>
+
+  <!-- ============ 地面 ============ -->
+  <rect x="0" y="400" width="900" height="100" fill="url(#groundG)"/>
+  <rect x="0" y="400" width="900" height="3" fill="#9dc06f" opacity=".4"/>
+
+  <!-- 滚动草丛 -->
+  <g id="brush"></g>
+
+  <!-- 忍者影子 -->
+  <g id="shadows"></g>
+
+  <!-- ============ 忍者 ============ -->
+  <g id="ninjas"></g>
+</svg>
+
+<script>
+(function () {
+  'use strict';
+  const NS = 'http://www.w3.org/2000/svg';
+  const $  = id => document.getElementById(id);
+  const D  = Math.PI / 180;
+
+  /* ================= 云 ================= */
+  (function buildClouds () {
+    const layer = $('clouds');
+    for (let i = 0; i < 5; i++) {
+      const x = 70 + i * 188 + (i % 3) * 44;
+      const y = 58 + (i % 4) * 33;
+      const s = 0.66 + (i % 3) * 0.26;
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('transform', `translate(${x},${y}) scale(${s})`);
+      g.innerHTML =
+        `<ellipse cx="0" cy="0" rx="54" ry="20" fill="#ffffff"/>
+         <ellipse cx="-40" cy="7" rx="34" ry="14" fill="#ffffff"/>
+         <ellipse cx="43" cy="8" rx="30" ry="13" fill="#ffffff"/>`;
+      layer.appendChild(g);
+    }
+  })();
+
+  /* ================= 树林 ================= */
+  function treeRow () {
+    let s = '';
+    for (let i = 0; i < 16; i++) {
+      const x = i * 62 + ((i * 37) % 25);
+      const h = 62 + ((i * 53) % 46);
+      const w = h * 0.40;
+      const c = i % 3 === 0 ? '#243a2c' : (i % 3 === 1 ? '#2b4534' : '#1e3124');
+      s += `<path d="M ${x} 404 L ${(x - w).toFixed(1)} 404 L ${x} ${404 - h} L ${(x + w).toFixed(1)} 404 Z" fill="${c}"/>`;
+    }
+    return s;
+  }
+  (function buildTrees () {
+    const layer = $('trees');
+    const a = document.createElementNS(NS, 'g'); a.innerHTML = treeRow();
+    const b = document.createElementNS(NS, 'g'); b.innerHTML = treeRow();
+    b.setAttribute('transform', 'translate(900,0)');
+    layer.appendChild(a); layer.appendChild(b);
+  })();
+
+  /* ================= 草丛 ================= */
+  function brushRow () {
+    let s = '';
+    for (let i = 0; i < 22; i++) {
+      const x  = i * 46 + ((i * 29) % 30);
+      const y  = 418 + ((i * 41) % 62);
+      const sc = 0.6 + ((i * 17) % 10) / 12;
+      s += `<g transform="translate(${x},${y}) scale(${sc.toFixed(2)})">
+              <path d="M0 0 Q -6 -12 -12 -16" stroke="#3f6b32" stroke-width="3"
+                    fill="none" stroke-linecap="round"/>
+              <path d="M0 0 Q 1 -15 -3 -21" stroke="#548a3e" stroke-width="3"
+                    fill="none" stroke-linecap="round"/>
+              <path d="M0 0 Q 7 -11 13 -15" stroke="#3f6b32" stroke-width="3"
+                    fill="none" stroke-linecap="round"/>
+            </g>`;
+    }
+    return s;
+  }
+  (function buildBrush () {
+    const layer = $('brush');
+    const a = document.createElementNS(NS, 'g'); a.innerHTML = brushRow();
+    const b = document.createElementNS(NS, 'g'); b.innerHTML = brushRow();
+    b.setAttribute('transform', 'translate(900,0)');
+    layer.appendChild(a); layer.appendChild(b);
+  })();
+
+  /* ================= 木叶标志 ================= */
+  const LEAF = `
+    <path d="M 1.6 -4.8 A 4.5 4.5 0 1 1 -3.7 2.7 A 3.0 3.0 0 1 0 2.3 3.3"
+          fill="none" stroke="#3b3b3b" stroke-width="1.35" stroke-linecap="round"/>
+    <path d="M -5.4 -5.8 L -5.4 5.8"
+          stroke="#3b3b3b" stroke-width="1.35" stroke-linecap="round"/>`;
+
+  /* ================= 忍者配色 ================= */
+  const NARUTO = {
+    suit:'#f0812f', suitDark:'#bc5a14',
+    hair:'#f6d84a', hairDark:'#d2aa1c',
+    skin:'#f8cfa3', style:'naruto'
+  };
+  const SASUKE = {
+    suit:'#3d4d68', suitDark:'#28334a',
+    hair:'#2c313d', hairDark:'#191d25',
+    skin:'#f8cfa3', style:'sasuke'
+  };
+  const SAKURA = {
+    suit:'#d9506b', suitDark:'#a83a51',
+    hair:'#f3a2be', hairDark:'#d47b9b',
+    skin:'#f9d7b5', style:'sakura'
+  };
+
+  /* ================= 头部 ================= */
+  function headMarkup (cfg) {
+    const { hair, hairDark, skin, style } = cfg;
+    let hairPath = '';
+
+    if (style === 'naruto') {
+      hairPath = `<path d="M -15 -4 L -12 -19 L -7 -11 L -2 -23 L 3 -12 L 9 -21
+                            L 13 -10 L 16 -15 L 16 1 L -15 1 Z"
+                        fill="${hair}" stroke="${hairDark}"
+                        stroke-width="1" stroke-linejoin="round"/>`;
+    } else if (style === 'sasuke') {
+      hairPath =
+        `<path d="M -16 -3 L -15 -17 L -6 -22 L 4 -20 L 14 -21 L 17 -7
+                 L 16 4 L 10 1 L 8 -6 L -8 -6 L -13 3 L -16 5 Z" fill="${hair}"/>
+         <path d="M -15 -6 L -33 -21 L -28 -3 L -31 9 L -16 6 Z" fill="${hairDark}"/>`;
+    } else {
+      hairPath =
+        `<path d="M -17 -5 L -18 -16 Q -8 -25 4 -23 Q 17 -21 18 -5
+                 L 18 9 L 12 11 L 12 0 L -12 0 L -12 11 L -18 9 Z"
+               fill="${hair}" stroke="${hairDark}" stroke-width="1"/>`;
+    }
+
+    return `
+      <circle r="15" fill="${skin}"/>
+      ${hairPath}
+      <!-- 护额 -->
+      <rect x="-15.5" y="-9" width="31" height="7.5" rx="2.5" fill="#27466e"/>
+      <rect x="-6.5" y="-9.6" width="13.5" height="8.6" rx="1.6"
+            fill="#cfd9e2" stroke="#8d9aa6" stroke-width="0.8"/>
+      <g transform="translate(0.3,0) scale(0.62)">${LEAF}</g>
+      <!-- 眼睛 -->
+      <ellipse cx="7.5" cy="2.6" rx="1.7" ry="2.3" fill="#1e2a35"/>`;
+  }
+
+  /* ================= 忍者造型 ================= */
+  function createNinja (cfg) {
+    const g = document.createElementNS(NS, 'g');
+    g.innerHTML = `
+      <g class="rig">
+        <!-- 远侧腿 / 远侧手臂（阴影色，压在身体后） -->
+        <path class="legFar" fill="none" stroke="${cfg.suitDark}" stroke-width="15"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path class="armFar" fill="none" stroke="${cfg.suitDark}" stroke-width="11"
+              stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- 躯干 -->
+        <path d="M 0 0 L 52 -38" fill="none" stroke="${cfg.suit}"
+              stroke-width="28" stroke-linecap="round"/>
+
+        <!-- 脖子 -->
+        <path d="M 44 -32 L 54 -44" fill="none" stroke="${cfg.skin}"
+              stroke-width="15" stroke-linecap="round"/>
+
+        <!-- 近侧腿 / 近侧手臂 -->
+        <path class="legNear" fill="none" stroke="${cfg.suit}" stroke-width="15"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path class="armNear" fill="none" stroke="${cfg.suit}" stroke-width="11"
+              stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- 头部 -->
+        <g class="head" transform="translate(60,-48) rotate(-22)">
+          ${headMarkup(cfg)}
+        </g>
+      </g>`;
+    return g;
+  }
+
+  /* ================= 摆姿 ================= */
+  const L1 = 30, L2 = 30;                   // 大腿 / 小腿长度
+  const SHOULDER = { x: 52, y: -38 };       // 肩关节（局部坐标）
+
+  function poseNinja (el, ph) {
+    /* --- 双腿 --- */
+    [['legFar', ph + Math.PI], ['legNear', ph]].forEach(function (item) {
+      const p  = item[1];
+      const a1 = 38 * Math.cos(p) * D;                     // 大腿角（正 = 向后）
+      const k  = (50 + 45 * Math.sin(p)) * D;              // 膝弯曲角
+      const a2 = a1 + k;
+
+      const kx = -L1 * Math.sin(a1);
+      const ky =  L1 * Math.cos(a1);
+      const fx = kx - L2 * Math.sin(a2);
+      const fy = ky + L2 * Math.cos(a2);
+
+      el.querySelector('.' + item[0]).setAttribute('d',
+        `M 0 0 L ${kx.toFixed(1)} ${ky.toFixed(1)} L ${fx.toFixed(1)} ${fy.toFixed(1)}`);
+    });
+
+    /* --- 双臂（火影跑：向后伸展，微微摆动） --- */
+    [['armFar', ph + Math.PI + 0.4], ['armNear', ph + 0.4]].forEach(function (item) {
+      const p  = item[1];
+      const aU = (196 + 7 * Math.sin(p)) * D;              // 上臂
+      const aL = (184 + 11 * Math.sin(p + 0.7)) * D;       // 前臂
+
+      const ex = SHOULDER.x + 30 * Math.cos(aU);
+      const ey = SHOULDER.y + 30 * Math.sin(aU);
+      const hx = ex + 27 * Math.cos(aL);
+      const hy = ey + 27 * Math.sin(aL);
+
+      el.querySelector('.' + item[0]).setAttribute('d',
+        `M ${SHOULDER.x} ${SHOULDER.y} L ${ex.toFixed(1)} ${ey.toFixed(1)} L ${hx.toFixed(1)} ${hy.toFixed(1)}`);
+    });
+  }
+
+  /* ================= 组装小队 ================= */
+  const ninjaLayer = $('ninjas');
+  const shadowLayer = $('shadows');
+
+  const SQUAD = [
+    { x: 205, s: 0.78, ph: 0.0, cfg: SAKURA, label: '小樱' },
+    { x: 400, s: 0.90, ph: 2.1, cfg: SASUKE, label: '佐助' },
+    { x: 606, s: 1.05, ph: 4.2, cfg: NARUTO, label: '鸣人' }
+  ];
+
+  const items = SQUAD.map(function (d) {
+    const el = createNinja(d.cfg);
+    ninjaLayer.appendChild(el);
+
+    // 地面投影
+    const sh = document.createElementNS(NS, 'ellipse');
+    sh.setAttribute('cx', d.x);
+    sh.setAttribute('cy', 402);
+    sh.setAttribute('rx', (46 * d.s).toFixed(1));
+    sh.setAttribute('ry', (8 * d.s).toFixed(1));
+    sh.setAttribute('fill', '#0b120a');
+    sh.setAttribute('opacity', '0.34');
+    shadowLayer.appendChild(sh);
+
+    return Object.assign({ el: el, shadow: sh }, d);
+  });
+
+  /* ================= 主循环 ================= */
+  const trees = $('trees');
+  const brush = $('brush');
+
+  let t0 = null;
+
+  function frame (now) {
+    if (t0 === null) t0 = now;
+    const t = (now - t0) / 1000;
+
+    /* --- 背景视差滚动 --- */
+    trees.setAttribute('transform', 'translate(' + (-((t * 52) % 900)).toFixed(1) + ',0)');
+    brush.setAttribute('transform', 'translate(' + (-((t * 195) % 900)).toFixed(1) + ',0)');
+
+    /* --- 忍者 --- */
+    const basePh = t * 11.0;
+
+    items.forEach(function (it) {
+      const ph   = basePh + it.ph;
+      const bob  = 2.6 * Math.sin(2 * ph);           // 步频两倍的上下起伏
+      const hipY = 400 - 60 * it.s;
+
+      poseNinja(it.el, ph);
+
+      it.el.setAttribute('transform',
+        'translate(' + it.x + ',' + (hipY + bob).toFixed(1) + ') scale(' + it.s + ')');
+
+      // 影子随起伏轻微缩放
+      it.shadow.setAttribute('rx', (46 * it.s + bob * 0.6).toFixed(1));
+      it.shadow.setAttribute('opacity', (0.36 - bob * 0.012).toFixed(3));
+    });
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
