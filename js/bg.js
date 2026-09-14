@@ -1,13 +1,14 @@
-// 动画背景：localStorage 存 'off' | 'pelican' | 'ninja'，默认关闭（原始纯色背景）
+// 动画背景：localStorage 存 'off' | 'pelican' | 'ninja'，默认忍者跑（未设置时）
 const BG_STORAGE_KEY = 'toolbox_bg';
 const BG_ORDER = ['off', 'pelican', 'ninja'];
 const BG_SCENES = { pelican: 'bg-pelican.html', ninja: 'bg-ninja.html' };
+const BG_DEFAULT = 'ninja';
 
 // getBgState - 读取并规范化背景状态（旧值 'on' 视为鹈鹕）
 function getBgState() {
   const v = localStorage.getItem(BG_STORAGE_KEY);
   if (v === 'on') return 'pelican';
-  return BG_ORDER.includes(v) ? v : 'off';
+  return BG_ORDER.includes(v) ? v : BG_DEFAULT;
 }
 
 // applyBg - 按状态显示/隐藏背景层，设置 iframe 源与按钮状态
