@@ -16,9 +16,12 @@ function applyBg() {
   const layer = document.getElementById('bgPelican');
   const state = getBgState();
   if (layer) {
-    layer.hidden = state === 'off';
-    if (state !== 'off') {
-      const ifr = layer.querySelector('iframe');
+    const ifr = layer.querySelector('iframe');
+    if (state === 'off') {
+      layer.hidden = true;
+      if (ifr && ifr.getAttribute('src') !== 'about:blank') ifr.setAttribute('src', 'about:blank');
+    } else {
+      layer.hidden = false;
       const src = BG_SCENES[state];
       if (ifr && ifr.getAttribute('src') !== src) ifr.setAttribute('src', src);
     }
@@ -43,5 +46,49 @@ document.getElementById('bgToggle').addEventListener('click', () => {
   localStorage.setItem(BG_STORAGE_KEY, next);
   applyBg();
 });
+
+// 纯背景模式：双击空白处全屏只显示动画背景
+let zenActive = false;
+let zenTempScene = null;
+
+// enterZen - 进入纯背景模式（背景为关闭时临时显示默认忍者跑，不写入设置）
+function enterZen() {
+  const layer = document.getElementById('bgPelican');
+  if (!layer || zenActive) return;
+  if (getBgState() === 'off') {
+    zenTempScene = 'ninja';
+    const ifr = layer.querySelector('iframe');
+    if (ifr && ifr.getAttribute('src') !== BG_SCENES[zenTempScene]) ifr.setAttribute('src', BG_SCENES[zenTempScene]);
+    layer.hidden = false;
+  }
+  zenActive = true;
+  document.body.classList.add('zen-mode');
+}
+
+// exitZen - 退出纯背景模式，恢复原设置
+function exitZen() {
+  if (!zenActive) return;
+  zenActive = false;
+  document.body.classList.remove('zen-mode');
+  if (zenTempScene) {
+    zenTempScene = null;
+    applyBg();
+  }
+}
+
+// 双击空白处（非交互元素/工具视图内）切换纯背景模式
+document.addEventListener('dblclick', (e) => {
+  if (e.target.closest('a, button, input, textarea, select, header, .tool-view, .nav-card, .nav-category, .nav-tools-bar, .recent-tools')) return;
+  if (zenActive) exitZen(); else enterZen();
+});
+
+// Esc 退出纯背景模式
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && zenActive) exitZen();
+});
+
+// 右上角退出按钮
+const zenExitBtn = document.getElementById('zenExit');
+if (zenExitBtn) zenExitBtn.addEventListener('click', exitZen);
 
 applyBg();
