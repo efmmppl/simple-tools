@@ -27,10 +27,17 @@
 </head>
 <body>
 
+<!-- 动画背景层：鹈鹕骑车动画页，可切换显示 -->
+<div id="bgPelican" hidden>
+  <iframe src="bg-pelican.html" aria-hidden="true" tabindex="-1" title=""></iframe>
+  <div class="bg-overlay"></div>
+</div>
+
 <!-- 页面顶部栏：标题 + 副标题 -->
 <header class="header">
   <h1 id="eggTitle"><i class="fas fa-tools" style="color:var(--header-text);margin-right:8px"></i> 工具箱</h1>
   <p>实用离线工具</p>
+  <button class="bg-toggle" id="bgToggle" title="切换动画背景"><i class="fas fa-bicycle"></i></button>
   <button class="admin-toggle" id="adminToggle" title="后台数据面板"><i class="fas fa-user-lock"></i></button>
   <button class="theme-toggle" id="themeToggle" title="切换主题"><i class="fas fa-moon"></i></button>
 </header>
@@ -1107,6 +1114,7 @@
 
 <!-- JavaScript 脚本加载（按依赖顺序，路由控制 nav.js 放首位） -->
 <script src="js/theme.js" charset="UTF-8"></script>
+<script src="js/bg.js" charset="UTF-8"></script>
 <script src="js/nav.js" charset="UTF-8"></script>
 <script src="js/cron.js" charset="UTF-8"></script>
 <script src="js/gold.js" charset="UTF-8"></script>

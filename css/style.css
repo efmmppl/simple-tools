@@ -104,6 +104,22 @@ body {
 }
 .theme-toggle:hover { background: rgba(255, 255, 255, 0.22); }
 @media (max-width: 600px) { .theme-toggle { right: 12px; width: 34px; height: 34px; } }
+/* 动画背景层：鹈鹕骑车动画页，固定全屏铺在内容下层 */
+#bgPelican { position: fixed; inset: 0; z-index: -1; }
+#bgPelican iframe { width: 100%; height: 100%; border: 0; display: block; pointer-events: none; }
+.bg-overlay { position: absolute; inset: 0; background: var(--bg); opacity: 0.55; }
+/* 动画背景切换按钮 */
+.bg-toggle {
+  position: absolute; top: 50%; right: 120px; transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.12); color: var(--header-text);
+  border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 50%;
+  width: 38px; height: 38px; cursor: pointer; font-size: 0.95rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; z-index: 5;
+}
+.bg-toggle:hover { background: rgba(255, 255, 255, 0.22); }
+.bg-toggle.active { background: rgba(var(--green-rgb), 0.45); border-color: var(--on-primary); }
+@media (max-width: 600px) { .bg-toggle { right: 98px; width: 34px; height: 34px; } }
 /* 头部标题 */
 .header h1 { font-size: 1.1rem; color: var(--header-text); position: relative; }
 /* 头部副标题 */
